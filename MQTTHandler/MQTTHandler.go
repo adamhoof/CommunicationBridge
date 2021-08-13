@@ -22,7 +22,6 @@ var messageHandler mqtt.MessageHandler = func(mqttClient mqtt.Client, msg mqtt.M
 
 	switch strings.Contains(msg.Topic(), "espOnBoot") {
 	case false:
-		db := PostgreSQLHandler.Connect()
 
 		applianceData := ApplianceDataCollector.Collect(msg)
 
@@ -30,8 +29,13 @@ var messageHandler mqtt.MessageHandler = func(mqttClient mqtt.Client, msg mqtt.M
 		userReply := TelegramBot.CreateUserReply(humanReadable)
 		go TelegramBot.Bot.Send(userReply)
 
-		PostgreSQLHandler.UpdateMode(db, applianceData)
-		PostgreSQLHandler.CloseConnection(db)
+		if applianceData[1] == "failed to set" || applianceData[1] == "already set"{
+			return}
+
+		go func() {
+			db := PostgreSQLHandler.Connect()
+			PostgreSQLHandler.UpdateMode(db, applianceData)
+			PostgreSQLHandler.CloseConnection(db)}()
 		return
 
 	case true:

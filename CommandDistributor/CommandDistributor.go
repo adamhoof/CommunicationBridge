@@ -7,9 +7,6 @@ import (
 
 const (
 	TableLampPub = "room/tableLamp/rpiSet"
-	TableLampWhitePub  = "room/tableLamp/white/rpiSet"
-	TableLampOrangePub = "room/tableLamp/orange/rpiSet"
-	TableLampOffPub = "room/tableLamp/off/rpiSet"
 )
 
 const (
