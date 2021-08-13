@@ -41,9 +41,9 @@ func CloseConnection(db *sql.DB) {
 	db.Close()
 }
 
-func UpdateMode(db *sql.DB, applianceData []string) {
+func UpdateMode(db *sql.DB, applianceData map[string]interface{}) {
 
-	_, err := db.Exec(updateSingleSQLStatement, applianceData[0], applianceData[1])
+	_, err := db.Exec(updateSingleSQLStatement, applianceData["Type"], applianceData["Mode"])
 	if err != nil {
 		panic(err)
 	}

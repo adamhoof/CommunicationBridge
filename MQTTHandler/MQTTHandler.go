@@ -23,18 +23,18 @@ var messageHandler mqtt.MessageHandler = func(mqttClient mqtt.Client, msg mqtt.M
 	switch strings.Contains(msg.Topic(), "espOnBoot") {
 	case false:
 
-		applianceData := ApplianceDataCollector.Collect(msg)
+		applianceDataMap := ApplianceDataCollector.Collect(msg)
 
-		humanReadable := TelegramBot.CreateHumanReadable(applianceData)
+		humanReadable := TelegramBot.CreateHumanReadable(applianceDataMap)
 		userReply := TelegramBot.CreateUserReply(humanReadable)
 		go TelegramBot.Bot.Send(userReply)
 
-		if applianceData[1] == "failed to set" || applianceData[1] == "already set"{
+		if applianceDataMap["Mode"] == "failed to set" || applianceDataMap["Mode"] == "already set"{
 			return}
 
 		go func() {
 			db := PostgreSQLHandler.Connect()
-			PostgreSQLHandler.UpdateMode(db, applianceData)
+			PostgreSQLHandler.UpdateMode(db, applianceDataMap)
 			PostgreSQLHandler.CloseConnection(db)}()
 		return
 

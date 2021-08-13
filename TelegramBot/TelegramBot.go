@@ -17,24 +17,20 @@ func Setup()  {
 	}
 }
 
-func CreateHumanReadable(intrfeic interface{}) string {
+func CreateHumanReadable(applianceDataMap map[string]interface{}) string {
 
-	if applianceData, ok := intrfeic.([]string) ; ok{
+	var humanReadable string
 
-		if applianceData != nil {
+		if applianceDataMap != nil {
 
-			var humanReadable string
-
-			for i := 0; i < len(applianceData); i++ {
-				humanReadable += applianceData[i] + "\n"
-
+			for key, value := range applianceDataMap {
+				humanReadable += key + ": " + value.(string) + "\n"
 			}
 			return humanReadable
 		}
-		return "Failed to set device"
+		return "map iterating yeeted"
 	}
-	return intrfeic.(string)
-}
+
 
 func CreateUserReply(humanReadable string) tgbotapi.MessageConfig {
 	return tgbotapi.NewMessage(masterChatID, humanReadable)
