@@ -30,7 +30,8 @@ var messageHandler mqtt.MessageHandler = func(mqttClient mqtt.Client, msg mqtt.M
 		go TelegramBot.Bot.Send(userReply)
 
 		if applianceDataMap["Mode"] == "failed to set" || applianceDataMap["Mode"] == "already set"{
-			return}
+			return
+		}
 
 		go func() {
 			db := PostgreSQLHandler.Connect()
