@@ -18,6 +18,16 @@ const (
 	tableLampSub       = "room/tableLamp/espReply"
 )
 
+const (
+	tableLampPub = "room/tableLamp/rpiSet"
+)
+
+const (
+	TableLampWhiteUpdate = `{"Mode": "white"}`
+	TableLampOrangeUpdate = `{"Mode": "orange"}`
+	TableLampOffUpdate = `{"Mode": "off"}`
+)
+
 var messageHandler mqtt.MessageHandler = func(mqttClient mqtt.Client, msg mqtt.Message) {
 
 	switch strings.Contains(msg.Topic(), "espOnBoot") {
@@ -50,13 +60,13 @@ var messageHandler mqtt.MessageHandler = func(mqttClient mqtt.Client, msg mqtt.M
 
 			switch query {
 			case "white":
-				update = `{"Mode": "white"}`
+				update = TableLampWhiteUpdate
 			case "orange":
-				update = `{"Mode": "orange"}`
+				update = TableLampOrangeUpdate
 			case "off":
-				update = `{"Mode": "off"}`
+				update = TableLampOffUpdate
 			}
-			PublishUpdate(mqttClient, "room/tableLamp/rpiSet", update)
+			PublishUpdate(mqttClient, tableLampPub, update)
 		}
 	}
 }

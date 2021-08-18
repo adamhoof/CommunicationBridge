@@ -40,7 +40,7 @@ func main() {
 			continue
 		}
 
-		message := update.Message.Text
+  		message := update.Message.Text
 
 		CommandDistributor.DistributeCommands(mqttClient, message)
 	}
