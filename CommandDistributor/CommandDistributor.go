@@ -10,9 +10,10 @@ const (
 )
 
 const (
-	TableLampWhiteUpdate = `{"Mode": "white"}`
-	TableLampOrangeUpdate = `{"Mode": "orange"}`
-	TableLampOffUpdate = `{"Mode": "off"}`
+	TableLampWhiteUpdate  = `{"Mode": "white"}`
+	TableLampYellowUpdate = `{"Mode": "yellow"}`
+	TableLampRedUpdate    = `{"Mode": "red"}`
+	TableLampOffUpdate    = `{"Mode": "off"}`
 )
 
 func DistributeCommands(mqttClient mqtt.Client, message string) {
@@ -24,9 +25,12 @@ func DistributeCommands(mqttClient mqtt.Client, message string) {
 	case "/tablewhite":
 		topic = TableLampPub
 		update = TableLampWhiteUpdate
-	case "/tableorange":
+	case "/tableyellow":
 		topic = TableLampPub
-		update = TableLampOrangeUpdate
+		update = TableLampYellowUpdate
+	case "/tablered":
+		topic = TableLampPub
+		update = TableLampRedUpdate
 	case "/tableoff":
 		topic = TableLampPub
 		update = TableLampOffUpdate

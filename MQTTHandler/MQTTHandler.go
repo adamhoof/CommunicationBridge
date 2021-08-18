@@ -23,8 +23,9 @@ const (
 )
 
 const (
-	TableLampWhiteUpdate = `{"Mode": "white"}`
-	TableLampOrangeUpdate = `{"Mode": "orange"}`
+	TableLampWhiteUpdate  = `{"Mode": "white"}`
+	TableLampYellowUpdate = `{"Mode": "yellow"}`
+	TableLampRedUpdate    = `{"Mode": "red"}`
 	TableLampOffUpdate = `{"Mode": "off"}`
 )
 
@@ -61,8 +62,10 @@ var messageHandler mqtt.MessageHandler = func(mqttClient mqtt.Client, msg mqtt.M
 			switch query {
 			case "white":
 				update = TableLampWhiteUpdate
-			case "orange":
-				update = TableLampOrangeUpdate
+			case "yellow":
+				update = TableLampYellowUpdate
+			case "red":
+				update = TableLampRedUpdate
 			case "off":
 				update = TableLampOffUpdate
 			}
