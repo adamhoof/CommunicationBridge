@@ -1,4 +1,4 @@
-package TimeEventHandler
+package main
 
 import "time"
 

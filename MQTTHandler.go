@@ -1,9 +1,6 @@
-package MQTTHandler
+package main
 
 import (
-	"RPICommandHandler/ApplianceDataCollector"
-	"RPICommandHandler/PostgreSQLHandler"
-	"RPICommandHandler/TelegramBot"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -22,40 +19,33 @@ const (
 	tableLampPub = "room/tableLamp/rpiSet"
 )
 
-const (
-	TableLampWhiteUpdate  = `{"Mode": "white"}`
-	TableLampYellowUpdate = `{"Mode": "yellow"}`
-	TableLampRedUpdate    = `{"Mode": "red"}`
-	TableLampOffUpdate = `{"Mode": "off"}`
-)
-
 var messageHandler mqtt.MessageHandler = func(mqttClient mqtt.Client, msg mqtt.Message) {
 
 	switch strings.Contains(msg.Topic(), "espOnBoot") {
 	case false:
 
-		applianceDataMap := ApplianceDataCollector.Collect(msg)
+		applianceDataMap := Collect(msg)
 
-		humanReadable := TelegramBot.CreateHumanReadable(applianceDataMap)
-		userReply := TelegramBot.CreateUserReply(humanReadable)
-		go TelegramBot.Bot.Send(userReply)
+		humanReadable := CreateHumanReadable(applianceDataMap)
+		userReply := CreateUserReply(humanReadable)
+		go Bot.Send(userReply)
 
 		if applianceDataMap["Mode"] == "failed to set" || applianceDataMap["Mode"] == "already set"{
 			return
 		}
 
 		go func() {
-			db := PostgreSQLHandler.Connect()
-			PostgreSQLHandler.UpdateMode(db, applianceDataMap)
-			PostgreSQLHandler.CloseConnection(db)}()
+			db := ConnectDB()
+			UpdateMode(db, applianceDataMap)
+			CloseConnection(db)}()
 		return
 
 	case true:
 		if strings.Contains(msg.Topic(), "tableLamp") {
-			db:= PostgreSQLHandler.Connect()
+			db:= ConnectDB()
 
-			query := PostgreSQLHandler.QueryModeProp(db, "TableLamp")
-			go PostgreSQLHandler.CloseConnection(db)
+			query := QueryModeProp(db, "TableLamp")
+			go CloseConnection(db)
 
 			var update string
 
@@ -121,7 +111,7 @@ func ConnectClient(mqttClient mqtt.Client) {
 	fmt.Println("Client started")
 }
 
-func SetSubscriptions(mqttClient mqtt.Client) {
+func SetMQTTSubscriptions(mqttClient mqtt.Client) {
 
 	if token := mqttClient.Subscribe(tableLampOnBootSub, 0, nil); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to create subscription: %v", token.Error())

@@ -1,4 +1,4 @@
-package PostgreSQLHandler
+package main
 
 import (
 	"database/sql"
@@ -18,7 +18,7 @@ const (
 	updateSingleSQLStatement = `UPDATE HomeAppliances SET mode = $2 WHERE name = $1;`
 )
 
-func Connect() *sql.DB {
+func ConnectDB() *sql.DB {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s",
 		host, port, user, password, dbname)
@@ -30,7 +30,7 @@ func Connect() *sql.DB {
 	return db
 }
 
-func TestConnection(db *sql.DB) {
+func TestDBConnection(db *sql.DB) {
 	result := db.Ping()
 	if result != nil {
 		panic(result)

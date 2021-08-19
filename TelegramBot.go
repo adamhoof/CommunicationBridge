@@ -1,4 +1,4 @@
-package TelegramBot
+package main
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -8,7 +8,7 @@ import (
 const masterChatID int64 = 558297691
 var Bot, botError = tgbotapi.NewBotAPI("1763947554:AAHUWq4nR30Hj7WybEbR3ztSwm2CO2C-X4k")
 
-func Setup()  {
+func SetupBot()  {
 
 	Bot.Debug = false
 

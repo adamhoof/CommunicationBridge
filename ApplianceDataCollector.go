@@ -1,4 +1,4 @@
-package ApplianceDataCollector
+package main
 
 import (
 	"encoding/json"

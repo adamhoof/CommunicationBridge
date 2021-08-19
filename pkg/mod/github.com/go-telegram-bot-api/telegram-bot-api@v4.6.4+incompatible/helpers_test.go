@@ -1,7 +1,7 @@
 package tgbotapi_test
 
 import (
-	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"RPICommandHandler/pkg/mod/github.com/go-telegram-bot-api/telegram-bot-api@v4.6.4+incompatible"
 	"testing"
 )
 

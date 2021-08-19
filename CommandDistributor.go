@@ -1,7 +1,6 @@
-package CommandDistributor
+package main
 
 import (
-	"RPICommandHandler/MQTTHandler"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
@@ -38,5 +37,5 @@ func DistributeCommands(mqttClient mqtt.Client, message string) {
 		return
 	}
 
-	MQTTHandler.PublishUpdate(mqttClient, topic, update)
+	PublishUpdate(mqttClient, topic, update)
 }
