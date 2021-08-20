@@ -35,3 +35,9 @@ func CreateHumanReadable(applianceDataMap map[string]interface{}) string {
 func CreateUserReply(humanReadable string) tgbotapi.MessageConfig {
 	return tgbotapi.NewMessage(masterChatID, humanReadable)
 }
+
+func CreateUpdateConfig() tgbotapi.UpdateConfig{
+	botUpdte := tgbotapi.NewUpdate(0)
+	botUpdte.Timeout = 60
+	return botUpdte
+}

@@ -2,7 +2,6 @@ package main
 
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	_ "github.com/lib/pq"
 )
 
@@ -23,10 +22,9 @@ func main() {
 
 	SetMQTTSubscriptions(mqttClient)
 
-	telegramBotUpdate := tgbotapi.NewUpdate(0)
-	telegramBotUpdate.Timeout = 60
+	botUpdateConfig := CreateUpdateConfig()
 
-	updates, err := Bot.GetUpdatesChan(telegramBotUpdate)
+	updates, err := Bot.GetUpdatesChan(botUpdateConfig)
 	if err != nil {
 		panic(err)
 	}
