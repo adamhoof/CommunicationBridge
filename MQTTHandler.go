@@ -25,7 +25,10 @@ var tableLampMessageHandler mqtt.MessageHandler = func(client mqtt.Client, messa
 	go func() {
 		humanReadable := CreateHumanReadable(applianceDataMap)
 		userReply := CreateUserReply(humanReadable)
-		Bot.Send(userReply)
+		_, err := Bot.Send(userReply)
+		if err != nil {
+			panic(err)
+		}
 	}()
 
 
