@@ -7,7 +7,6 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"io/ioutil"
 	"log"
-	"strings"
 )
 
 const (
@@ -19,49 +18,47 @@ const (
 	tableLampPub = "room/tableLamp/rpiSet"
 )
 
-var messageHandler mqtt.MessageHandler = func(mqttClient mqtt.Client, msg mqtt.Message) {
+var tableLampMessageHandler mqtt.MessageHandler = func(client mqtt.Client, message mqtt.Message) {
 
-	switch strings.Contains(msg.Topic(), "espOnBoot") {
-	case false:
+	applianceDataMap := Collect(message)
 
-		applianceDataMap := Collect(msg)
-
+	go func() {
 		humanReadable := CreateHumanReadable(applianceDataMap)
 		userReply := CreateUserReply(humanReadable)
-		go Bot.Send(userReply)
+		Bot.Send(userReply)
+	}()
 
-		if applianceDataMap["Mode"] == "failed to set" || applianceDataMap["Mode"] == "already set"{
-			return
-		}
 
-		go func() {
-			db := ConnectDB()
-			UpdateMode(db, applianceDataMap)
-			CloseConnection(db)}()
+	if applianceDataMap["Mode"] == "failed to set" || applianceDataMap["Mode"] == "already set"{
 		return
-
-	case true:
-		if strings.Contains(msg.Topic(), "tableLamp") {
-			db:= ConnectDB()
-
-			query := QueryModeProp(db, "TableLamp")
-			go CloseConnection(db)
-
-			var update string
-
-			switch query {
-			case "white":
-				update = TableLampWhiteUpdate
-			case "yellow":
-				update = TableLampYellowUpdate
-			case "red":
-				update = TableLampRedUpdate
-			case "off":
-				update = TableLampOffUpdate
-			}
-			PublishUpdate(mqttClient, tableLampPub, update)
-		}
 	}
+
+	go func() {
+		db := ConnectDB()
+		UpdateMode(db, applianceDataMap)
+		CloseConnection(db)
+	}()
+}
+
+var tableLampOnBootHandler mqtt.MessageHandler = func(client mqtt.Client, message mqtt.Message) {
+	db:= ConnectDB()
+
+	query := QueryModeProp(db, "TableLamp")
+	go CloseConnection(db)
+
+	var update string
+
+	switch query {
+	case "white":
+		update = TableLampWhiteUpdate
+	case "yellow":
+		update = TableLampYellowUpdate
+	case "red":
+		update = TableLampRedUpdate
+	case "off":
+		update = TableLampOffUpdate
+	}
+	PublishUpdate(client, tableLampPub, update)
 }
 
 func NewTLSConfig() (config *tls.Config) {
@@ -96,10 +93,10 @@ func SetupClientOptions(config *tls.Config) (clientOptions *mqtt.ClientOptions) 
 	clientOptions = mqtt.NewClientOptions()
 	clientOptions.AddBroker("tls://a2z5u1bu7d1g4v-ats.iot.eu-west-2.amazonaws.com:8883")
 	clientOptions.SetClientID("RPICommandHandler").SetTLSConfig(config)
-	clientOptions.SetDefaultPublishHandler(messageHandler)
 	clientOptions.SetAutoReconnect(true)
 	clientOptions.SetConnectRetry(true)
 	clientOptions.SetCleanSession(false)
+	clientOptions.SetOrderMatters(false)
 
 	return clientOptions
 }
@@ -112,11 +109,10 @@ func ConnectClient(mqttClient mqtt.Client) {
 }
 
 func SetMQTTSubscriptions(mqttClient mqtt.Client) {
-
-	if token := mqttClient.Subscribe(tableLampOnBootSub, 0, nil); token.Wait() && token.Error() != nil {
+	if token := mqttClient.Subscribe(tableLampOnBootSub, 1, tableLampOnBootHandler); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to create subscription: %v", token.Error())
 	}
-	if token := mqttClient.Subscribe(tableLampSub, 0, nil); token.Wait() && token.Error() != nil {
+	if token := mqttClient.Subscribe(tableLampSub, 1, tableLampMessageHandler); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to create subscription: %v", token.Error())
 	}
 }
