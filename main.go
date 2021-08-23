@@ -18,9 +18,9 @@ func main() {
 	clientOptions := SetupClientOptions(tlsConfig)
 	mqttClient := mqtt.NewClient(clientOptions)
 
-	ConnectClient(mqttClient)
+	ConnectClient(&mqttClient)
 
-	SetMQTTSubscriptions(mqttClient)
+	SetMQTTSubscriptions(&mqttClient)
 
 	botUpdateConfig := CreateUpdateConfig()
 
@@ -36,6 +36,6 @@ func main() {
 
   		message := update.Message.Text
 
-		DistributeCommands(mqttClient, message)
+		DistributeCommands(&mqttClient, message)
 	}
 }

@@ -44,8 +44,9 @@ var tableLampMessageHandler mqtt.MessageHandler = func(client mqtt.Client, messa
 }
 
 var tableLampOnBootHandler mqtt.MessageHandler = func(client mqtt.Client, message mqtt.Message) {
-	db:= ConnectDB()
+	/*db:= ConnectDB()
 
+	message.Payload()
 	query := QueryModeProp(db, "TableLamp")
 	go CloseConnection(db)
 
@@ -61,7 +62,9 @@ var tableLampOnBootHandler mqtt.MessageHandler = func(client mqtt.Client, messag
 	case "off":
 		update = TableLampOffUpdate
 	}
-	PublishUpdate(client, tableLampPub, update)
+	PublishUpdate(client, tableLampPub, update)*/
+	fmt.Println(message.Topic())
+	fmt.Println(message.Payload())
 }
 
 func NewTLSConfig() (config *tls.Config) {
@@ -98,31 +101,32 @@ func SetupClientOptions(config *tls.Config) (clientOptions *mqtt.ClientOptions) 
 	clientOptions.SetClientID("RPICommandHandler").SetTLSConfig(config)
 	clientOptions.SetAutoReconnect(true)
 	clientOptions.SetConnectRetry(true)
-	clientOptions.SetCleanSession(false)
+	clientOptions.SetCleanSession(true)
 	clientOptions.SetOrderMatters(false)
 
 	return clientOptions
 }
 
-func ConnectClient(mqttClient mqtt.Client) {
-	if token := mqttClient.Connect(); token.Wait() && token.Error() != nil {
+func ConnectClient(mqttClient* mqtt.Client) {
+	if token := (*mqttClient).Connect(); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to create connection: %v", token.Error())
 	}
 	fmt.Println("Client started")
 }
 
-func SetMQTTSubscriptions(mqttClient mqtt.Client) {
-	if token := mqttClient.Subscribe(tableLampOnBootSub, 1, tableLampOnBootHandler); token.Wait() && token.Error() != nil {
+func SetMQTTSubscriptions(mqttClient* mqtt.Client) {
+
+	if token := (*mqttClient).Subscribe(tableLampSub, 0, tableLampMessageHandler); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to create subscription: %v", token.Error())
 	}
-	if token := mqttClient.Subscribe(tableLampSub, 1, tableLampMessageHandler); token.Wait() && token.Error() != nil {
+	if token := (*mqttClient).Subscribe("fuck/shit", 0, tableLampOnBootHandler); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to create subscription: %v", token.Error())
 	}
 }
 
-func PublishUpdate(mqttClient mqtt.Client, topic string, interfacou interface{}) {
+func PublishUpdate(mqttClient* mqtt.Client, topic string, interfacou interface{}) {
 
-	if token := mqttClient.Publish(topic, 1, false, interfacou); token.Wait() && token.Error() != nil {
+	if token := (*mqttClient).Publish(topic, 0, false, interfacou); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to send upd: %v", token.Error())
 	}
 }

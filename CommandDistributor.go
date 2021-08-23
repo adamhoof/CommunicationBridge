@@ -15,7 +15,7 @@ const (
 	TableLampOffUpdate    = `{"Mode": "off"}`
 )
 
-func DistributeCommands(mqttClient mqtt.Client, message string) {
+func DistributeCommands(mqttClient* mqtt.Client, message string) {
 
 	var topic string
 	var update interface{}
