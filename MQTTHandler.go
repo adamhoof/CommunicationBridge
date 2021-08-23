@@ -93,9 +93,10 @@ var tableLampMessageHandler mqtt.MessageHandler = func(client mqtt.Client, messa
 	}
 
 	go func() {
-		db := ConnectDB()
-		UpdateMode(db, applianceDataMap)
-		CloseConnection(db)
+		postgreSQLHandler := PostgreSQLHandler{}
+		postgreSQLHandler.Connect()
+		postgreSQLHandler.UpdateMode(applianceDataMap)
+		postgreSQLHandler.CloseConnection()
 	}()
 }
 

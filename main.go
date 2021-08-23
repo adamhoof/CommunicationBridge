@@ -16,9 +16,10 @@ func main() {
 	mqttHandler.ConnectClient()
 	mqttHandler.SetSubscriptions()
 
-	db := ConnectDB()
-	TestDBConnection(db)
-	db.Close()
+	postgreSQLHandler := PostgreSQLHandler{}
+	postgreSQLHandler.Connect()
+	postgreSQLHandler.TestConnection()
+	postgreSQLHandler.CloseConnection()
 
 	updates, err := Bot.GetUpdatesChan(botUpdateConfig)
 	if err != nil {

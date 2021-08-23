@@ -18,32 +18,38 @@ const (
 	updateSingleSQLStatement = `UPDATE HomeAppliances SET mode = $2 WHERE name = $1;`
 )
 
-func ConnectDB() *sql.DB {
+type PostgreSQLHandler struct {
+	db* sql.DB
+}
+
+func (postgreHandler* PostgreSQLHandler) Connect() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s",
 		host, port, user, password, dbname)
-	db, err := sql.Open("postgres", psqlInfo)
+
+	var err error
+	postgreHandler.db, err = sql.Open("postgres", psqlInfo)
 	if err != nil {
 		panic(err)
 	}
-
-	return db
 }
 
-func TestDBConnection(db *sql.DB) {
-	result := db.Ping()
+func (postgreHandler* PostgreSQLHandler) TestConnection(){
+	result := postgreHandler.db.Ping()
 	if result != nil {
 		panic(result)
 	}
 }
 
-func CloseConnection(db *sql.DB) {
-	db.Close()
+func (postgreHandler* PostgreSQLHandler) CloseConnection(){
+	err := postgreHandler.db.Close()
+	if err != nil {
+		panic(err)
+	}
 }
 
-func UpdateMode(db *sql.DB, applianceData map[string]interface{}) {
-
-	_, err := db.Exec(updateSingleSQLStatement, applianceData["Type"], applianceData["Mode"])
+func (postgreHandler* PostgreSQLHandler) UpdateMode(applianceData map[string]interface{}) {
+	_, err := postgreHandler.db.Exec(updateSingleSQLStatement, applianceData["Type"], applianceData["Mode"])
 	if err != nil {
 		panic(err)
 	}
