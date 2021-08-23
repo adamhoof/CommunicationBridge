@@ -7,6 +7,7 @@ import (
 func main() {
 
 	SetupBot()
+	botUpdateConfig := CreateUpdateConfig()
 
 	mqttHandler := MQTTHandler {}
 	mqttHandler.SetupTLSConfig()
@@ -16,10 +17,8 @@ func main() {
 	mqttHandler.SetSubscriptions()
 
 	db := ConnectDB()
-
 	TestDBConnection(db)
-
-	botUpdateConfig := CreateUpdateConfig()
+	db.Close()
 
 	updates, err := Bot.GetUpdatesChan(botUpdateConfig)
 	if err != nil {
