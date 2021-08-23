@@ -1,7 +1,6 @@
 package main
 
 import (
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 	_ "github.com/lib/pq"
 )
 
@@ -9,18 +8,16 @@ func main() {
 
 	SetupBot()
 
+	mqttHandler := MQTTHandler {}
+	mqttHandler.SetupTLSConfig()
+	mqttHandler.SetupClientOptions()
+	mqttHandler.CreateClient()
+	mqttHandler.ConnectClient()
+	mqttHandler.SetSubscriptions()
+
 	db := ConnectDB()
 
 	TestDBConnection(db)
-
-	tlsConfig := NewTLSConfig()
-
-	clientOptions := SetupClientOptions(tlsConfig)
-	mqttClient := mqtt.NewClient(clientOptions)
-
-	ConnectClient(&mqttClient)
-
-	SetMQTTSubscriptions(&mqttClient)
 
 	botUpdateConfig := CreateUpdateConfig()
 
@@ -36,6 +33,6 @@ func main() {
 
   		message := update.Message.Text
 
-		DistributeCommands(&mqttClient, message)
+		DistributeCommands(&mqttHandler.client, message)
 	}
 }

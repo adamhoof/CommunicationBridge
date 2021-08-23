@@ -10,13 +10,69 @@ import (
 )
 
 const (
-	tableLampOnBootSub = "room/tableLamp/espOnBoot"
 	tableLampSub       = "room/tableLamp/espReply"
 )
 
-const (
-	tableLampPub = "room/tableLamp/rpiSet"
-)
+type MQTTHandler struct {
+	tlsConf* tls.Config
+	clientOptions mqtt.ClientOptions
+	client mqtt.Client
+}
+
+func (mqttHandler* MQTTHandler) SetupTLSConfig(){
+	certPool := x509.NewCertPool()
+	pemCert, certReadingErr := ioutil.ReadFile("Certs/AmazonRootCA1.pem")
+	if certReadingErr != nil {
+		panic(certReadingErr)
+	}
+	certPool.AppendCertsFromPEM(pemCert)
+
+	certificateKeyPair, certReadingErr := tls.LoadX509KeyPair("Certs/a29e26a3d1-certificate.pem.crt", "Certs/a29e26a3d1-private.pem.key")
+	if certReadingErr != nil {
+		panic(certReadingErr)
+	}
+
+	mqttHandler.tlsConf = &tls.Config{
+
+		RootCAs: certPool,
+
+		ClientAuth: tls.NoClientCert,
+
+		ClientCAs: nil,
+
+		Certificates: []tls.Certificate{certificateKeyPair},
+	}
+}
+
+func (mqttHandler* MQTTHandler) SetupClientOptions() {
+
+	mqttHandler.clientOptions.AddBroker("tls://a2z5u1bu7d1g4v-ats.iot.eu-west-2.amazonaws.com:8883")
+	mqttHandler.clientOptions.SetClientID("RPICommandHandler").SetTLSConfig(mqttHandler.tlsConf)
+	mqttHandler.clientOptions.SetAutoReconnect(true)
+	mqttHandler.clientOptions.SetConnectRetry(true)
+	mqttHandler.clientOptions.SetCleanSession(true)
+	mqttHandler.clientOptions.SetOrderMatters(false)
+}
+
+func (mqttHandler *MQTTHandler) CreateClient() {
+	mqttHandler.client = mqtt.NewClient(&mqttHandler.clientOptions)
+}
+
+func (mqttHandler* MQTTHandler) SetSubscriptions() {
+	if token := (mqttHandler.client).Subscribe(tableLampSub, 0, tableLampMessageHandler); token.Wait() && token.Error() != nil {
+		log.Fatalf("failed to create subscription: %v", token.Error())
+	}
+	if token := (mqttHandler.client).Subscribe("fuck/shit", 0, tableLampOnBootHandler); token.Wait() && token.Error() != nil {
+		log.Fatalf("failed to create subscription: %v", token.Error())
+	}
+}
+
+func (mqttHandler* MQTTHandler) ConnectClient() {
+	if token := (mqttHandler.client).Connect(); token.Wait() && token.Error() != nil {
+		log.Fatalf("failed to create connection: %v", token.Error())
+	}
+	fmt.Println("Client started")
+}
 
 var tableLampMessageHandler mqtt.MessageHandler = func(client mqtt.Client, message mqtt.Message) {
 
@@ -65,63 +121,6 @@ var tableLampOnBootHandler mqtt.MessageHandler = func(client mqtt.Client, messag
 	PublishUpdate(client, tableLampPub, update)*/
 	fmt.Println(message.Topic())
 	fmt.Println(message.Payload())
-}
-
-func NewTLSConfig() (config *tls.Config) {
-
-	certPool := x509.NewCertPool()
-	pemCert, certReadingErr := ioutil.ReadFile("Certs/AmazonRootCA1.pem")
-	if certReadingErr != nil {
-		panic(certReadingErr)
-	}
-	certPool.AppendCertsFromPEM(pemCert)
-
-	certificateKeyPair, certReadingErr := tls.LoadX509KeyPair("Certs/a29e26a3d1-certificate.pem.crt", "Certs/a29e26a3d1-private.pem.key")
-	if certReadingErr != nil {
-		panic(certReadingErr)
-	}
-
-	config = &tls.Config{
-
-		RootCAs: certPool,
-
-		ClientAuth: tls.NoClientCert,
-
-		ClientCAs: nil,
-
-		Certificates: []tls.Certificate{certificateKeyPair},
-	}
-	return
-}
-
-func SetupClientOptions(config *tls.Config) (clientOptions *mqtt.ClientOptions) {
-
-	clientOptions = mqtt.NewClientOptions()
-	clientOptions.AddBroker("tls://a2z5u1bu7d1g4v-ats.iot.eu-west-2.amazonaws.com:8883")
-	clientOptions.SetClientID("RPICommandHandler").SetTLSConfig(config)
-	clientOptions.SetAutoReconnect(true)
-	clientOptions.SetConnectRetry(true)
-	clientOptions.SetCleanSession(true)
-	clientOptions.SetOrderMatters(false)
-
-	return clientOptions
-}
-
-func ConnectClient(mqttClient* mqtt.Client) {
-	if token := (*mqttClient).Connect(); token.Wait() && token.Error() != nil {
-		log.Fatalf("failed to create connection: %v", token.Error())
-	}
-	fmt.Println("Client started")
-}
-
-func SetMQTTSubscriptions(mqttClient* mqtt.Client) {
-
-	if token := (*mqttClient).Subscribe(tableLampSub, 0, tableLampMessageHandler); token.Wait() && token.Error() != nil {
-		log.Fatalf("failed to create subscription: %v", token.Error())
-	}
-	if token := (*mqttClient).Subscribe("fuck/shit", 0, tableLampOnBootHandler); token.Wait() && token.Error() != nil {
-		log.Fatalf("failed to create subscription: %v", token.Error())
-	}
 }
 
 func PublishUpdate(mqttClient* mqtt.Client, topic string, interfacou interface{}) {
