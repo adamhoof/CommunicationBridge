@@ -1,26 +1,48 @@
 package main
 
 import (
+	"fmt"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	_ "github.com/lib/pq"
 )
 
 func main() {
 
-	SetupBot()
-	botUpdateConfig := CreateUpdateConfig()
-
+	var botUpdateConfig tgbotapi.UpdateConfig
 	mqttHandler := MQTTHandler {}
-	mqttHandler.SetupTLSConfig()
-	mqttHandler.SetupClientOptions()
-	mqttHandler.CreateClient()
-	mqttHandler.ConnectClient()
-	mqttHandler.SetSubscriptions()
-
 	postgreSQLHandler := PostgreSQLHandler{}
-	postgreSQLHandler.Connect()
-	postgreSQLHandler.TestConnection()
-	postgreSQLHandler.CloseConnection()
+	done := make(chan bool)
 
+	go func(chan bool) {
+		SetupBot()
+		botUpdateConfig = CreateUpdateConfig()
+		fmt.Println("running bot")
+		done <- true
+	}(done)
+
+	go func(chan bool) {
+		mqttHandler.SetupTLSConfig()
+		mqttHandler.SetupClientOptions()
+		mqttHandler.CreateClient()
+		mqttHandler.ConnectClient()
+		mqttHandler.SetSubscriptions()
+		fmt.Println("running mqtt")
+		done <- true
+	}(done)
+
+	go func(chan bool) {
+		postgreSQLHandler.Connect()
+		postgreSQLHandler.TestConnection()
+		postgreSQLHandler.CloseConnection()
+		fmt.Println("running post")
+		done <- true
+	}(done)
+
+	_ = <- done
+	_ = <- done
+	_ = <- done
+
+	close(done)
 	updates, err := Bot.GetUpdatesChan(botUpdateConfig)
 	if err != nil {
 		panic(err)
