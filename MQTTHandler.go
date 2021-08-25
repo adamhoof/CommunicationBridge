@@ -62,9 +62,6 @@ func (mqttHandler* MQTTHandler) SetSubscriptions() {
 	if token := (mqttHandler.client).Subscribe(tableLampSub, 0, tableLampMessageHandler); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to create subscription: %v", token.Error())
 	}
-	if token := (mqttHandler.client).Subscribe("fuck/shit", 0, tableLampOnBootHandler); token.Wait() && token.Error() != nil {
-		log.Fatalf("failed to create subscription: %v", token.Error())
-	}
 }
 
 func (mqttHandler* MQTTHandler) ConnectClient() {

@@ -11,6 +11,7 @@ func main() {
 	var botUpdateConfig tgbotapi.UpdateConfig
 	mqttHandler := MQTTHandler {}
 	postgreSQLHandler := PostgreSQLHandler{}
+
 	done := make(chan bool)
 
 	go func(chan bool) {
@@ -41,8 +42,8 @@ func main() {
 	_ = <- done
 	_ = <- done
 	_ = <- done
-
 	close(done)
+
 	updates, err := Bot.GetUpdatesChan(botUpdateConfig)
 	if err != nil {
 		panic(err)
