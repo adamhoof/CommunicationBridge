@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	_ "github.com/lib/pq"
 )
@@ -17,7 +16,6 @@ func main() {
 	go func(chan bool) {
 		SetupBot()
 		botUpdateConfig = CreateUpdateConfig()
-		fmt.Println("running bot")
 		done <- true
 	}(done)
 
@@ -27,7 +25,6 @@ func main() {
 		mqttHandler.CreateClient()
 		mqttHandler.ConnectClient()
 		mqttHandler.SetSubscriptions()
-		fmt.Println("running mqtt")
 		done <- true
 	}(done)
 
@@ -35,7 +32,6 @@ func main() {
 		postgreSQLHandler.Connect()
 		postgreSQLHandler.TestConnection()
 		postgreSQLHandler.CloseConnection()
-		fmt.Println("running post")
 		done <- true
 	}(done)
 
