@@ -3,6 +3,7 @@ package main
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	_ "github.com/lib/pq"
+	"sync"
 )
 
 func main() {
@@ -11,34 +12,34 @@ func main() {
 	mqttHandler := MQTTHandler {}
 	postgreSQLHandler := PostgreSQLHandler{}
 
-	done := make(chan bool)
+	var routineSyncer sync.WaitGroup
 
-	go func(chan bool) {
+	routineSyncer.Add(1)
+	go func(wg *sync.WaitGroup) {
+		defer routineSyncer.Done()
 		SetupBot()
 		botUpdateConfig = CreateUpdateConfig()
-		done <- true
-	}(done)
+	}(&routineSyncer)
 
-	go func(chan bool) {
+	routineSyncer.Add(1)
+	go func(wg *sync.WaitGroup) {
+		defer routineSyncer.Done()
 		mqttHandler.SetupTLSConfig()
 		mqttHandler.SetupClientOptions()
 		mqttHandler.CreateClient()
 		mqttHandler.ConnectClient()
 		mqttHandler.SetSubscriptions()
-		done <- true
-	}(done)
+	}(&routineSyncer)
 
-	go func(chan bool) {
+	routineSyncer.Add(1)
+	go func(wg *sync.WaitGroup) {
+		defer routineSyncer.Done()
 		postgreSQLHandler.Connect()
 		postgreSQLHandler.TestConnection()
 		postgreSQLHandler.CloseConnection()
-		done <- true
-	}(done)
+	}(&routineSyncer)
 
-	<- done
-	<- done
-	<- done
-	close(done)
+	routineSyncer.Wait()
 
 	updates, err := Bot.GetUpdatesChan(botUpdateConfig)
 	if err != nil {
