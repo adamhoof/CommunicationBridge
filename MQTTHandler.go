@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	tableLampSub       = "room/tableLamp/espReply"
+	tableLampSub = "room/tableLamp/espReply"
 )
 
 type MQTTHandler struct {
@@ -51,7 +51,7 @@ func (mqttHandler* MQTTHandler) SetupClientOptions() {
 	mqttHandler.clientOptions.SetClientID("RPICommandHandler").SetTLSConfig(mqttHandler.tlsConf)
 	mqttHandler.clientOptions.SetAutoReconnect(true)
 	mqttHandler.clientOptions.SetConnectRetry(true)
-	mqttHandler.clientOptions.SetCleanSession(true)
+	mqttHandler.clientOptions.SetCleanSession(false)
 	mqttHandler.clientOptions.SetOrderMatters(false)
 }
 
