@@ -73,28 +73,32 @@ func (mqttHandler* MQTTHandler) ConnectClient() {
 
 var tableLampMessageHandler mqtt.MessageHandler = func(client mqtt.Client, message mqtt.Message) {
 
+	done := make(chan bool)
+
 	applianceDataMap := Collect(message)
 
-	go func() {
+	go func(chan bool) {
+		postgreSQLHandler := PostgreSQLHandler{}
+		postgreSQLHandler.Connect()
+		postgreSQLHandler.UpdateMode(applianceDataMap)
+		postgreSQLHandler.CloseConnection()
+		done <- true
+	}(done)
+
 		humanReadable := CreateHumanReadable(applianceDataMap)
 		userReply := CreateUserReply(humanReadable)
 		_, err := Bot.Send(userReply)
 		if err != nil {
 			panic(err)
 		}
-	}()
-
 
 	if applianceDataMap["Mode"] == "failed to set" || applianceDataMap["Mode"] == "already set"{
 		return
 	}
 
-	go func() {
-		postgreSQLHandler := PostgreSQLHandler{}
-		postgreSQLHandler.Connect()
-		postgreSQLHandler.UpdateMode(applianceDataMap)
-		postgreSQLHandler.CloseConnection()
-	}()
+	<- done
+
+	close(done)
 }
 
 var tableLampOnBootHandler mqtt.MessageHandler = func(client mqtt.Client, message mqtt.Message) {

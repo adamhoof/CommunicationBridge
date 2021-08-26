@@ -35,9 +35,9 @@ func main() {
 		done <- true
 	}(done)
 
-	_ = <- done
-	_ = <- done
-	_ = <- done
+	<- done
+	<- done
+	<- done
 	close(done)
 
 	updates, err := Bot.GetUpdatesChan(botUpdateConfig)
