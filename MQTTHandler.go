@@ -7,6 +7,7 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"io/ioutil"
 	"log"
+	"sync"
 )
 
 const (
@@ -73,32 +74,35 @@ func (mqttHandler* MQTTHandler) ConnectClient() {
 
 var tableLampMessageHandler mqtt.MessageHandler = func(client mqtt.Client, message mqtt.Message) {
 
-	done := make(chan bool)
+	var routineSyncer sync.WaitGroup
 
 	applianceDataMap := Collect(message)
 
-	go func(chan bool) {
-		postgreSQLHandler := PostgreSQLHandler{}
-		postgreSQLHandler.Connect()
-		postgreSQLHandler.UpdateMode(applianceDataMap)
-		postgreSQLHandler.CloseConnection()
-		done <- true
-	}(done)
-
+	routineSyncer.Add(1)
+	go func(wg *sync.WaitGroup) {
+		defer wg.Done()
 		humanReadable := CreateHumanReadable(applianceDataMap)
 		userReply := CreateUserReply(humanReadable)
 		_, err := Bot.Send(userReply)
 		if err != nil {
 			panic(err)
 		}
+	}(&routineSyncer)
 
-	if applianceDataMap["Mode"] == "failed to set" || applianceDataMap["Mode"] == "already set"{
-		return
-	}
 
-	<- done
+	routineSyncer.Add(1)
+	go func(wg *sync.WaitGroup) {
+		defer wg.Done()
+		if applianceDataMap["Mode"] == "failed to set" || applianceDataMap["Mode"] == "already set"{
+			return
+		}
+		postgreSQLHandler := PostgreSQLHandler{}
+		postgreSQLHandler.Connect()
+		postgreSQLHandler.UpdateMode(applianceDataMap)
+		postgreSQLHandler.CloseConnection()
+	}(&routineSyncer)
 
-	close(done)
+	routineSyncer.Wait()
 }
 
 var tableLampOnBootHandler mqtt.MessageHandler = func(client mqtt.Client, message mqtt.Message) {
