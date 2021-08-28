@@ -1,20 +1,45 @@
 package main
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"log"
+	tb "gopkg.in/tucnak/telebot.v2"
+	"time"
 )
 
+type TelegramBotHandler struct {
+	bot *tb.Bot
+	tableLampModeKeyboard *tb.ReplyMarkup
+}
+
 const masterChatID int64 = 558297691
-var Bot, botError = tgbotapi.NewBotAPI("1763947554:AAHUWq4nR30Hj7WybEbR3ztSwm2CO2C-X4k")
 
-func SetupBot()  {
-
-	Bot.Debug = false
-
-	if botError != nil {
-		log.Panic(botError)
+func (telegramBotHandler* TelegramBotHandler) CreateBot() {
+	var err error
+	telegramBotHandler.bot, err = tb.NewBot(tb.Settings{
+		Token:  "1914152683:AAF4r5URK9fCoJicXsCADukXuiTQSYM--U8",
+		Poller: &tb.LongPoller{
+			Timeout: 10 * time.Second,
+		},
+	})
+	if err != nil {
+		panic(err)
 	}
+}
+
+func (telegramBotHandler* TelegramBotHandler) CreateTableLampKeyboard(){
+
+	var (
+		tableLampModes = &tb.ReplyMarkup{ResizeReplyKeyboard: true}
+
+		btnWhite  = tableLampModes.Data("⬜", "white", "white")
+		btnYellow = tableLampModes.Data("\U0001F7E8", "yellow", "yellow")
+		btnRed = tableLampModes.Data("\U0001F7E5", "red", "red")
+		btnOff = tableLampModes.Data("⬛", "off", "off")
+
+	)
+	tableLampModes.Inline(
+		tableLampModes.Row(btnWhite, btnYellow, btnRed, btnOff),
+	)
+	telegramBotHandler.tableLampModeKeyboard = tableLampModes
 }
 
 func CreateHumanReadable(applianceDataMap map[string]interface{}) string {
@@ -30,14 +55,3 @@ func CreateHumanReadable(applianceDataMap map[string]interface{}) string {
 		}
 		return "map iterating yeeted"
 	}
-
-
-func CreateUserReply(humanReadable string) tgbotapi.MessageConfig {
-	return tgbotapi.NewMessage(masterChatID, humanReadable)
-}
-
-func CreateUpdateConfig() tgbotapi.UpdateConfig{
-	botUpdte := tgbotapi.NewUpdate(0)
-	botUpdte.Timeout = 60
-	return botUpdte
-}

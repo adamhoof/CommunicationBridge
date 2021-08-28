@@ -81,12 +81,12 @@ var tableLampMessageHandler mqtt.MessageHandler = func(client mqtt.Client, messa
 	routineSyncer.Add(1)
 	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
-		humanReadable := CreateHumanReadable(applianceDataMap)
+		/*humanReadable := CreateHumanReadable(applianceDataMap)
 		userReply := CreateUserReply(humanReadable)
 		_, err := Bot.Send(userReply)
 		if err != nil {
 			panic(err)
-		}
+		}*/
 	}(&routineSyncer)
 
 
