@@ -55,52 +55,30 @@ func (botHandler *TelegramBotHandler) TableLampKeyboardRequestHandler(){
 	})
 }
 
-func (botHandler *TelegramBotHandler) TableLampWhiteButtonHandler(mqttHandler *MQTTHandler, btn *tb.Btn) {
-	botHandler.bot.Handle(btn, func(c *tb.Callback) {
-		err := botHandler.bot.Respond(c, &tb.CallbackResponse{})
-		if err != nil {
-			return
-		}
-		mqttHandler.PublishUpdate(TableLampPub, TableLampWhiteUpdate)
-	})
-}
-
-func (botHandler *TelegramBotHandler) TableLampYellowButtonHandler(mqttHandler *MQTTHandler, btn *tb.Btn) {
-	botHandler.bot.Handle(btn, func(c *tb.Callback) {
-		err := botHandler.bot.Respond(c, &tb.CallbackResponse{})
-		if err != nil {
-			return
-		}
-		mqttHandler.PublishUpdate(TableLampPub, TableLampYellowUpdate)
-	})
-}
-
-func (botHandler *TelegramBotHandler) TableLampRedButtonHandler(mqttHandler *MQTTHandler, btn *tb.Btn) {
-	botHandler.bot.Handle(btn, func(c *tb.Callback) {
-		err := botHandler.bot.Respond(c, &tb.CallbackResponse{})
-		if err != nil {
-			return
-		}
-		mqttHandler.PublishUpdate(TableLampPub, TableLampRedUpdate)
-	})
-}
-
-func (botHandler *TelegramBotHandler) TableLampOffButtonHandler(mqttHandler *MQTTHandler, btn *tb.Btn) {
-	botHandler.bot.Handle(btn, func(c *tb.Callback) {
-		err := botHandler.bot.Respond(c, &tb.CallbackResponse{})
-		if err != nil {
-			return
-		}
-		mqttHandler.PublishUpdate(TableLampPub, TableLampOffUpdate)
-	})
-}
-
-func (botHandler *TelegramBotHandler) TableLampActionsHandlers(mqttHandler *MQTTHandler, buttons map[string]*tb.Btn){
+func (botHandler *TelegramBotHandler) TableLampActionHandlers(mqttHandler *MQTTHandler, buttons map[string]*tb.Btn){
 	botHandler.TableLampKeyboardRequestHandler()
-	botHandler.TableLampWhiteButtonHandler(mqttHandler, buttons["white"])
-	botHandler.TableLampYellowButtonHandler(mqttHandler, buttons["yellow"])
-	botHandler.TableLampRedButtonHandler(mqttHandler, buttons["red"])
-	botHandler.TableLampOffButtonHandler(mqttHandler, buttons["off"])
+
+	buttonColors := []string {"white", "yellow", "red", "off"}
+	for _, color := range buttonColors {
+
+		func(color string) {
+			go botHandler.bot.Handle(buttons[color], func(c *tb.Callback) { //add go routine?
+				err := botHandler.bot.Respond(c, &tb.CallbackResponse{})
+				if err != nil {
+					return
+				}
+				var payload string
+
+				switch color {
+				case "white": payload = TableLampWhiteUpdate
+				case "yellow": payload = TableLampYellowUpdate
+				case "red": payload = TableLampRedUpdate
+				case "off": payload = TableLampOffUpdate
+				}
+				mqttHandler.PublishUpdate(TableLampPub, payload)
+			})
+		}(color)
+	}
 }
 
 func CreateHumanReadable(applianceDataMap map[string]interface{}) string {

@@ -18,7 +18,7 @@ func main() {
 		defer routineSyncer.Done()
 		telegramBotHandler.CreateBot()
 		buttons := telegramBotHandler.GenerateButtons()
-		telegramBotHandler.TableLampActionsHandlers(&mqttHandler, buttons)
+		telegramBotHandler.TableLampActionHandlers(&mqttHandler, buttons)
 		telegramBotHandler.StartBot()
 	}(&routineSyncer)
 
@@ -41,6 +41,4 @@ func main() {
 	}(&routineSyncer)
 
 	routineSyncer.Wait()
-
-		/*SelectCommand(&mqttHandler.client, message)*/
 }

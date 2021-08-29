@@ -5,6 +5,10 @@ import (
 	"fmt"
 )
 
+type PostgreSQLHandler struct {
+	db* sql.DB
+}
+
 const (
 	host     = "appliancestatesdb.cyebc6nm0xm9.eu-west-2.rds.amazonaws.com"
 	port     = 5432
@@ -13,14 +17,7 @@ const (
 	dbname   = "appliancestatesdb"
 )
 
-const (
-	querySQLStatement        = `SELECT mode FROM HomeAppliances WHERE name = $1;`
-	updateSingleSQLStatement = `UPDATE HomeAppliances SET mode = $2 WHERE name = $1;`
-)
-
-type PostgreSQLHandler struct {
-	db* sql.DB
-}
+const updateSingleSQLStatement = `UPDATE HomeAppliances SET mode = $2 WHERE name = $1;`
 
 func (postgreHandler* PostgreSQLHandler) Connect() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
@@ -53,18 +50,4 @@ func (postgreHandler* PostgreSQLHandler) UpdateMode(applianceData map[string]int
 	if err != nil {
 		panic(err)
 	}
-}
-
-func QueryModeProp(db *sql.DB, appliance string) (mode string) {
-
-	row := db.QueryRow(querySQLStatement, appliance)
-	switch err := row.Scan(&mode); err {
-	case sql.ErrNoRows:
-		fmt.Println("No rows were returned!")
-	case nil:
-		return mode
-	default:
-		panic(err)
-	}
-	return mode
 }
