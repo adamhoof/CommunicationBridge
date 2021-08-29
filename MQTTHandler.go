@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	tb "gopkg.in/tucnak/telebot.v2"
 	"io/ioutil"
 	"log"
 	"sync"
@@ -14,6 +15,7 @@ type MQTTHandler struct {
 	tlsConf* tls.Config
 	clientOptions mqtt.ClientOptions
 	client mqtt.Client
+	bot *tb.Bot
 }
 
 const (
@@ -29,7 +31,7 @@ const (
 	TableLampOffUpdate    = `{"Mode": "off"}`
 )
 
-func (mqttHandler* MQTTHandler) SetupTLSConfig(){
+func (mqttHandler *MQTTHandler) SetupTLSConfig(){
 	certPool := x509.NewCertPool()
 	pemCert, certReadingErr := ioutil.ReadFile("Certs/AmazonRootCA1.pem")
 	if certReadingErr != nil {
@@ -54,7 +56,7 @@ func (mqttHandler* MQTTHandler) SetupTLSConfig(){
 	}
 }
 
-func (mqttHandler* MQTTHandler) SetupClientOptions() {
+func (mqttHandler *MQTTHandler) SetupClientOptions() {
 
 	mqttHandler.clientOptions.AddBroker("tls://a2z5u1bu7d1g4v-ats.iot.eu-west-2.amazonaws.com:8883")
 	mqttHandler.clientOptions.SetClientID("RPICommandHandler").SetTLSConfig(mqttHandler.tlsConf)
@@ -68,50 +70,49 @@ func (mqttHandler *MQTTHandler) CreateClient() {
 	mqttHandler.client = mqtt.NewClient(&mqttHandler.clientOptions)
 }
 
-func (mqttHandler* MQTTHandler) SetSubscriptions() {
-	if token := (mqttHandler.client).Subscribe(tableLampSub, 0, tableLampMessageHandler); token.Wait() && token.Error() != nil {
+func (mqttHandler *MQTTHandler) SetSubscriptions() {
+	if token := (mqttHandler.client).Subscribe(tableLampSub, 0, mqttHandler.SetHandler()); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to create subscription: %v", token.Error())
 	}
 }
 
-func (mqttHandler* MQTTHandler) ConnectClient() {
+func (mqttHandler *MQTTHandler) ConnectClient() {
 	if token := (mqttHandler.client).Connect(); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to create connection: %v", token.Error())
 	}
 	fmt.Println("Client started")
 }
 
-var tableLampMessageHandler mqtt.MessageHandler = func(client mqtt.Client, message mqtt.Message) {
+func (mqttHandler *MQTTHandler) SetHandler() (tableLampMessageHandler mqtt.MessageHandler) {
 
-	var routineSyncer sync.WaitGroup
+	tableLampMessageHandler = func(client mqtt.Client, message mqtt.Message) {
 
-	applianceDataMap := Collect(message)
+		applianceData := Collect(message)
 
-	routineSyncer.Add(1)
-	go func(wg *sync.WaitGroup) {
-		defer wg.Done()
-		/*humanReadable := CreateHumanReadable(applianceDataMap)
-		userReply := CreateUserReply(humanReadable)
-		_, err := Bot.Send(userReply)
-		if err != nil {
-			panic(err)
-		}*/
-	}(&routineSyncer)
+		var routineSyncer sync.WaitGroup
 
+		routineSyncer.Add(1)
+		go func(routineSyncer *sync.WaitGroup) {
+			defer routineSyncer.Done()
+			humanReadable := CreateHumanReadable(applianceData)
+			SendMessage(mqttHandler.bot, humanReadable)
+		}(&routineSyncer)
 
-	routineSyncer.Add(1)
-	go func(wg *sync.WaitGroup) {
-		defer wg.Done()
-		if applianceDataMap["Mode"] == "failed to set" || applianceDataMap["Mode"] == "already set"{
-			return
-		}
-		postgreSQLHandler := PostgreSQLHandler{}
-		postgreSQLHandler.Connect()
-		postgreSQLHandler.UpdateMode(applianceDataMap)
-		postgreSQLHandler.CloseConnection()
-	}(&routineSyncer)
+		routineSyncer.Add(1)
+		go func(wg *sync.WaitGroup) {
+			defer wg.Done()
+			if applianceData["Mode"] == "failed to set" || applianceData["Mode"] == "already set"{
+				return
+			}
+			postgreSQLHandler := PostgreSQLHandler{}
+			postgreSQLHandler.Connect()
+			postgreSQLHandler.UpdateMode(applianceData)
+			postgreSQLHandler.CloseConnection()
+		}(&routineSyncer)
 
-	routineSyncer.Wait()
+		routineSyncer.Wait()
+	}
+	return tableLampMessageHandler
 }
 
 func (mqttHandler* MQTTHandler) PublishUpdate(topic string, interfacou interface{}) {

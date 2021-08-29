@@ -14,7 +14,7 @@ func main() {
 	var routineSyncer sync.WaitGroup
 
 	routineSyncer.Add(1)
-	go func(wg *sync.WaitGroup) {
+	go func(routineSyncer *sync.WaitGroup) {
 		defer routineSyncer.Done()
 		telegramBotHandler.CreateBot()
 		buttons := telegramBotHandler.GenerateButtons()
@@ -23,17 +23,18 @@ func main() {
 	}(&routineSyncer)
 
 	routineSyncer.Add(1)
-	go func(wg *sync.WaitGroup) {
+	go func(routineSyncer *sync.WaitGroup) {
 		defer routineSyncer.Done()
 		mqttHandler.SetupTLSConfig()
 		mqttHandler.SetupClientOptions()
 		mqttHandler.CreateClient()
 		mqttHandler.ConnectClient()
 		mqttHandler.SetSubscriptions()
+		mqttHandler.bot = telegramBotHandler.bot
 	}(&routineSyncer)
 
 	routineSyncer.Add(1)
-	go func(wg *sync.WaitGroup) {
+	go func(routineSyncer *sync.WaitGroup) {
 		defer routineSyncer.Done()
 		postgreSQLHandler.Connect()
 		postgreSQLHandler.TestConnection()

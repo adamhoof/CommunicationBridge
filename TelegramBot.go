@@ -11,9 +11,7 @@ type TelegramBotHandler struct {
 	tableLampModeKeyboard *tb.ReplyMarkup
 }
 
-const masterChatID int64 = 558297691
-
-func (botHandler * TelegramBotHandler) CreateBot() {
+func (botHandler *TelegramBotHandler) CreateBot() {
 	var err error
 	botHandler.bot, err = tb.NewBot(tb.Settings{
 		Token:  "1914152683:AAF4r5URK9fCoJicXsCADukXuiTQSYM--U8",
@@ -35,7 +33,7 @@ func (botHandler *TelegramBotHandler) GenerateButtons() map[string]*tb.Btn{
 		m["white"] = &tb.Btn{ Unique: "white", Text: "⬜", Data: "tlw"}
 		m["yellow"] = &tb.Btn{ Unique: "yellow", Text: "\U0001F7E8", Data: "tly"}
 		m["red"] =  &tb.Btn{ Unique: "red", Text: "\U0001F7E5", Data: "tlr"}
-		m["off"] = &tb.Btn{ Unique: "off", Text: "⬛", Data: "tlo"}
+		m["off"] = &tb.Btn{ Unique: "off", Text: "🚫", Data: "tlo"}
 	
 	tableLampModes.Inline(
 		tableLampModes.Row(*m["white"], *m["yellow"], *m["red"], *m["off"]),
@@ -64,9 +62,9 @@ func (botHandler *TelegramBotHandler) TableLampActionHandlers(mqttHandler *MQTTH
 	for color, btn := range buttons {
 
 		routineSyncer.Add(1)
-		go func(color string, btn *tb.Btn, wg *sync.WaitGroup) {
+		go func(color string, btn *tb.Btn, routineSyncer *sync.WaitGroup) {
 				defer routineSyncer.Done()
-				botHandler.bot.Handle(btn, func(c *tb.Callback) { //add go routine?
+				botHandler.bot.Handle(btn, func(c *tb.Callback) {
 				err := botHandler.bot.Respond(c, &tb.CallbackResponse{})
 				if err != nil {
 					return
@@ -107,3 +105,21 @@ func CreateHumanReadable(applianceDataMap map[string]interface{}) string {
 func (botHandler *TelegramBotHandler) StartBot()  {
 	botHandler.bot.Start()
 }
+
+type id struct {
+
+}
+
+func (id *id) Recipient() string {
+	return "558297691"
+}
+
+var me id
+
+func SendMessage(bot *tb.Bot, message string) {
+	_, err := bot.Send(&me, message)
+		if err != nil {
+		panic(err)
+	}
+}
+
