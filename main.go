@@ -1,24 +1,25 @@
 package main
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	_ "github.com/lib/pq"
 	"sync"
 )
 
 func main() {
 
-	var botUpdateConfig tgbotapi.UpdateConfig
 	mqttHandler := MQTTHandler {}
 	postgreSQLHandler := PostgreSQLHandler{}
+	telegramBotHandler := TelegramBotHandler{}
 
 	var routineSyncer sync.WaitGroup
 
 	routineSyncer.Add(1)
 	go func(wg *sync.WaitGroup) {
 		defer routineSyncer.Done()
-		SetupBot()
-		botUpdateConfig = CreateUpdateConfig()
+		telegramBotHandler.CreateBot()
+		buttons := telegramBotHandler.GenerateButtons()
+		telegramBotHandler.TableLampActionsHandlers(&mqttHandler, buttons)
+		telegramBotHandler.StartBot()
 	}(&routineSyncer)
 
 	routineSyncer.Add(1)
@@ -41,18 +42,5 @@ func main() {
 
 	routineSyncer.Wait()
 
-	updates, err := Bot.GetUpdatesChan(botUpdateConfig)
-	if err != nil {
-		panic(err)
-	}
-
-	for update := range updates {
-		if update.Message == nil {
-			continue
-		}
-
-  		message := update.Message.Text
-
-		DistributeCommands(&mqttHandler.client, message)
-	}
+		/*SelectCommand(&mqttHandler.client, message)*/
 }

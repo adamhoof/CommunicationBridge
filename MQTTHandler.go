@@ -10,15 +10,24 @@ import (
 	"sync"
 )
 
-const (
-	tableLampSub = "room/tableLamp/espReply"
-)
-
 type MQTTHandler struct {
 	tlsConf* tls.Config
 	clientOptions mqtt.ClientOptions
 	client mqtt.Client
 }
+
+const (
+	TableLampPub = "room/tableLamp/rpiSet"
+
+	tableLampSub = "room/tableLamp/espReply"
+)
+
+const (
+	TableLampWhiteUpdate  = `{"Mode": "white"}`
+	TableLampYellowUpdate = `{"Mode": "yellow"}`
+	TableLampRedUpdate    = `{"Mode": "red"}`
+	TableLampOffUpdate    = `{"Mode": "off"}`
+)
 
 func (mqttHandler* MQTTHandler) SetupTLSConfig(){
 	certPool := x509.NewCertPool()
@@ -81,12 +90,12 @@ var tableLampMessageHandler mqtt.MessageHandler = func(client mqtt.Client, messa
 	routineSyncer.Add(1)
 	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
-		humanReadable := CreateHumanReadable(applianceDataMap)
+		/*humanReadable := CreateHumanReadable(applianceDataMap)
 		userReply := CreateUserReply(humanReadable)
 		_, err := Bot.Send(userReply)
 		if err != nil {
 			panic(err)
-		}
+		}*/
 	}(&routineSyncer)
 
 
@@ -105,33 +114,9 @@ var tableLampMessageHandler mqtt.MessageHandler = func(client mqtt.Client, messa
 	routineSyncer.Wait()
 }
 
-var tableLampOnBootHandler mqtt.MessageHandler = func(client mqtt.Client, message mqtt.Message) {
-	/*db:= ConnectDB()
+func (mqttHandler* MQTTHandler) PublishUpdate(topic string, interfacou interface{}) {
 
-	message.Payload()
-	query := QueryModeProp(db, "TableLamp")
-	go CloseConnection(db)
-
-	var update string
-
-	switch query {
-	case "white":
-		update = TableLampWhiteUpdate
-	case "yellow":
-		update = TableLampYellowUpdate
-	case "red":
-		update = TableLampRedUpdate
-	case "off":
-		update = TableLampOffUpdate
-	}
-	PublishUpdate(client, tableLampPub, update)*/
-	fmt.Println(message.Topic())
-	fmt.Println(message.Payload())
-}
-
-func PublishUpdate(mqttClient* mqtt.Client, topic string, interfacou interface{}) {
-
-	if token := (*mqttClient).Publish(topic, 0, false, interfacou); token.Wait() && token.Error() != nil {
+	if token := (mqttHandler.client).Publish(topic, 0, false, interfacou); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to send upd: %v", token.Error())
 	}
 }

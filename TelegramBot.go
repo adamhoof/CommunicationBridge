@@ -1,20 +1,106 @@
 package main
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"log"
+	tb "gopkg.in/tucnak/telebot.v2"
+	"time"
 )
 
+type TelegramBotHandler struct {
+	bot *tb.Bot
+	tableLampModeKeyboard *tb.ReplyMarkup
+}
+
 const masterChatID int64 = 558297691
-var Bot, botError = tgbotapi.NewBotAPI("1763947554:AAHUWq4nR30Hj7WybEbR3ztSwm2CO2C-X4k")
 
-func SetupBot()  {
-
-	Bot.Debug = false
-
-	if botError != nil {
-		log.Panic(botError)
+func (botHandler * TelegramBotHandler) CreateBot() {
+	var err error
+	botHandler.bot, err = tb.NewBot(tb.Settings{
+		Token:  "1914152683:AAF4r5URK9fCoJicXsCADukXuiTQSYM--U8",
+		Poller: &tb.LongPoller{
+			Timeout: 10 * time.Second,
+		},
+	})
+	if err != nil {
+		panic(err)
 	}
+}
+
+func (botHandler *TelegramBotHandler) GenerateButtons() map[string]*tb.Btn{
+	
+		tableLampModes := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
+
+		m := make(map[string]*tb.Btn)
+
+		m["white"] = &tb.Btn{ Unique: "white", Text: "⬜", Data: "tlw"}
+		m["yellow"] = &tb.Btn{ Unique: "yellow", Text: "\U0001F7E8", Data: "tly"}
+		m["red"] =  &tb.Btn{ Unique: "red", Text: "\U0001F7E5", Data: "tlr"}
+		m["off"] = &tb.Btn{ Unique: "off", Text: "⬛", Data: "tlo"}
+	
+	tableLampModes.Inline(
+		tableLampModes.Row(*m["white"], *m["yellow"], *m["red"], *m["off"]),
+	)
+	botHandler.tableLampModeKeyboard = tableLampModes
+	return m
+}
+
+func (botHandler *TelegramBotHandler) TableLampKeyboardRequestHandler(){
+	botHandler.bot.Handle("/tablelamp", func(message *tb.Message) {
+		if !message.Private() {
+			return
+		}
+		_, err := botHandler.bot.Send(message.Sender, "Table Lamp Modes", botHandler.tableLampModeKeyboard)
+		if err != nil {
+			panic(err)
+		}
+	})
+}
+
+func (botHandler *TelegramBotHandler) TableLampWhiteButtonHandler(mqttHandler *MQTTHandler, btn *tb.Btn) {
+	botHandler.bot.Handle(btn, func(c *tb.Callback) {
+		err := botHandler.bot.Respond(c, &tb.CallbackResponse{})
+		if err != nil {
+			return
+		}
+		mqttHandler.PublishUpdate(TableLampPub, TableLampWhiteUpdate)
+	})
+}
+
+func (botHandler *TelegramBotHandler) TableLampYellowButtonHandler(mqttHandler *MQTTHandler, btn *tb.Btn) {
+	botHandler.bot.Handle(btn, func(c *tb.Callback) {
+		err := botHandler.bot.Respond(c, &tb.CallbackResponse{})
+		if err != nil {
+			return
+		}
+		mqttHandler.PublishUpdate(TableLampPub, TableLampYellowUpdate)
+	})
+}
+
+func (botHandler *TelegramBotHandler) TableLampRedButtonHandler(mqttHandler *MQTTHandler, btn *tb.Btn) {
+	botHandler.bot.Handle(btn, func(c *tb.Callback) {
+		err := botHandler.bot.Respond(c, &tb.CallbackResponse{})
+		if err != nil {
+			return
+		}
+		mqttHandler.PublishUpdate(TableLampPub, TableLampRedUpdate)
+	})
+}
+
+func (botHandler *TelegramBotHandler) TableLampOffButtonHandler(mqttHandler *MQTTHandler, btn *tb.Btn) {
+	botHandler.bot.Handle(btn, func(c *tb.Callback) {
+		err := botHandler.bot.Respond(c, &tb.CallbackResponse{})
+		if err != nil {
+			return
+		}
+		mqttHandler.PublishUpdate(TableLampPub, TableLampOffUpdate)
+	})
+}
+
+func (botHandler *TelegramBotHandler) TableLampActionsHandlers(mqttHandler *MQTTHandler, buttons map[string]*tb.Btn){
+	botHandler.TableLampKeyboardRequestHandler()
+	botHandler.TableLampWhiteButtonHandler(mqttHandler, buttons["white"])
+	botHandler.TableLampYellowButtonHandler(mqttHandler, buttons["yellow"])
+	botHandler.TableLampRedButtonHandler(mqttHandler, buttons["red"])
+	botHandler.TableLampOffButtonHandler(mqttHandler, buttons["off"])
 }
 
 func CreateHumanReadable(applianceDataMap map[string]interface{}) string {
@@ -31,13 +117,6 @@ func CreateHumanReadable(applianceDataMap map[string]interface{}) string {
 		return "map iterating yeeted"
 	}
 
-
-func CreateUserReply(humanReadable string) tgbotapi.MessageConfig {
-	return tgbotapi.NewMessage(masterChatID, humanReadable)
-}
-
-func CreateUpdateConfig() tgbotapi.UpdateConfig{
-	botUpdte := tgbotapi.NewUpdate(0)
-	botUpdte.Timeout = 60
-	return botUpdte
+func (botHandler *TelegramBotHandler) StartBot()  {
+	botHandler.bot.Start()
 }
