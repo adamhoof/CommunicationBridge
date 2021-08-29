@@ -80,6 +80,7 @@ func (botHandler *TelegramBotHandler) TableLampActionHandlers(mqttHandler *MQTTH
 				case "red": payload = TableLampRedUpdate
 				case "off": payload = TableLampOffUpdate
 				default:
+					panic("Unknown button")
 					return
 				}
 				mqttHandler.PublishUpdate(TableLampPub, payload)
