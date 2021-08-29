@@ -58,11 +58,10 @@ func (botHandler *TelegramBotHandler) TableLampKeyboardRequestHandler(){
 func (botHandler *TelegramBotHandler) TableLampActionHandlers(mqttHandler *MQTTHandler, buttons map[string]*tb.Btn){
 	botHandler.TableLampKeyboardRequestHandler()
 
-	buttonColors := []string {"white", "yellow", "red", "off"}
-	for _, color := range buttonColors {
+	for color, btn := range buttons {
 
 		func(color string) {
-			go botHandler.bot.Handle(buttons[color], func(c *tb.Callback) { //add go routine?
+			go botHandler.bot.Handle(btn, func(c *tb.Callback) { //add go routine?
 				err := botHandler.bot.Respond(c, &tb.CallbackResponse{})
 				if err != nil {
 					return
