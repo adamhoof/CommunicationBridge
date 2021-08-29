@@ -79,6 +79,8 @@ func (botHandler *TelegramBotHandler) TableLampActionHandlers(mqttHandler *MQTTH
 				case "yellow": payload = TableLampYellowUpdate
 				case "red": payload = TableLampRedUpdate
 				case "off": payload = TableLampOffUpdate
+				default:
+					return
 				}
 				mqttHandler.PublishUpdate(TableLampPub, payload)
 			})
