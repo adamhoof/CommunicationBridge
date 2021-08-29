@@ -2,7 +2,6 @@ package main
 
 import (
 	_ "github.com/lib/pq"
-	tb "gopkg.in/tucnak/telebot.v2"
 	"sync"
 )
 
@@ -13,21 +12,14 @@ func main() {
 	telegramBotHandler := TelegramBotHandler{}
 
 	var routineSyncer sync.WaitGroup
-	mappie := make(map[string]interface{})
-	mappie["Type"] = "fuck"
 
 	routineSyncer.Add(1)
 	go func(wg *sync.WaitGroup) {
 		defer routineSyncer.Done()
 		telegramBotHandler.CreateBot()
-		telegramBotHandler.CreateTableLampKeyboard()
-		telegramBotHandler.bot.Handle("/TableLamp", func(message *tb.Message) {
-			if !message.Private() {
-				return
-			}
-			telegramBotHandler.bot.Send(message.Sender, "Table Lamp Colors", telegramBotHandler.tableLampModeKeyboard)
-		})
-		telegramBotHandler.bot.Start()
+		buttons := telegramBotHandler.GenerateButtons()
+		telegramBotHandler.TableLampActionsHandlers(&mqttHandler, buttons)
+		telegramBotHandler.StartBot()
 	}(&routineSyncer)
 
 	routineSyncer.Add(1)
@@ -50,5 +42,5 @@ func main() {
 
 	routineSyncer.Wait()
 
-		/*DistributeCommands(&mqttHandler.client, message)*/
+		/*SelectCommand(&mqttHandler.client, message)*/
 }
