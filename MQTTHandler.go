@@ -87,7 +87,7 @@ func (mqttHandler *MQTTHandler) SetHandler() (tableLampMessageHandler mqtt.Messa
 
 	tableLampMessageHandler = func(client mqtt.Client, message mqtt.Message) {
 
-		applianceData := Collect(message)
+		applianceData := ProcessJsonData(message)
 
 		var routineSyncer sync.WaitGroup
 

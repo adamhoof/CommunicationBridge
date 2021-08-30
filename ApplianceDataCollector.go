@@ -5,7 +5,7 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
-func Collect(inputMessage mqtt.Message) (applianceData map[string]interface{}) {
+func ProcessJsonData(inputMessage mqtt.Message) (applianceData map[string]interface{}) {
 
 	var rawApplianceData interface{}
 

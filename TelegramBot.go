@@ -11,6 +11,16 @@ type TelegramBotHandler struct {
 	tableLampModeKeyboard *tb.ReplyMarkup
 }
 
+type User struct {
+	userId string
+}
+
+var me = User{userId: "558297691"}
+
+func (user *User) Recipient() string {
+	return user.userId
+}
+
 func (botHandler *TelegramBotHandler) CreateBot() {
 	var err error
 	botHandler.bot, err = tb.NewBot(tb.Settings{
@@ -106,20 +116,9 @@ func (botHandler *TelegramBotHandler) StartBot()  {
 	botHandler.bot.Start()
 }
 
-type id struct {
-
-}
-
-func (id *id) Recipient() string {
-	return "558297691"
-}
-
-var me id
-
 func SendMessage(bot *tb.Bot, message string) {
 	_, err := bot.Send(&me, message)
 		if err != nil {
 		panic(err)
 	}
 }
-
