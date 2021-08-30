@@ -95,7 +95,7 @@ func (mqttHandler *MQTTHandler) SetHandler() (tableLampMessageHandler mqtt.Messa
 		go func(routineSyncer *sync.WaitGroup) {
 			defer routineSyncer.Done()
 			humanReadable := CreateHumanReadable(applianceData)
-			SendMessage(mqttHandler.bot, humanReadable)
+			SendMessage(mqttHandler.bot, humanReadable, me)
 		}(&routineSyncer)
 
 		routineSyncer.Add(1)
