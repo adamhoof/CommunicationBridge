@@ -79,19 +79,7 @@ func (botHandler *TelegramBotHandler) TableLampActionHandlers(mqttHandler *MQTTH
 				if err != nil {
 					return
 				}
-
-				var payload string
-
-				switch color {
-				case "white": payload = TableLampWhiteUpdate
-				case "yellow": payload = TableLampYellowUpdate
-				case "red": payload = TableLampRedUpdate
-				case "off": payload = TableLampOffUpdate
-				default:
-					panic("Unknown button")
-					return
-				}
-				mqttHandler.PublishUpdate(TableLampPub, payload)
+				mqttHandler.PublishUpdate(TableLampPub, color)
 			})
 		}(color, btn, &routineSyncer)
 	}

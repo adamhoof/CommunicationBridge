@@ -24,12 +24,6 @@ const (
 	tableLampSub = "room/tableLamp/espReply"
 )
 
-const (
-	TableLampWhiteUpdate  = `{"Mode": "white"}`
-	TableLampYellowUpdate = `{"Mode": "yellow"}`
-	TableLampRedUpdate    = `{"Mode": "red"}`
-	TableLampOffUpdate    = `{"Mode": "off"}`
-)
 
 func (mqttHandler *MQTTHandler) SetupTLSConfig(){
 	certPool := x509.NewCertPool()
@@ -71,7 +65,7 @@ func (mqttHandler *MQTTHandler) CreateClient() {
 }
 
 func (mqttHandler *MQTTHandler) SetSubscriptions() {
-	if token := (mqttHandler.client).Subscribe(tableLampSub, 0, mqttHandler.SetHandler()); token.Wait() && token.Error() != nil {
+	if token := (mqttHandler.client).Subscribe(tableLampSub, 0, mqttHandler.TableLampHandler()); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to create subscription: %v", token.Error())
 	}
 }
@@ -83,30 +77,33 @@ func (mqttHandler *MQTTHandler) ConnectClient() {
 	fmt.Println("Client started")
 }
 
-func (mqttHandler *MQTTHandler) SetHandler() (tableLampMessageHandler mqtt.MessageHandler) {
+func (mqttHandler *MQTTHandler) TableLampHandler() (tableLampMessageHandler mqtt.MessageHandler) {
 
 	tableLampMessageHandler = func(client mqtt.Client, message mqtt.Message) {
 
-		applianceData := ProcessJsonData(message)
+		tableLampData := make(map[string]interface{})
+
+		tableLampData["Type"] = "TableLamp"
+		tableLampData["Mode"] = string(message.Payload())
 
 		var routineSyncer sync.WaitGroup
 
 		routineSyncer.Add(1)
 		go func(routineSyncer *sync.WaitGroup) {
 			defer routineSyncer.Done()
-			humanReadable := CreateHumanReadable(applianceData)
+			humanReadable := CreateHumanReadable(tableLampData)
 			SendMessage(mqttHandler.bot, humanReadable, me)
 		}(&routineSyncer)
 
 		routineSyncer.Add(1)
 		go func(wg *sync.WaitGroup) {
 			defer wg.Done()
-			if applianceData["Mode"] == "failed to set" || applianceData["Mode"] == "already set"{
+			if tableLampData["Mode"] == "failed to set" || tableLampData["Mode"] == "already set"{
 				return
 			}
 			postgreSQLHandler := PostgreSQLHandler{}
 			postgreSQLHandler.Connect()
-			postgreSQLHandler.UpdateMode(applianceData)
+			postgreSQLHandler.UpdateMode(tableLampData)
 			postgreSQLHandler.CloseConnection()
 		}(&routineSyncer)
 
