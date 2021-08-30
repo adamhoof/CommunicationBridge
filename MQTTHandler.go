@@ -12,10 +12,10 @@ import (
 )
 
 type MQTTHandler struct {
-	tlsConf* tls.Config
+	tlsConf       *tls.Config
 	clientOptions mqtt.ClientOptions
-	client mqtt.Client
-	bot *tb.Bot
+	client        mqtt.Client
+	bot           *tb.Bot
 }
 
 const (
@@ -24,8 +24,7 @@ const (
 	tableLampSub = "room/tableLamp/espReply"
 )
 
-
-func (mqttHandler *MQTTHandler) SetupTLSConfig(){
+func (mqttHandler *MQTTHandler) SetupTLSConfig() {
 	certPool := x509.NewCertPool()
 	pemCert, certReadingErr := ioutil.ReadFile("Certs/AmazonRootCA1.pem")
 	if certReadingErr != nil {
@@ -98,7 +97,7 @@ func (mqttHandler *MQTTHandler) TableLampHandler() (tableLampMessageHandler mqtt
 		routineSyncer.Add(1)
 		go func(wg *sync.WaitGroup) {
 			defer wg.Done()
-			if tableLampData["Mode"] == "failed to set" || tableLampData["Mode"] == "already set"{
+			if tableLampData["Mode"] == "failed to set" || tableLampData["Mode"] == "already set" {
 				return
 			}
 			postgreSQLHandler := PostgreSQLHandler{}
@@ -112,7 +111,7 @@ func (mqttHandler *MQTTHandler) TableLampHandler() (tableLampMessageHandler mqtt
 	return tableLampMessageHandler
 }
 
-func (mqttHandler* MQTTHandler) PublishUpdate(topic string, interfacou interface{}) {
+func (mqttHandler *MQTTHandler) PublishUpdate(topic string, interfacou interface{}) {
 
 	if token := (mqttHandler.client).Publish(topic, 0, false, interfacou); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to send upd: %v", token.Error())

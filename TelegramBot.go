@@ -7,7 +7,7 @@ import (
 )
 
 type TelegramBotHandler struct {
-	bot *tb.Bot
+	bot                   *tb.Bot
 	tableLampModeKeyboard *tb.ReplyMarkup
 }
 
@@ -24,7 +24,7 @@ func (user *User) Recipient() string {
 func (botHandler *TelegramBotHandler) CreateBot() {
 	var err error
 	botHandler.bot, err = tb.NewBot(tb.Settings{
-		Token:  "1914152683:AAF4r5URK9fCoJicXsCADukXuiTQSYM--U8",
+		Token: "1914152683:AAF4r5URK9fCoJicXsCADukXuiTQSYM--U8",
 		Poller: &tb.LongPoller{
 			Timeout: 10 * time.Second,
 		},
@@ -34,17 +34,17 @@ func (botHandler *TelegramBotHandler) CreateBot() {
 	}
 }
 
-func (botHandler *TelegramBotHandler) GenerateButtons() map[string]*tb.Btn{
-	
-		tableLampModes := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
+func (botHandler *TelegramBotHandler) GenerateButtons() map[string]*tb.Btn {
 
-		m := make(map[string]*tb.Btn)
+	tableLampModes := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
 
-		m["white"] = &tb.Btn{ Unique: "white", Text: "⬜", Data: "tlw"}
-		m["yellow"] = &tb.Btn{ Unique: "yellow", Text: "\U0001F7E8", Data: "tly"}
-		m["red"] =  &tb.Btn{ Unique: "red", Text: "\U0001F7E5", Data: "tlr"}
-		m["off"] = &tb.Btn{ Unique: "off", Text: "🚫", Data: "tlo"}
-	
+	m := make(map[string]*tb.Btn)
+
+	m["white"] = &tb.Btn{Unique: "white", Text: "⬜", Data: "tlw"}
+	m["yellow"] = &tb.Btn{Unique: "yellow", Text: "\U0001F7E8", Data: "tly"}
+	m["red"] = &tb.Btn{Unique: "red", Text: "\U0001F7E5", Data: "tlr"}
+	m["off"] = &tb.Btn{Unique: "off", Text: "🚫", Data: "tlo"}
+
 	tableLampModes.Inline(
 		tableLampModes.Row(*m["white"], *m["yellow"], *m["red"], *m["off"]),
 	)
@@ -52,7 +52,7 @@ func (botHandler *TelegramBotHandler) GenerateButtons() map[string]*tb.Btn{
 	return m
 }
 
-func (botHandler *TelegramBotHandler) TableLampKeyboardRequestHandler(){
+func (botHandler *TelegramBotHandler) TableLampKeyboardRequestHandler() {
 	botHandler.bot.Handle("/tablelamp", func(message *tb.Message) {
 		if !message.Private() {
 			return
@@ -64,7 +64,7 @@ func (botHandler *TelegramBotHandler) TableLampKeyboardRequestHandler(){
 	})
 }
 
-func (botHandler *TelegramBotHandler) TableLampActionHandlers(mqttHandler *MQTTHandler, buttons map[string]*tb.Btn){
+func (botHandler *TelegramBotHandler) TableLampActionHandlers(mqttHandler *MQTTHandler, buttons map[string]*tb.Btn) {
 	botHandler.TableLampKeyboardRequestHandler()
 
 	var routineSyncer sync.WaitGroup
@@ -73,8 +73,8 @@ func (botHandler *TelegramBotHandler) TableLampActionHandlers(mqttHandler *MQTTH
 
 		routineSyncer.Add(1)
 		go func(color string, btn *tb.Btn, routineSyncer *sync.WaitGroup) {
-				defer routineSyncer.Done()
-				botHandler.bot.Handle(btn, func(c *tb.Callback) {
+			defer routineSyncer.Done()
+			botHandler.bot.Handle(btn, func(c *tb.Callback) {
 				err := botHandler.bot.Respond(c, &tb.CallbackResponse{})
 				if err != nil {
 					return
@@ -90,23 +90,23 @@ func CreateHumanReadable(applianceDataMap map[string]interface{}) string {
 
 	var humanReadable string
 
-		if applianceDataMap != nil {
+	if applianceDataMap != nil {
 
-			for key, value := range applianceDataMap {
-				humanReadable += key + ": " + value.(string) + "\n"
-			}
-			return humanReadable
+		for key, value := range applianceDataMap {
+			humanReadable += key + ": " + value.(string) + "\n"
 		}
-		return "map iterating yeeted"
+		return humanReadable
 	}
+	return "map iterating yeeted"
+}
 
-func (botHandler *TelegramBotHandler) StartBot()  {
+func (botHandler *TelegramBotHandler) StartBot() {
 	botHandler.bot.Start()
 }
 
 func SendMessage(bot *tb.Bot, message string, usr User) {
 	_, err := bot.Send(&usr, message)
-		if err != nil {
+	if err != nil {
 		panic(err)
 	}
 }

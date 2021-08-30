@@ -6,7 +6,7 @@ import (
 )
 
 type PostgreSQLHandler struct {
-	db* sql.DB
+	db *sql.DB
 }
 
 const (
@@ -19,7 +19,7 @@ const (
 
 const updateSingleSQLStatement = `UPDATE HomeAppliances SET mode = $2 WHERE name = $1;`
 
-func (postgreHandler* PostgreSQLHandler) Connect() {
+func (postgreHandler *PostgreSQLHandler) Connect() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s",
 		host, port, user, password, dbname)
@@ -31,21 +31,21 @@ func (postgreHandler* PostgreSQLHandler) Connect() {
 	}
 }
 
-func (postgreHandler* PostgreSQLHandler) TestConnection(){
+func (postgreHandler *PostgreSQLHandler) TestConnection() {
 	result := postgreHandler.db.Ping()
 	if result != nil {
 		panic(result)
 	}
 }
 
-func (postgreHandler* PostgreSQLHandler) CloseConnection(){
+func (postgreHandler *PostgreSQLHandler) CloseConnection() {
 	err := postgreHandler.db.Close()
 	if err != nil {
 		panic(err)
 	}
 }
 
-func (postgreHandler* PostgreSQLHandler) UpdateMode(applianceData map[string]interface{}) {
+func (postgreHandler *PostgreSQLHandler) UpdateMode(applianceData map[string]interface{}) {
 	_, err := postgreHandler.db.Exec(updateSingleSQLStatement, applianceData["Type"], applianceData["Mode"])
 	if err != nil {
 		panic(err)
