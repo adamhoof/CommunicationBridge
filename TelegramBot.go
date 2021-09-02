@@ -40,13 +40,16 @@ func (botHandler *TelegramBotHandler) GenerateButtons() map[string]*tb.Btn {
 
 	m := make(map[string]*tb.Btn)
 
-	m["white"] = &tb.Btn{Unique: "white", Text: "⬜", Data: "tlw"}
-	m["yellow"] = &tb.Btn{Unique: "yellow", Text: "\U0001F7E8", Data: "tly"}
-	m["red"] = &tb.Btn{Unique: "red", Text: "\U0001F7E5", Data: "tlr"}
-	m["off"] = &tb.Btn{Unique: "off", Text: "🚫", Data: "tlo"}
+	m["white"] = &tb.Btn{Unique: "white", Text: "⬜"}
+	m["yellow"] = &tb.Btn{Unique: "yellow", Text: "\U0001F7E8"}
+	m["blue"] = &tb.Btn{Unique: "blue", Text: "\U0001F7E6"}
+	m["green"] = &tb.Btn{Unique: "green", Text: "\U0001F7E9"}
+	m["red"] = &tb.Btn{Unique: "red", Text: "\U0001F7E5"}
+	m["pink"] = &tb.Btn{Unique: "pink", Text: "\U0001F7EA"}
+	m["off"] = &tb.Btn{Unique: "off", Text: "🚫"}
 
 	tableLampModes.Inline(
-		tableLampModes.Row(*m["white"], *m["yellow"], *m["red"], *m["off"]),
+		tableLampModes.Row(*m["white"], *m["yellow"], *m["blue"], *m["green"], *m["red"], *m["pink"], *m["off"]),
 	)
 	botHandler.tableLampModeKeyboard = tableLampModes
 	return m
