@@ -97,9 +97,6 @@ func (mqttHandler *MQTTHandler) TableLampHandler() (tableLampMessageHandler mqtt
 		routineSyncer.Add(1)
 		go func(wg *sync.WaitGroup) {
 			defer wg.Done()
-			if tableLampData["Mode"] == "already set/failed" {
-				return
-			}
 			postgreSQLHandler := PostgreSQLHandler{}
 			postgreSQLHandler.Connect()
 			postgreSQLHandler.UpdateMode(tableLampData)
