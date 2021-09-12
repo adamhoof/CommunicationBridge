@@ -17,8 +17,6 @@ type User struct {
 	userId string
 }
 
-var me = User{userId: "558297691"}
-
 func (user *User) Recipient() string {
 	return user.userId
 }
