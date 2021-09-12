@@ -6,8 +6,10 @@ import (
 	"time"
 )
 
+var Bot* tb.Bot
+
 type TelegramBotHandler struct {
-	bot                   *tb.Bot
+
 	tableLampModeKeyboard *tb.ReplyMarkup
 }
 
@@ -23,7 +25,7 @@ func (user *User) Recipient() string {
 
 func (botHandler *TelegramBotHandler) CreateBot() {
 	var err error
-	botHandler.bot, err = tb.NewBot(tb.Settings{
+	Bot, err = tb.NewBot(tb.Settings{
 		Token: "1914152683:AAF4r5URK9fCoJicXsCADukXuiTQSYM--U8",
 		Poller: &tb.LongPoller{
 			Timeout: 10 * time.Second,
@@ -56,11 +58,11 @@ func (botHandler *TelegramBotHandler) GenerateButtons() map[string]*tb.Btn {
 }
 
 func (botHandler *TelegramBotHandler) TableLampKeyboardRequestHandler() {
-	botHandler.bot.Handle("/tablelamp", func(message *tb.Message) {
+	Bot.Handle("/tablelamp", func(message *tb.Message) {
 		if !message.Private() {
 			return
 		}
-		_, err := botHandler.bot.Send(message.Sender, "Table Lamp Modes", botHandler.tableLampModeKeyboard)
+		_, err := Bot.Send(message.Sender, "Table Lamp Modes", botHandler.tableLampModeKeyboard)
 		if err != nil {
 			panic(err)
 		}
@@ -77,8 +79,8 @@ func (botHandler *TelegramBotHandler) TableLampActionHandlers(mqttHandler *MQTTH
 		routineSyncer.Add(1)
 		go func(color string, btn *tb.Btn, routineSyncer *sync.WaitGroup) {
 			defer routineSyncer.Done()
-			botHandler.bot.Handle(btn, func(c *tb.Callback) {
-				err := botHandler.bot.Respond(c, &tb.CallbackResponse{})
+			Bot.Handle(btn, func(c *tb.Callback) {
+				err := Bot.Respond(c, &tb.CallbackResponse{})
 				if err != nil {
 					return
 				}
@@ -104,11 +106,11 @@ func CreateHumanReadable(applianceDataMap map[string]interface{}) string {
 }
 
 func (botHandler *TelegramBotHandler) StartBot() {
-	botHandler.bot.Start()
+	Bot.Start()
 }
 
-func SendMessage(bot *tb.Bot, message string, usr User) {
-	_, err := bot.Send(&usr, message)
+func (botHandler *TelegramBotHandler) SendMessage(message string, usr User) {
+	_, err := Bot.Send(&usr, message)
 	if err != nil {
 		panic(err)
 	}
