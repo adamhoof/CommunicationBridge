@@ -61,11 +61,7 @@ func (mqttHandler *MQTTHandler) TableLampHandler() (tableLampMessageHandler mqtt
 		routineSyncer.Add(1)
 		go func() {
 			defer routineSyncer.Done()
-			humanReadable := CreateHumanReadable(tableLampData)
-			_, err := Bot.Send(&me, humanReadable)
-			if err != nil {
-				return
-			}
+			SendMessage(CreateHumanReadable(tableLampData), me)
 		}()
 
 		routineSyncer.Add(1)
@@ -74,7 +70,7 @@ func (mqttHandler *MQTTHandler) TableLampHandler() (tableLampMessageHandler mqtt
 			postgreSQLHandler := PostgreSQLHandler{}
 			postgreSQLHandler.Connect()
 			postgreSQLHandler.UpdateMode(tableLampData)
-			postgreSQLHandler.CloseConnection()
+			postgreSQLHandler.Disconnect()
 		}()
 
 		routineSyncer.Wait()
@@ -84,7 +80,7 @@ func (mqttHandler *MQTTHandler) TableLampHandler() (tableLampMessageHandler mqtt
 
 func (mqttHandler *MQTTHandler) PublishUpdate(topic string, interfacou interface{}) {
 
-	if token := (mqttHandler.client).Publish(topic, 0, false, interfacou); token.Wait() && token.Error() != nil {
+	if token := (mqttHandler.client).Publish(topic, 0, true, interfacou); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to send upd: %v", token.Error())
 	}
 }

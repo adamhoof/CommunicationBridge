@@ -109,7 +109,7 @@ func (botHandler *TelegramBotHandler) StartBot() {
 	Bot.Start()
 }
 
-func (botHandler *TelegramBotHandler) SendMessage(message string, usr User) {
+func SendMessage(message string, usr User) {
 	_, err := Bot.Send(&usr, message)
 	if err != nil {
 		panic(err)
