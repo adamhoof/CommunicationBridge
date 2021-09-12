@@ -38,7 +38,7 @@ func (postgreHandler *PostgreSQLHandler) TestConnection() {
 	}
 }
 
-func (postgreHandler *PostgreSQLHandler) CloseConnection() {
+func (postgreHandler *PostgreSQLHandler) Disconnect() {
 	err := postgreHandler.db.Close()
 	if err != nil {
 		panic(err)

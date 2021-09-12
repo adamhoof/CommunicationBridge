@@ -6,7 +6,6 @@ import (
 )
 
 func main() {
-
 	mqttHandler := MQTTHandler {}
 	postgreSQLHandler := PostgreSQLHandler{}
 	telegramBotHandler := TelegramBotHandler{}
@@ -36,7 +35,7 @@ func main() {
 		defer routineSyncer.Done()
 		postgreSQLHandler.Connect()
 		postgreSQLHandler.TestConnection()
-		postgreSQLHandler.CloseConnection()
+		postgreSQLHandler.Disconnect()
 	}(&routineSyncer)
 
 	routineSyncer.Wait()
