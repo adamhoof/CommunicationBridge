@@ -52,15 +52,17 @@ func (mqttHandler *MQTTHandler) TableLampHandler() (tableLampMessageHandler mqtt
 	tableLampMessageHandler = func(client mqtt.Client, message mqtt.Message) {
 
 		tableLampData := make(map[string]interface{})
-
 		tableLampData["Type"] = "TableLamp"
 		tableLampData["Mode"] = string(message.Payload())
 
 		var routineSyncer sync.WaitGroup
 
-		me := User{userId: "558297691"}
-
-		SendMessage(CreateHumanReadable(tableLampData), me)
+		routineSyncer.Add(1)
+		go func() {
+			defer routineSyncer.Done()
+			me := User{userId: "558297691"}
+			SendMessage(CreateHumanReadable(tableLampData), me)
+		}()
 
 		routineSyncer.Add(1)
 		go func() {
