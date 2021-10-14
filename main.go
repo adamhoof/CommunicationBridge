@@ -1,6 +1,7 @@
 package main
 
 import (
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	_ "github.com/lib/pq"
 	"sync"
 	"time"
@@ -10,6 +11,9 @@ func main() {
 	mqttHandler := MQTTHandler {}
 	postgreSQLHandler := PostgreSQLHandler{}
 	telegramBotHandler := TelegramBotHandler{}
+
+	handlers := make(map[string]mqtt.MessageHandler)
+	handlers["tableLamp"] = TableLampHandler()
 
 	var routineSyncer sync.WaitGroup
 
@@ -31,11 +35,14 @@ func main() {
 	}(&routineSyncer)
 
 	time.Sleep(time.Millisecond*200)
-	func() {
+
+	routineSyncer.Add(1)
+	go func() {
+		defer routineSyncer.Done()
 		mqttHandler.SetupClientOptions()
 		mqttHandler.CreateClient()
 		mqttHandler.ConnectClient()
-		mqttHandler.SetSubscriptions()
+		mqttHandler.SetSubscriptions(handlers)
 	}()
 
 	routineSyncer.Wait()
