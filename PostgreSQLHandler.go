@@ -48,6 +48,6 @@ func (postgreHandler *PostgreSQLHandler) Disconnect() {
 func (postgreHandler *PostgreSQLHandler) UpdateMode(applianceData map[string]interface{}) {
 	_, err := postgreHandler.db.Exec(updateSingleSQLStatement, applianceData["Type"], applianceData["Mode"])
 	if err != nil {
-		panic(err)
+		fmt.Println("Couldnt update mode", err)
 	}
 }

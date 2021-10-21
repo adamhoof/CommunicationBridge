@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	tb "gopkg.in/tucnak/telebot.v2"
 	"sync"
 	"time"
@@ -110,6 +111,6 @@ func (botHandler *TelegramBotHandler) StartBot() {
 func SendMessage(message string, usr User) {
 	_, err := Bot.Send(&usr, message)
 	if err != nil {
-		panic(err)
+		fmt.Println("Failed to send message", err)
 	}
 }
