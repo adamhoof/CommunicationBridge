@@ -3,14 +3,12 @@ package main
 import (
 	"fmt"
 	tb "gopkg.in/tucnak/telebot.v2"
-	"sync"
 	"time"
 )
 
-var Bot* tb.Bot
+var Bot *tb.Bot
 
 type TelegramBotHandler struct {
-
 	tableLampModeKeyboard *tb.ReplyMarkup
 }
 
@@ -69,25 +67,18 @@ func (botHandler *TelegramBotHandler) TableLampKeyboardRequestHandler() {
 }
 
 func (botHandler *TelegramBotHandler) TableLampActionHandlers(mqttHandler *MQTTHandler, buttons map[string]*tb.Btn) {
+
 	botHandler.TableLampKeyboardRequestHandler()
-
-	var routineSyncer sync.WaitGroup
-
 	for color, btn := range buttons {
 
-		routineSyncer.Add(1)
-		go func(color string, btn *tb.Btn, routineSyncer *sync.WaitGroup) {
-			defer routineSyncer.Done()
-			Bot.Handle(btn, func(c *tb.Callback) {
-				err := Bot.Respond(c, &tb.CallbackResponse{})
-				if err != nil {
-					return
-				}
-				mqttHandler.PublishUpdate(TableLampPub, color)
-			})
-		}(color, btn, &routineSyncer)
+		Bot.Handle(btn, func(c *tb.Callback) {
+			err := Bot.Respond(c, &tb.CallbackResponse{})
+			if err != nil {
+				return
+			}
+			mqttHandler.PublishUpdate(TableLampPub, color)
+		})
 	}
-	routineSyncer.Wait()
 }
 
 func CreateHumanReadable(applianceDataMap map[string]interface{}) string {
