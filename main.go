@@ -4,7 +4,6 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	_ "github.com/lib/pq"
 	"sync"
-	"time"
 )
 
 func main() {
@@ -18,13 +17,13 @@ func main() {
 	var routineSyncer sync.WaitGroup
 
 	routineSyncer.Add(1)
-	go func(routineSyncer *sync.WaitGroup) {
+	go func() {
 		defer routineSyncer.Done()
-		telegramBotHandler.CreateBot()
-		buttons := telegramBotHandler.GenerateButtons()
-		telegramBotHandler.TableLampActionHandlers(&mqttHandler, buttons)
-		telegramBotHandler.StartBot()
-	}(&routineSyncer)
+		mqttHandler.SetupClientOptions()
+		mqttHandler.CreateClient()
+		mqttHandler.ConnectClient()
+		mqttHandler.SetSubscriptions(handlers)
+	}()
 
 	routineSyncer.Add(1)
 	go func(routineSyncer *sync.WaitGroup) {
@@ -34,16 +33,16 @@ func main() {
 		postgreSQLHandler.Disconnect()
 	}(&routineSyncer)
 
-	time.Sleep(time.Millisecond*200)
+	routineSyncer.Wait()
 
 	routineSyncer.Add(1)
-	go func() {
+	go func(routineSyncer *sync.WaitGroup) {
 		defer routineSyncer.Done()
-		mqttHandler.SetupClientOptions()
-		mqttHandler.CreateClient()
-		mqttHandler.ConnectClient()
-		mqttHandler.SetSubscriptions(handlers)
-	}()
+		telegramBotHandler.CreateBot()
+		buttons := telegramBotHandler.GenerateButtons()
+		telegramBotHandler.TableLampActionHandlers(&mqttHandler, buttons)
+		telegramBotHandler.StartBot()
+	}(&routineSyncer)
 
 	routineSyncer.Wait()
 }
