@@ -5,7 +5,7 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
-type ClientCommandHandler interface {
+type ApplianceActionsHandler interface {
 	Name() string
 	MessageProcessor() (MessageHandler mqtt.MessageHandler)
 	SetKeyboardActions(mqttHandler *MQTTHandler, buttons map[string]*tb.Btn)
@@ -13,7 +13,7 @@ type ClientCommandHandler interface {
 	KeyboardRequestHandler(botHandler *TelegramBotHandler)
 }
 
-func SetupClientInterfaceOptions(clientCommandHandler ClientCommandHandler, telegramBotHandler *TelegramBotHandler,
+func SetupClientInterfaceOptions(clientCommandHandler ApplianceActionsHandler, telegramBotHandler *TelegramBotHandler,
 	mqttHandler *MQTTHandler, messageProcessors map[string]mqtt.MessageHandler) {
 
 	messageProcessors[clientCommandHandler.Name()] = clientCommandHandler.MessageProcessor()
