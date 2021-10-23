@@ -39,7 +39,7 @@ func (mqttHandler *MQTTHandler) GenerateTlsConfig() *tls.Config {
 	}
 	certpool.AppendCertsFromPEM(ca)
 
-	certificateKeyPair, certReadingErr := tls.LoadX509KeyPair("clients/client.crt", "clients/client.key")
+	certificateKeyPair, certReadingErr := tls.LoadX509KeyPair("client/client.crt", "client/client.key")
 
 	if certReadingErr != nil {
 		panic(certReadingErr)
