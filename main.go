@@ -12,26 +12,21 @@ func main() {
 	telegramBotHandler := TelegramBotHandler{}
 	tableLampActionsHandler := TableLampActionsHandler{}
 
-	var routineSyncer sync.WaitGroup
-
 	messageProcessors := make(map[string]mqtt.MessageHandler)
+
+	telegramBotHandler.CreateBot()
+
+	SetupClientInterfaceOptions(&tableLampActionsHandler, &telegramBotHandler, &mqttHandler, messageProcessors)
+
+	var routineSyncer sync.WaitGroup
 
 	routineSyncer.Add(1)
 	go func(routineSyncer *sync.WaitGroup) {
 		defer routineSyncer.Done()
-		messageProcessors["tableLamp"] = tableLampActionsHandler.MessageProcessor()
 		mqttHandler.SetupClientOptions()
 		mqttHandler.CreateClient()
 		mqttHandler.ConnectClient()
 		mqttHandler.SetSubscriptions(messageProcessors)
-	}(&routineSyncer)
-
-	routineSyncer.Add(1)
-	go func(routineSyncer *sync.WaitGroup) {
-		defer routineSyncer.Done()
-		telegramBotHandler.CreateBot()
-		buttons := tableLampActionsHandler.GenerateButtons(&telegramBotHandler)
-		tableLampActionsHandler.SetKeyboardActions(&mqttHandler, &telegramBotHandler, buttons)
 	}(&routineSyncer)
 
 	routineSyncer.Add(1)

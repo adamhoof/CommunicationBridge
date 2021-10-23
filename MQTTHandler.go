@@ -56,9 +56,11 @@ func (mqttHandler *MQTTHandler) CreateClient() {
 	mqttHandler.client = mqtt.NewClient(&mqttHandler.clientOptions)
 }
 
-func (mqttHandler *MQTTHandler) SetSubscriptions(handlers map[string]mqtt.MessageHandler) {
-	if token := (mqttHandler.client).Subscribe(tableLampSub, 0, handlers["tableLamp"]); token.Wait() && token.Error() != nil {
-		log.Fatalf("failed to create subscription: %v", token.Error())
+func (mqttHandler *MQTTHandler) SetSubscriptions(messageProcessors map[string]mqtt.MessageHandler) {
+	for _, messageProcessor := range messageProcessors {
+		if token := (mqttHandler.client).Subscribe(tableLampSub, 0, messageProcessor); token.Wait() && token.Error() != nil {
+			log.Fatalf("failed to create subscription: %v", token.Error())
+		}
 	}
 }
 

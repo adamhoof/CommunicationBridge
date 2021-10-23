@@ -5,10 +5,14 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
-type TableLampActionsHandler struct {
+type TableLampActionsHandler struct{}
+
+func (tableLampActionsHandler *TableLampActionsHandler) Name() string{
+	return "tableLamp"
 }
 
 func (tableLampActionsHandler *TableLampActionsHandler) GenerateButtons(telegramBotHandler *TelegramBotHandler) map[string]*tb.Btn {
+
 	tableLampModesKeyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
 
 	tableLampModesMap := make(map[string]*tb.Btn)
@@ -61,9 +65,7 @@ func (tableLampActionsHandler *TableLampActionsHandler) KeyboardRequestHandler(b
 	})
 }
 
-func (tableLampActionsHandler *TableLampActionsHandler) SetKeyboardActions(mqttHandler *MQTTHandler, botHandler *TelegramBotHandler, buttons map[string]*tb.Btn) {
-
-	tableLampActionsHandler.KeyboardRequestHandler(botHandler)
+func (tableLampActionsHandler *TableLampActionsHandler) SetKeyboardActions(mqttHandler *MQTTHandler, buttons map[string]*tb.Btn) {
 
 	for color, btn := range buttons {
 
