@@ -54,14 +54,12 @@ func (tableLampActionsHandler *TableLampActionsHandler) MessageProcessor() (Tabl
 }
 
 func (tableLampActionsHandler *TableLampActionsHandler) KeyboardRequestHandler(botHandler *TelegramBotHandler) {
-	Bot.Handle("/tablelamp", func(message *tb.Message) {
+	Bot.Handle("/Table\U0001FA94", func(message *tb.Message) {
 		if !message.Private() {
 			return
 		}
-		_, err := Bot.Send(message.Sender, "Table Lamp Modes", botHandler.keyboards["tableLamp"])
-		if err != nil {
-			panic(err)
-		}
+		usr := User{userId: "558297691"}
+		SendMessage(usr, "Table \U0001FA94 modes", botHandler.keyboards["tableLamp"])
 	})
 }
 

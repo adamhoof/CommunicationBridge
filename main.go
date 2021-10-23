@@ -40,5 +40,6 @@ func main() {
 
 	routineSyncer.Wait()
 
+	AllAppliancesKeyboard(&telegramBotHandler)
 	telegramBotHandler.StartBot()
 }

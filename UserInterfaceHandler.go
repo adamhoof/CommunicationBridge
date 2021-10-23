@@ -21,3 +21,24 @@ func SetupClientInterfaceOptions(applianceInteractionHandler ApplianceInteractio
 		applianceInteractionHandler.GenerateButtons(telegramBotHandler))
 	applianceInteractionHandler.KeyboardRequestHandler(telegramBotHandler)
 }
+
+func AllAppliancesKeyboard(telegramBotHandler *TelegramBotHandler)  {
+	allAppliancesKeyboard := &tb.ReplyMarkup{}
+	tableLampBtn := allAppliancesKeyboard.Text("/Table \U0001FA94")
+	telegramBotHandler.keyboards["appliances"] = allAppliancesKeyboard
+
+	allAppliancesKeyboard.Reply(
+		allAppliancesKeyboard.Row(tableLampBtn),
+		)
+	usr := User{userId: "558297691"}
+
+	Bot.Handle("/appliances", func(m *tb.Message){
+		if !m.Private(){
+			return
+		}
+		SendMessage(usr, "Appliances", telegramBotHandler.keyboards["appliances"])
+	})
+	Bot.Handle(&tableLampBtn, func(m *tb.Message){
+		SendMessage(usr, "Table \U0001FA94 modes", telegramBotHandler.keyboards["tableLamp"])
+	})
+}

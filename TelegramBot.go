@@ -52,8 +52,9 @@ func (botHandler *TelegramBotHandler) StartBot() {
 	Bot.Start()
 }
 
-func SendMessage(message string, usr User) {
-	_, err := Bot.Send(&usr, message)
+func SendMessage(usr User, title string, message interface{}) {
+
+	_, err := Bot.Send(&usr, title, message)
 	if err != nil {
 		fmt.Println("Failed to send message", err)
 	}
