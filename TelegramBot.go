@@ -9,7 +9,7 @@ import (
 var Bot *tb.Bot
 
 type TelegramBotHandler struct {
-	tableLampModeKeyboard *tb.ReplyMarkup
+	keyboards map[string]*tb.ReplyMarkup
 }
 
 type User struct {
@@ -31,57 +31,7 @@ func (botHandler *TelegramBotHandler) CreateBot() {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func (botHandler *TelegramBotHandler) GenerateTableLampButtons() map[string]*tb.Btn {
-
-	tableLampModes := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
-
-	m := make(map[string]*tb.Btn)
-
-	m["white"] = &tb.Btn{Unique: "white", Text: "⬜"}
-	m["yellow"] = &tb.Btn{Unique: "yellow", Text: "\U0001F7E8"}
-	m["blue"] = &tb.Btn{Unique: "blue", Text: "\U0001F7E6"}
-	m["green"] = &tb.Btn{Unique: "green", Text: "\U0001F7E9"}
-	m["red"] = &tb.Btn{Unique: "red", Text: "\U0001F7E5"}
-	m["pink"] = &tb.Btn{Unique: "pink", Text: "\U0001F7EA"}
-	m["off"] = &tb.Btn{Unique: "off", Text: "🚫"}
-
-	tableLampModes.Inline(
-		tableLampModes.Row(*m["white"], *m["yellow"], *m["blue"], *m["green"], *m["red"], *m["pink"], *m["off"]),
-	)
-	botHandler.tableLampModeKeyboard = tableLampModes
-	return m
-}
-
-func (botHandler *TelegramBotHandler) TableLampKeyboardRequestHandler() {
-	Bot.Handle("/tablelamp", func(message *tb.Message) {
-		if !message.Private() {
-			return
-		}
-		_, err := Bot.Send(message.Sender, "Table Lamp Modes", botHandler.tableLampModeKeyboard)
-		if err != nil {
-			panic(err)
-		}
-	})
-}
-
-func (botHandler *TelegramBotHandler) TableLampActionHandlers(mqttHandler *MQTTHandler, buttons map[string]*tb.Btn) {
-
-	botHandler.TableLampKeyboardRequestHandler()
-	for color, btn := range buttons {
-
-		func(btn *tb.Btn, color string) {
-
-			Bot.Handle(btn, func(c *tb.Callback) {
-				err := Bot.Respond(c, &tb.CallbackResponse{})
-				if err != nil {
-					return
-				}
-				mqttHandler.PublishUpdate(TableLampPub, color)
-			})
-		}(btn, color)
-	}
+	botHandler.keyboards = make(map[string]*tb.ReplyMarkup)
 }
 
 func CreateHumanReadable(applianceDataMap map[string]interface{}) string {

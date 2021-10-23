@@ -5,30 +5,33 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
-func GenerateTableLampButtons() (tableLampModes *tb.ReplyMarkup) {
-	tableLampModes = &tb.ReplyMarkup{ResizeReplyKeyboard: true}
-
-	tableLampOptsMap := make(map[string]*tb.Btn)
-
-	tableLampOptsMap["white"] = &tb.Btn{Unique: "white", Text: "⬜"}
-	tableLampOptsMap["yellow"] = &tb.Btn{Unique: "yellow", Text: "\U0001F7E8"}
-	tableLampOptsMap["blue"] = &tb.Btn{Unique: "blue", Text: "\U0001F7E6"}
-	tableLampOptsMap["green"] = &tb.Btn{Unique: "green", Text: "\U0001F7E9"}
-	tableLampOptsMap["red"] = &tb.Btn{Unique: "red", Text: "\U0001F7E5"}
-	tableLampOptsMap["pink"] = &tb.Btn{Unique: "pink", Text: "\U0001F7EA"}
-	tableLampOptsMap["off"] = &tb.Btn{Unique: "off", Text: "🚫"}
-
-	tableLampModes.Inline(
-		tableLampModes.Row(*tableLampOptsMap["white"],
-			*tableLampOptsMap["yellow"], *tableLampOptsMap["blue"],
-			*tableLampOptsMap["green"], *tableLampOptsMap["red"],
-			*tableLampOptsMap["pink"], *tableLampOptsMap["off"]),
-	)
-
-	return tableLampModes
+type TableLampActionsHandler struct {
 }
 
-func TableLampMessageProcessor() (TableLampMessageHandler mqtt.MessageHandler) {
+func (tableLampActionsHandler *TableLampActionsHandler) GenerateButtons(telegramBotHandler *TelegramBotHandler) map[string]*tb.Btn {
+	tableLampModesKeyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
+
+	tableLampModesMap := make(map[string]*tb.Btn)
+
+	tableLampModesMap["white"] = &tb.Btn{Unique: "white", Text: "⬜"}
+	tableLampModesMap["yellow"] = &tb.Btn{Unique: "yellow", Text: "\U0001F7E8"}
+	tableLampModesMap["blue"] = &tb.Btn{Unique: "blue", Text: "\U0001F7E6"}
+	tableLampModesMap["green"] = &tb.Btn{Unique: "green", Text: "\U0001F7E9"}
+	tableLampModesMap["red"] = &tb.Btn{Unique: "red", Text: "\U0001F7E5"}
+	tableLampModesMap["pink"] = &tb.Btn{Unique: "pink", Text: "\U0001F7EA"}
+	tableLampModesMap["off"] = &tb.Btn{Unique: "off", Text: "🚫"}
+
+	tableLampModesKeyboard.Inline(
+		tableLampModesKeyboard.Row(*tableLampModesMap["white"],
+			*tableLampModesMap["yellow"], *tableLampModesMap["blue"],
+			*tableLampModesMap["green"], *tableLampModesMap["red"],
+			*tableLampModesMap["pink"], *tableLampModesMap["off"]),
+	)
+	telegramBotHandler.keyboards["tableLamp"] = tableLampModesKeyboard
+	return tableLampModesMap
+}
+
+func (tableLampActionsHandler *TableLampActionsHandler) MessageProcessor() (TableLampMessageHandler mqtt.MessageHandler) {
 
 	TableLampMessageHandler = func(client mqtt.Client, message mqtt.Message) {
 
@@ -44,4 +47,35 @@ func TableLampMessageProcessor() (TableLampMessageHandler mqtt.MessageHandler) {
 		}()
 	}
 	return TableLampMessageHandler
+}
+
+func (tableLampActionsHandler *TableLampActionsHandler) KeyboardRequestHandler(botHandler *TelegramBotHandler) {
+	Bot.Handle("/tablelamp", func(message *tb.Message) {
+		if !message.Private() {
+			return
+		}
+		_, err := Bot.Send(message.Sender, "Table Lamp Modes", botHandler.keyboards["tableLamp"])
+		if err != nil {
+			panic(err)
+		}
+	})
+}
+
+func (tableLampActionsHandler *TableLampActionsHandler) SetKeyboardActions(mqttHandler *MQTTHandler, botHandler *TelegramBotHandler, buttons map[string]*tb.Btn) {
+
+	tableLampActionsHandler.KeyboardRequestHandler(botHandler)
+
+	for color, btn := range buttons {
+
+		func(btn *tb.Btn, color string) {
+
+			Bot.Handle(btn, func(c *tb.Callback) {
+				err := Bot.Respond(c, &tb.CallbackResponse{})
+				if err != nil {
+					return
+				}
+				mqttHandler.PublishUpdate(TableLampPub, color)
+			})
+		}(btn, color)
+	}
 }
