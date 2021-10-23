@@ -33,7 +33,7 @@ func (botHandler *TelegramBotHandler) CreateBot() {
 	}
 }
 
-func (botHandler *TelegramBotHandler) GenerateButtons() map[string]*tb.Btn {
+func (botHandler *TelegramBotHandler) GenerateTableLampButtons() map[string]*tb.Btn {
 
 	tableLampModes := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
 
@@ -71,13 +71,16 @@ func (botHandler *TelegramBotHandler) TableLampActionHandlers(mqttHandler *MQTTH
 	botHandler.TableLampKeyboardRequestHandler()
 	for color, btn := range buttons {
 
-		Bot.Handle(btn, func(c *tb.Callback) {
-			err := Bot.Respond(c, &tb.CallbackResponse{})
-			if err != nil {
-				return
-			}
-			mqttHandler.PublishUpdate(TableLampPub, color)
-		})
+		func(btn *tb.Btn, color string) {
+
+			Bot.Handle(btn, func(c *tb.Callback) {
+				err := Bot.Respond(c, &tb.CallbackResponse{})
+				if err != nil {
+					return
+				}
+				mqttHandler.PublishUpdate(TableLampPub, color)
+			})
+		}(btn, color)
 	}
 }
 

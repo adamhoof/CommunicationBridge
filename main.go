@@ -7,27 +7,36 @@ import (
 )
 
 func main() {
-	mqttHandler := MQTTHandler {}
-	postgreSQLHandler := PostgreSQLHandler{}
-	telegramBotHandler := TelegramBotHandler{}
 
-	handlers := make(map[string]mqtt.MessageHandler)
-	handlers["tableLamp"] = TableLampHandler()
+	mqttHandler := MQTTHandler{}
+	telegramBotHandler := TelegramBotHandler{}
 
 	var routineSyncer sync.WaitGroup
 
-	routineSyncer.Add(1)
-	go func() {
-		defer routineSyncer.Done()
-		mqttHandler.SetupClientOptions()
-		mqttHandler.CreateClient()
-		mqttHandler.ConnectClient()
-		mqttHandler.SetSubscriptions(handlers)
-	}()
+	messageProcessors := make(map[string]mqtt.MessageHandler)
 
 	routineSyncer.Add(1)
 	go func(routineSyncer *sync.WaitGroup) {
 		defer routineSyncer.Done()
+		messageProcessors["tableLamp"] = TableLampMessageProcessor()
+		mqttHandler.SetupClientOptions()
+		mqttHandler.CreateClient()
+		mqttHandler.ConnectClient()
+		mqttHandler.SetSubscriptions(messageProcessors)
+	}(&routineSyncer)
+
+	routineSyncer.Add(1)
+	go func(routineSyncer *sync.WaitGroup) {
+		defer routineSyncer.Done()
+		telegramBotHandler.CreateBot()
+		buttons := telegramBotHandler.GenerateTableLampButtons()
+		telegramBotHandler.TableLampActionHandlers(&mqttHandler, buttons)
+	}(&routineSyncer)
+
+	routineSyncer.Add(1)
+	go func(routineSyncer *sync.WaitGroup) {
+		defer routineSyncer.Done()
+		postgreSQLHandler := PostgreSQLHandler{}
 		postgreSQLHandler.Connect()
 		postgreSQLHandler.TestConnection()
 		postgreSQLHandler.Disconnect()
@@ -35,14 +44,5 @@ func main() {
 
 	routineSyncer.Wait()
 
-	routineSyncer.Add(1)
-	go func(routineSyncer *sync.WaitGroup) {
-		defer routineSyncer.Done()
-		telegramBotHandler.CreateBot()
-		buttons := telegramBotHandler.GenerateButtons()
-		telegramBotHandler.TableLampActionHandlers(&mqttHandler, buttons)
-		telegramBotHandler.StartBot()
-	}(&routineSyncer)
-
-	routineSyncer.Wait()
+	telegramBotHandler.StartBot()
 }

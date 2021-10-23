@@ -21,7 +21,6 @@ const (
 )
 
 func (mqttHandler *MQTTHandler) SetupClientOptions() {
-
 	mqttHandler.clientOptions.AddBroker("tls://proteccmqtt.medunka.cz:8883")
 	mqttHandler.clientOptions.SetClientID("RPICommandHandler")
 	mqttHandler.clientOptions.SetTLSConfig(mqttHandler.GenerateTlsConfig())
