@@ -40,6 +40,7 @@ func main() {
 
 	routineSyncer.Wait()
 
-	RoomAppliancesKeyboardRequestHandler(&telegramBotHandler)
+	AllAppliancesKeyboardHandler(&telegramBotHandler)
+	OfficeAppliancesKeyboardHandler(&telegramBotHandler)
 	telegramBotHandler.StartBot()
 }

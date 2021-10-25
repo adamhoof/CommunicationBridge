@@ -7,7 +7,7 @@ import (
 )
 
 type TelegramBotHandler struct {
-	bot *tb.Bot
+	bot       *tb.Bot
 	keyboards map[string]*tb.ReplyMarkup
 }
 
