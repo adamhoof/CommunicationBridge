@@ -15,14 +15,19 @@ type MQTTHandler struct {
 }
 
 const (
+	brokerName = "tls://proteccmqtt.medunka.cz:8883"
+	clientName = "RPICommandHandler"
+)
+
+const (
 	TableLampPub = "room/tableLamp/rpiSet"
 
 	tableLampSub = "room/tableLamp/espReply"
 )
 
 func (mqttHandler *MQTTHandler) SetupClientOptions() {
-	mqttHandler.clientOptions.AddBroker("tls://proteccmqtt.medunka.cz:8883")
-	mqttHandler.clientOptions.SetClientID("RPICommandHandler")
+	mqttHandler.clientOptions.AddBroker(brokerName)
+	mqttHandler.clientOptions.SetClientID(clientName)
 	mqttHandler.clientOptions.SetTLSConfig(mqttHandler.GenerateTlsConfig())
 	mqttHandler.clientOptions.SetAutoReconnect(true)
 	mqttHandler.clientOptions.SetConnectRetry(true)

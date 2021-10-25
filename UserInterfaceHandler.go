@@ -5,6 +5,14 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
+const (
+	OFFICE_APPLIANCES_COMMAND = "/officeappliances"
+	OFFICE_APPLIANCES_KEYBOARD = "officeAppliances"
+	TABLE_LAMP_COMMAND = "/tablelamp"
+	TABLE_LAMP_KEYBOARD = "tableLamp"
+)
+
+
 type ApplianceInteractionHandler interface {
 	Name() string
 	MessageProcessor() (MessageHandler mqtt.MessageHandler)
@@ -25,21 +33,21 @@ func SetupClientInterfaceOptions(applianceInteractionHandler ApplianceInteractio
 
 func RoomAppliancesKeyboardRequestHandler(telegramBotHandler *TelegramBotHandler) {
 	roomAppliancesKeyboard := &tb.ReplyMarkup{}
-	telegramBotHandler.keyboards["roomAppliances"] = roomAppliancesKeyboard
+	telegramBotHandler.keyboards[OFFICE_APPLIANCES_KEYBOARD] = roomAppliancesKeyboard
 
-	tableLampBtn := roomAppliancesKeyboard.Text("/tablelamp")
+	tableLampBtn := roomAppliancesKeyboard.Text(TABLE_LAMP_COMMAND)
 	roomAppliancesKeyboard.Reply(
 		roomAppliancesKeyboard.Row(tableLampBtn),
 	)
-	usr := User{userId: "558297691"}
+	usr := User{id: meId}
 
-	telegramBotHandler.bot.Handle("/roomappliances", func(m *tb.Message) {
+	telegramBotHandler.bot.Handle(OFFICE_APPLIANCES_COMMAND, func(m *tb.Message) {
 		if !m.Private() {
 			return
 		}
-		SendMessage(telegramBotHandler, usr, "Room Appliances", telegramBotHandler.keyboards["roomAppliances"])
+		SendMessage(telegramBotHandler, usr, "Office Appliances", telegramBotHandler.keyboards[OFFICE_APPLIANCES_KEYBOARD])
 	})
 	telegramBotHandler.bot.Handle(&tableLampBtn, func(m *tb.Message) {
-		SendMessage(telegramBotHandler, usr, "Table lamp modes", telegramBotHandler.keyboards["tableLamp"])
+		SendMessage(telegramBotHandler, usr, "Table lamp modes", telegramBotHandler.keyboards[TABLE_LAMP_KEYBOARD])
 	})
 }

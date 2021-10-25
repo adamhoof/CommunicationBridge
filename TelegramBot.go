@@ -12,11 +12,11 @@ type TelegramBotHandler struct {
 }
 
 type User struct {
-	userId string
+	id string
 }
 
 func (user *User) Recipient() string {
-	return user.userId
+	return user.id
 }
 
 func (botHandler *TelegramBotHandler) CreateBot() {
