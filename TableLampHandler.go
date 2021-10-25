@@ -7,11 +7,11 @@ import (
 
 type TableLampActionsHandler struct{}
 
-func (tableLampActionsHandler *TableLampActionsHandler) Name() string{
+func (tableLampActionsHandler *TableLampActionsHandler) Name() string {
 	return "tableLamp"
 }
 
-func (tableLampActionsHandler *TableLampActionsHandler) GenerateButtons(telegramBotHandler *TelegramBotHandler) map[string]*tb.Btn {
+func (tableLampActionsHandler *TableLampActionsHandler) GenerateKeyboard(telegramBotHandler *TelegramBotHandler) map[string]*tb.Btn {
 
 	tableLampModesKeyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
 
@@ -54,23 +54,23 @@ func (tableLampActionsHandler *TableLampActionsHandler) MessageProcessor() (Tabl
 }
 
 func (tableLampActionsHandler *TableLampActionsHandler) KeyboardRequestHandler(botHandler *TelegramBotHandler) {
-	Bot.Handle("/Table\U0001FA94", func(message *tb.Message) {
+	botHandler.bot.Handle("/tablelamp", func(message *tb.Message) {
 		if !message.Private() {
 			return
 		}
 		usr := User{userId: "558297691"}
-		SendMessage(usr, "Table \U0001FA94 modes", botHandler.keyboards["tableLamp"])
+		SendMessage(botHandler, usr, "Table \U0001FA94 modes", botHandler.keyboards["tableLamp"])
 	})
 }
 
-func (tableLampActionsHandler *TableLampActionsHandler) SetKeyboardActions(mqttHandler *MQTTHandler, buttons map[string]*tb.Btn) {
+func (tableLampActionsHandler *TableLampActionsHandler) SetKeyboardActions(telegramBotHandler *TelegramBotHandler, mqttHandler *MQTTHandler, buttons map[string]*tb.Btn) {
 
 	for color, btn := range buttons {
 
 		func(btn *tb.Btn, color string) {
 
-			Bot.Handle(btn, func(c *tb.Callback) {
-				err := Bot.Respond(c, &tb.CallbackResponse{})
+			telegramBotHandler.bot.Handle(btn, func(c *tb.Callback) {
+				err := telegramBotHandler.bot.Respond(c, &tb.CallbackResponse{})
 				if err != nil {
 					return
 				}

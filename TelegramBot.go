@@ -6,9 +6,8 @@ import (
 	"time"
 )
 
-var Bot *tb.Bot
-
 type TelegramBotHandler struct {
+	bot *tb.Bot
 	keyboards map[string]*tb.ReplyMarkup
 }
 
@@ -22,7 +21,7 @@ func (user *User) Recipient() string {
 
 func (botHandler *TelegramBotHandler) CreateBot() {
 	var err error
-	Bot, err = tb.NewBot(tb.Settings{
+	botHandler.bot, err = tb.NewBot(tb.Settings{
 		Token: "1914152683:AAF4r5URK9fCoJicXsCADukXuiTQSYM--U8",
 		Poller: &tb.LongPoller{
 			Timeout: 10 * time.Second,
@@ -49,12 +48,12 @@ func CreateHumanReadable(applianceDataMap map[string]interface{}) string {
 }
 
 func (botHandler *TelegramBotHandler) StartBot() {
-	Bot.Start()
+	botHandler.bot.Start()
 }
 
-func SendMessage(usr User, title string, message interface{}) {
+func SendMessage(telegramBotHandler *TelegramBotHandler, usr User, title string, message interface{}) {
 
-	_, err := Bot.Send(&usr, title, message)
+	_, err := telegramBotHandler.bot.Send(&usr, title, message)
 	if err != nil {
 		fmt.Println("Failed to send message", err)
 	}

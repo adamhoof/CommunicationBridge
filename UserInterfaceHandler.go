@@ -8,8 +8,8 @@ import (
 type ApplianceInteractionHandler interface {
 	Name() string
 	MessageProcessor() (MessageHandler mqtt.MessageHandler)
-	SetKeyboardActions(mqttHandler *MQTTHandler, buttons map[string]*tb.Btn)
-	GenerateButtons(telegramBotHandler *TelegramBotHandler) map[string]*tb.Btn
+	SetKeyboardActions(telegramBotHandler *TelegramBotHandler, mqttHandler *MQTTHandler, buttons map[string]*tb.Btn)
+	GenerateKeyboard(telegramBotHandler *TelegramBotHandler) map[string]*tb.Btn
 	KeyboardRequestHandler(botHandler *TelegramBotHandler)
 }
 
@@ -17,28 +17,29 @@ func SetupClientInterfaceOptions(applianceInteractionHandler ApplianceInteractio
 	mqttHandler *MQTTHandler, messageProcessors map[string]mqtt.MessageHandler) {
 
 	messageProcessors[applianceInteractionHandler.Name()] = applianceInteractionHandler.MessageProcessor()
-	applianceInteractionHandler.SetKeyboardActions(mqttHandler,
-		applianceInteractionHandler.GenerateButtons(telegramBotHandler))
+
+	keyboard := applianceInteractionHandler.GenerateKeyboard(telegramBotHandler)
+	applianceInteractionHandler.SetKeyboardActions(telegramBotHandler, mqttHandler, keyboard)
 	applianceInteractionHandler.KeyboardRequestHandler(telegramBotHandler)
 }
 
-func AllAppliancesKeyboard(telegramBotHandler *TelegramBotHandler)  {
-	allAppliancesKeyboard := &tb.ReplyMarkup{}
-	tableLampBtn := allAppliancesKeyboard.Text("/Table \U0001FA94")
-	telegramBotHandler.keyboards["appliances"] = allAppliancesKeyboard
+func RoomAppliancesKeyboardRequestHandler(telegramBotHandler *TelegramBotHandler) {
+	roomAppliancesKeyboard := &tb.ReplyMarkup{}
+	telegramBotHandler.keyboards["roomAppliances"] = roomAppliancesKeyboard
 
-	allAppliancesKeyboard.Reply(
-		allAppliancesKeyboard.Row(tableLampBtn),
-		)
+	tableLampBtn := roomAppliancesKeyboard.Text("/tablelamp")
+	roomAppliancesKeyboard.Reply(
+		roomAppliancesKeyboard.Row(tableLampBtn),
+	)
 	usr := User{userId: "558297691"}
 
-	Bot.Handle("/appliances", func(m *tb.Message){
-		if !m.Private(){
+	telegramBotHandler.bot.Handle("/roomappliances", func(m *tb.Message) {
+		if !m.Private() {
 			return
 		}
-		SendMessage(usr, "Appliances", telegramBotHandler.keyboards["appliances"])
+		SendMessage(telegramBotHandler, usr, "Room Appliances", telegramBotHandler.keyboards["roomAppliances"])
 	})
-	Bot.Handle(&tableLampBtn, func(m *tb.Message){
-		SendMessage(usr, "Table \U0001FA94 modes", telegramBotHandler.keyboards["tableLamp"])
+	telegramBotHandler.bot.Handle(&tableLampBtn, func(m *tb.Message) {
+		SendMessage(telegramBotHandler, usr, "Table lamp modes", telegramBotHandler.keyboards["tableLamp"])
 	})
 }
