@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	APPLIANCES_COMMAND      = "/appliances"
-	ALL_APPLIANCES_KEYBOARD = "allAppliances"
+	APPLIANCES_COMMAND         = "/appliances"
+	ALL_APPLIANCES_KEYBOARD    = "allAppliances"
 	OFFICE_APPLIANCES_COMMAND  = "/officeappliances"
 	OFFICE_APPLIANCES_KEYBOARD = "officeAppliances"
 	TABLE_LAMP_COMMAND         = "/tablelamp"
@@ -69,7 +69,6 @@ func AllAppliancesKeyboardHandler(botHandler *TelegramBotHandler) {
 		allAppliancesKeyboard.Row(officeAppliancesBtn),
 		allAppliancesKeyboard.Row(bedRoomAppliancesBtn),
 	)
-
 
 	usr := User{id: meId}
 
