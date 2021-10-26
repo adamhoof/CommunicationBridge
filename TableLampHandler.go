@@ -5,6 +5,16 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
+const (
+	white = "w"
+	yellow = "y"
+	blue = "b"
+	green = "g"
+	red = "r"
+	pink = "p"
+	off = "o"
+)
+
 type TableLampActionsHandler struct{}
 
 func (tableLampActionsHandler *TableLampActionsHandler) Name() string {
@@ -17,19 +27,19 @@ func (tableLampActionsHandler *TableLampActionsHandler) GenerateKeyboard(telegra
 
 	tableLampModesMap := make(map[string]*tb.Btn)
 
-	tableLampModesMap["white"] = &tb.Btn{Unique: "white", Text: "⬜"}
-	tableLampModesMap["yellow"] = &tb.Btn{Unique: "yellow", Text: "\U0001F7E8"}
-	tableLampModesMap["blue"] = &tb.Btn{Unique: "blue", Text: "\U0001F7E6"}
-	tableLampModesMap["green"] = &tb.Btn{Unique: "green", Text: "\U0001F7E9"}
-	tableLampModesMap["red"] = &tb.Btn{Unique: "red", Text: "\U0001F7E5"}
-	tableLampModesMap["pink"] = &tb.Btn{Unique: "pink", Text: "\U0001F7EA"}
-	tableLampModesMap["off"] = &tb.Btn{Unique: "off", Text: "🚫"}
+	tableLampModesMap[white] = &tb.Btn{Unique: white, Text: "⬜"}
+	tableLampModesMap[yellow] = &tb.Btn{Unique: yellow, Text: "\U0001F7E8"}
+	tableLampModesMap[blue] = &tb.Btn{Unique: blue, Text: "\U0001F7E6"}
+	tableLampModesMap[green] = &tb.Btn{Unique: green, Text: "\U0001F7E9"}
+	tableLampModesMap[red] = &tb.Btn{Unique: red, Text: "\U0001F7E5"}
+	tableLampModesMap[pink] = &tb.Btn{Unique: pink, Text: "\U0001F7EA"}
+	tableLampModesMap[off] = &tb.Btn{Unique: off, Text: "🚫"}
 
 	tableLampModesKeyboard.Inline(
-		tableLampModesKeyboard.Row(*tableLampModesMap["white"],
-			*tableLampModesMap["yellow"], *tableLampModesMap["blue"],
-			*tableLampModesMap["green"], *tableLampModesMap["red"],
-			*tableLampModesMap["pink"], *tableLampModesMap["off"]),
+		tableLampModesKeyboard.Row(*tableLampModesMap[white],
+			*tableLampModesMap[yellow], *tableLampModesMap[blue],
+			*tableLampModesMap[green], *tableLampModesMap[red],
+			*tableLampModesMap[pink], *tableLampModesMap[off]),
 	)
 	telegramBotHandler.keyboards[TABLE_LAMP_KEYBOARD] = tableLampModesKeyboard
 	return tableLampModesMap
