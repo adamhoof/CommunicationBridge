@@ -21,7 +21,7 @@ func (tableLampActionsHandler *TableLampActionsHandler) Name() string {
 	return "tableLamp"
 }
 
-func (tableLampActionsHandler *TableLampActionsHandler) GenerateKeyboard(telegramBotHandler *TelegramBotHandler) map[string]*tb.Btn {
+func (tableLampActionsHandler *TableLampActionsHandler) GenerateKeyboard(telegramBot *TelegramBot) map[string]*tb.Btn {
 
 	tableLampModesKeyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
 
@@ -41,7 +41,7 @@ func (tableLampActionsHandler *TableLampActionsHandler) GenerateKeyboard(telegra
 			*tableLampModesMap[green], *tableLampModesMap[red],
 			*tableLampModesMap[pink], *tableLampModesMap[off]),
 	)
-	telegramBotHandler.keyboards[TABLE_LAMP_KEYBOARD] = tableLampModesKeyboard
+	telegramBot.keyboards[TABLE_LAMP_KEYBOARD] = tableLampModesKeyboard
 	return tableLampModesMap
 }
 
@@ -63,19 +63,19 @@ func (tableLampActionsHandler *TableLampActionsHandler) MessageProcessor() (Tabl
 	return TableLampMessageHandler
 }
 
-func (tableLampActionsHandler *TableLampActionsHandler) KeyboardRequestHandler(botHandler *TelegramBotHandler) {
+func (tableLampActionsHandler *TableLampActionsHandler) KeyboardRequestHandler(telegramBot *TelegramBot) {
 
-	botHandler.UserEvent(TABLE_LAMP_COMMAND, "Table lamp modes", TABLE_LAMP_KEYBOARD, KBOARD)
+	telegramBot.UserEvent(TABLE_LAMP_COMMAND, "Table lamp modes", TABLE_LAMP_KEYBOARD, KBOARD)
 }
 
-func (tableLampActionsHandler *TableLampActionsHandler) SetKeyboardActions(telegramBotHandler *TelegramBotHandler, mqttHandler *MQTTHandler, buttons map[string]*tb.Btn) {
+func (tableLampActionsHandler *TableLampActionsHandler) SetKeyboardActions(telegramBot *TelegramBot, mqttHandler *MQTTHandler, buttons map[string]*tb.Btn) {
 
 	for color, btn := range buttons {
 
 		func(btn *tb.Btn, color string) {
 
-			telegramBotHandler.bot.Handle(btn, func(c *tb.Callback) {
-				err := telegramBotHandler.bot.Respond(c, &tb.CallbackResponse{})
+			telegramBot.bot.Handle(btn, func(c *tb.Callback) {
+				err := telegramBot.bot.Respond(c, &tb.CallbackResponse{})
 				if err != nil {
 					return
 				}

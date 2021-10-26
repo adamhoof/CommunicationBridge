@@ -17,24 +17,24 @@ const (
 type ApplianceInteractionHandler interface {
 	Name() string
 	MessageProcessor() (MessageHandler mqtt.MessageHandler)
-	SetKeyboardActions(botHandler *TelegramBotHandler, mqttHandler *MQTTHandler, buttons map[string]*tb.Btn)
-	GenerateKeyboard(botHandler *TelegramBotHandler) map[string]*tb.Btn
-	KeyboardRequestHandler(botHandler *TelegramBotHandler)
+	SetKeyboardActions(telegramBot *TelegramBot, mqttHandler *MQTTHandler, buttons map[string]*tb.Btn)
+	GenerateKeyboard(telegramBot *TelegramBot) map[string]*tb.Btn
+	KeyboardRequestHandler(telegramBot *TelegramBot)
 }
 
-func SetupClientInterfaceOptions(applianceInteractionHandler ApplianceInteractionHandler, botHandler *TelegramBotHandler,
+func SetupClientInterfaceOptions(applianceInteractionHandler ApplianceInteractionHandler, telegramBot *TelegramBot,
 	mqttHandler *MQTTHandler, messageProcessors map[string]mqtt.MessageHandler) {
 
 	messageProcessors[applianceInteractionHandler.Name()] = applianceInteractionHandler.MessageProcessor()
 
-	keyboard := applianceInteractionHandler.GenerateKeyboard(botHandler)
-	applianceInteractionHandler.SetKeyboardActions(botHandler, mqttHandler, keyboard)
-	applianceInteractionHandler.KeyboardRequestHandler(botHandler)
+	keyboard := applianceInteractionHandler.GenerateKeyboard(telegramBot)
+	applianceInteractionHandler.SetKeyboardActions(telegramBot, mqttHandler, keyboard)
+	applianceInteractionHandler.KeyboardRequestHandler(telegramBot)
 }
 
-func (botHandler *TelegramBotHandler) OfficeAppliancesKeyboardHandler() {
+func (telegramBot *TelegramBot) OfficeAppliancesKeyboardHandler() {
 	officeAppliancesKeyboard := &tb.ReplyMarkup{}
-	botHandler.keyboards[OFFICE_APPLIANCES_KEYBOARD] = officeAppliancesKeyboard
+	telegramBot.keyboards[OFFICE_APPLIANCES_KEYBOARD] = officeAppliancesKeyboard
 
 	tableLampBtn := officeAppliancesKeyboard.Text(TABLE_LAMP_COMMAND)
 	backBtn := officeAppliancesKeyboard.Text("⬅ Back")
@@ -43,14 +43,14 @@ func (botHandler *TelegramBotHandler) OfficeAppliancesKeyboardHandler() {
 		officeAppliancesKeyboard.Row(backBtn),
 	)
 
-	botHandler.UserEvent(OFFICE_APPLIANCES_COMMAND, "Office Appliances", OFFICE_APPLIANCES_KEYBOARD, KBOARD)
-	botHandler.UserEvent(&tableLampBtn, "Table lamp modes", TABLE_LAMP_KEYBOARD, KBOARD)
-	botHandler.UserEvent(&backBtn, "/appliances", ALL_APPLIANCES_KEYBOARD, KBOARD)
+	telegramBot.UserEvent(OFFICE_APPLIANCES_COMMAND, "Office Appliances", OFFICE_APPLIANCES_KEYBOARD, KBOARD)
+	telegramBot.UserEvent(&tableLampBtn, "Table lamp modes", TABLE_LAMP_KEYBOARD, KBOARD)
+	telegramBot.UserEvent(&backBtn, "/appliances", ALL_APPLIANCES_KEYBOARD, KBOARD)
 }
 
-func (botHandler *TelegramBotHandler) AllAppliancesKeyboardHandler() {
+func (telegramBot *TelegramBot) AllAppliancesKeyboardHandler() {
 	allAppliancesKeyboard := &tb.ReplyMarkup{}
-	botHandler.keyboards[ALL_APPLIANCES_KEYBOARD] = allAppliancesKeyboard
+	telegramBot.keyboards[ALL_APPLIANCES_KEYBOARD] = allAppliancesKeyboard
 
 	officeAppliancesBtn := allAppliancesKeyboard.Text("Office appliances")
 	bedRoomAppliancesBtn := allAppliancesKeyboard.Text("Bedroom appliances")
@@ -59,6 +59,6 @@ func (botHandler *TelegramBotHandler) AllAppliancesKeyboardHandler() {
 		allAppliancesKeyboard.Row(officeAppliancesBtn, bedRoomAppliancesBtn),
 	)
 
-	botHandler.UserEvent(&officeAppliancesBtn, OFFICE_APPLIANCES_COMMAND, OFFICE_APPLIANCES_KEYBOARD, KBOARD)
-	botHandler.UserEvent(APPLIANCES_COMMAND, APPLIANCES_COMMAND, ALL_APPLIANCES_KEYBOARD, KBOARD)
+	telegramBot.UserEvent(&officeAppliancesBtn, OFFICE_APPLIANCES_COMMAND, OFFICE_APPLIANCES_KEYBOARD, KBOARD)
+	telegramBot.UserEvent(APPLIANCES_COMMAND, APPLIANCES_COMMAND, ALL_APPLIANCES_KEYBOARD, KBOARD)
 }

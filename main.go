@@ -9,14 +9,14 @@ import (
 func main() {
 
 	mqttHandler := MQTTHandler{}
-	telegramBotHandler := TelegramBotHandler{}
+	telegramBot := TelegramBot{}
 	tableLampActionsHandler := TableLampActionsHandler{}
 
 	messageProcessors := make(map[string]mqtt.MessageHandler)
 
-	telegramBotHandler.CreateBot()
+	telegramBot.CreateBot()
 
-	SetupClientInterfaceOptions(&tableLampActionsHandler, &telegramBotHandler, &mqttHandler, messageProcessors)
+	SetupClientInterfaceOptions(&tableLampActionsHandler, &telegramBot, &mqttHandler, messageProcessors)
 
 	var routineSyncer sync.WaitGroup
 
@@ -40,7 +40,7 @@ func main() {
 
 	routineSyncer.Wait()
 
-	telegramBotHandler.AllAppliancesKeyboardHandler()
-	telegramBotHandler.OfficeAppliancesKeyboardHandler()
-	telegramBotHandler.StartBot()
+	telegramBot.AllAppliancesKeyboardHandler()
+	telegramBot.OfficeAppliancesKeyboardHandler()
+	telegramBot.StartBot()
 }
