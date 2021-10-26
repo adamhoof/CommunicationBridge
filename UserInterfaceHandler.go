@@ -17,19 +17,19 @@ const (
 type ApplianceInteractionHandler interface {
 	Name() string
 	MessageProcessor() (MessageHandler mqtt.MessageHandler)
-	SetKeyboardActions(telegramBotHandler *TelegramBotHandler, mqttHandler *MQTTHandler, buttons map[string]*tb.Btn)
-	GenerateKeyboard(telegramBotHandler *TelegramBotHandler) map[string]*tb.Btn
+	SetKeyboardActions(botHandler *TelegramBotHandler, mqttHandler *MQTTHandler, buttons map[string]*tb.Btn)
+	GenerateKeyboard(botHandler *TelegramBotHandler) map[string]*tb.Btn
 	KeyboardRequestHandler(botHandler *TelegramBotHandler)
 }
 
-func SetupClientInterfaceOptions(applianceInteractionHandler ApplianceInteractionHandler, telegramBotHandler *TelegramBotHandler,
+func SetupClientInterfaceOptions(applianceInteractionHandler ApplianceInteractionHandler, botHandler *TelegramBotHandler,
 	mqttHandler *MQTTHandler, messageProcessors map[string]mqtt.MessageHandler) {
 
 	messageProcessors[applianceInteractionHandler.Name()] = applianceInteractionHandler.MessageProcessor()
 
-	keyboard := applianceInteractionHandler.GenerateKeyboard(telegramBotHandler)
-	applianceInteractionHandler.SetKeyboardActions(telegramBotHandler, mqttHandler, keyboard)
-	applianceInteractionHandler.KeyboardRequestHandler(telegramBotHandler)
+	keyboard := applianceInteractionHandler.GenerateKeyboard(botHandler)
+	applianceInteractionHandler.SetKeyboardActions(botHandler, mqttHandler, keyboard)
+	applianceInteractionHandler.KeyboardRequestHandler(botHandler)
 }
 
 func (botHandler *TelegramBotHandler) OfficeAppliancesKeyboardHandler() {
@@ -56,8 +56,7 @@ func (botHandler *TelegramBotHandler) AllAppliancesKeyboardHandler() {
 	bedRoomAppliancesBtn := allAppliancesKeyboard.Text("Bedroom appliances")
 
 	allAppliancesKeyboard.Reply(
-		allAppliancesKeyboard.Row(officeAppliancesBtn),
-		allAppliancesKeyboard.Row(bedRoomAppliancesBtn),
+		allAppliancesKeyboard.Row(officeAppliancesBtn, bedRoomAppliancesBtn),
 	)
 
 	botHandler.UserEvent(&officeAppliancesBtn, OFFICE_APPLIANCES_COMMAND, OFFICE_APPLIANCES_KEYBOARD, KBOARD)

@@ -24,7 +24,6 @@ const (
 	KBOARD = 1
 )
 
-
 func (user *User) Recipient() string {
 	return user.id
 }
