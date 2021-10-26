@@ -5,8 +5,6 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
-const meId = "558297691"
-
 type TableLampActionsHandler struct{}
 
 func (tableLampActionsHandler *TableLampActionsHandler) Name() string {
@@ -56,13 +54,8 @@ func (tableLampActionsHandler *TableLampActionsHandler) MessageProcessor() (Tabl
 }
 
 func (tableLampActionsHandler *TableLampActionsHandler) KeyboardRequestHandler(botHandler *TelegramBotHandler) {
-	botHandler.bot.Handle(TABLE_LAMP_COMMAND, func(message *tb.Message) {
-		if !message.Private() {
-			return
-		}
-		usr := User{id: meId}
-		SendMessage(botHandler, usr, "Table lamp modes", botHandler.keyboards[TABLE_LAMP_KEYBOARD])
-	})
+
+	botHandler.UserEvent(TABLE_LAMP_COMMAND, "Table lamp modes", TABLE_LAMP_KEYBOARD, KBOARD)
 }
 
 func (tableLampActionsHandler *TableLampActionsHandler) SetKeyboardActions(telegramBotHandler *TelegramBotHandler, mqttHandler *MQTTHandler, buttons map[string]*tb.Btn) {
