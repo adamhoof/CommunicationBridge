@@ -45,8 +45,8 @@ func (postgreHandler *PostgreSQLHandler) Disconnect() {
 	}
 }
 
-func (postgreHandler *PostgreSQLHandler) UpdateMode(applianceData map[string]interface{}) {
-	_, err := postgreHandler.db.Exec(updateSingleSQLStatement, applianceData["Type"], applianceData["Mode"])
+func (postgreHandler *PostgreSQLHandler) UpdateMode(applianceType string, applianceMode string) {
+	_, err := postgreHandler.db.Exec(updateSingleSQLStatement, applianceType, applianceMode)
 	if err != nil {
 		fmt.Println("Couldnt update mode", err)
 	}

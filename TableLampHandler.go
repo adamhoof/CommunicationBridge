@@ -49,14 +49,10 @@ func (tableLampActionsHandler *TableLampActionsHandler) MessageProcessor() (Tabl
 
 	TableLampMessageHandler = func(client mqtt.Client, message mqtt.Message) {
 
-		tableLampData := make(map[string]interface{})
-		tableLampData["Type"] = "TableLamp"
-		tableLampData["Mode"] = string(message.Payload())
-
 		func() {
 			postgreSQLHandler := PostgreSQLHandler{}
 			postgreSQLHandler.Connect()
-			postgreSQLHandler.UpdateMode(tableLampData)
+			postgreSQLHandler.UpdateMode("TableLamp", string(message.Payload()))
 			postgreSQLHandler.Disconnect()
 		}()
 	}
@@ -68,7 +64,7 @@ func (tableLampActionsHandler *TableLampActionsHandler) KeyboardRequestHandler(t
 	telegramBot.UserEvent(TABLE_LAMP_COMMAND, "Table lamp modes", TABLE_LAMP_KEYBOARD, KBOARD)
 }
 
-func (tableLampActionsHandler *TableLampActionsHandler) SetKeyboardActions(telegramBot *TelegramBot, mqttHandler *MQTTHandler, buttons map[string]*tb.Btn) {
+func (tableLampActionsHandler *TableLampActionsHandler) UserEvents(telegramBot *TelegramBot, mqttHandler *MQTTHandler, buttons map[string]*tb.Btn) {
 
 	for color, btn := range buttons {
 

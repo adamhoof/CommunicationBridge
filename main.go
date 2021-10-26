@@ -11,6 +11,7 @@ func main() {
 	mqttHandler := MQTTHandler{}
 	telegramBot := TelegramBot{}
 	tableLampActionsHandler := TableLampActionsHandler{}
+	keyboardsController := KeyboardsController{}
 
 	messageProcessors := make(map[string]mqtt.MessageHandler)
 
@@ -40,7 +41,7 @@ func main() {
 
 	routineSyncer.Wait()
 
-	telegramBot.AllAppliancesKeyboardHandler()
-	telegramBot.OfficeAppliancesKeyboardHandler()
+	keyboardsController.AllAppliancesKeyboardHandler(&telegramBot)
+	keyboardsController.OfficeAppliancesKeyboardHandler(&telegramBot)
 	telegramBot.StartBot()
 }
