@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	tb "gopkg.in/tucnak/telebot.v2"
+	"io/ioutil"
 	"time"
 )
 
@@ -29,9 +30,10 @@ func (user *User) Recipient() string {
 }
 
 func (telegramBot *TelegramBot) CreateBot() {
-	var err error
+
+	token, err := ioutil.ReadFile("Authentication/BotToken")
 	telegramBot.bot, err = tb.NewBot(tb.Settings{
-		Token: "1914152683:AAF4r5URK9fCoJicXsCADukXuiTQSYM--U8",
+		Token: string(token),
 		Poller: &tb.LongPoller{
 			Timeout: 10 * time.Second,
 		},
