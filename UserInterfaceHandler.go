@@ -16,7 +16,7 @@ const (
 
 type ApplianceInteractionHandler interface {
 	Name() string
-	MessageProcessor() (MessageHandler mqtt.MessageHandler)
+	MessageProcessor() (MessageHandler mqtt.MessageHandler, topic string)
 	UserEvents(telegramBot *TelegramBot, mqttHandler *MQTTHandler, buttons map[string]*tb.Btn)
 	GenerateKeyboard(telegramBot *TelegramBot) map[string]*tb.Btn
 	KeyboardRequestHandler(telegramBot *TelegramBot)
@@ -25,7 +25,8 @@ type ApplianceInteractionHandler interface {
 func SetupApplianceInteractionHandler(applianceInteractionHandler ApplianceInteractionHandler, telegramBot *TelegramBot,
 	mqttHandler *MQTTHandler) {
 
-	mqttHandler.SetSubscription(applianceInteractionHandler.MessageProcessor())
+	processor, topic := applianceInteractionHandler.MessageProcessor()
+	mqttHandler.SetSubscription(processor, topic)
 
 	keyboard := applianceInteractionHandler.GenerateKeyboard(telegramBot)
 	applianceInteractionHandler.UserEvents(telegramBot, mqttHandler, keyboard)

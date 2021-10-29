@@ -6,13 +6,15 @@ import (
 )
 
 const (
-	white = "w"
-	yellow = "y"
-	blue = "b"
-	green = "g"
-	red = "r"
-	pink = "p"
-	off = "o"
+	white        = "w"
+	yellow       = "y"
+	blue         = "b"
+	green        = "g"
+	red          = "r"
+	pink         = "p"
+	off          = "o"
+	tableLampPub = "room/tableLamp/rpiSet"
+	tableLampSub = "room/tableLamp/espReply"
 )
 
 type TableLampActionsHandler struct{}
@@ -45,7 +47,7 @@ func (tableLampActionsHandler *TableLampActionsHandler) GenerateKeyboard(telegra
 	return tableLampModesMap
 }
 
-func (tableLampActionsHandler *TableLampActionsHandler) MessageProcessor() (TableLampMessageHandler mqtt.MessageHandler) {
+func (tableLampActionsHandler *TableLampActionsHandler) MessageProcessor() (TableLampMessageHandler mqtt.MessageHandler, topic string) {
 
 	TableLampMessageHandler = func(client mqtt.Client, message mqtt.Message) {
 
@@ -56,7 +58,7 @@ func (tableLampActionsHandler *TableLampActionsHandler) MessageProcessor() (Tabl
 			postgreSQLHandler.Disconnect()
 		}()
 	}
-	return TableLampMessageHandler
+	return TableLampMessageHandler, tableLampSub
 }
 
 func (tableLampActionsHandler *TableLampActionsHandler) KeyboardRequestHandler(telegramBot *TelegramBot) {
@@ -75,7 +77,7 @@ func (tableLampActionsHandler *TableLampActionsHandler) UserEvents(telegramBot *
 				if err != nil {
 					return
 				}
-				mqttHandler.PublishUpdate(TableLampPub, color)
+				mqttHandler.PublishUpdate(tableLampPub, color)
 			})
 		}(btn, color)
 	}

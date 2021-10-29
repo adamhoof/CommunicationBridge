@@ -19,12 +19,6 @@ const (
 	clientName = "RPICommandHandler"
 )
 
-const (
-	TableLampPub = "room/tableLamp/rpiSet"
-
-	tableLampSub = "room/tableLamp/espReply"
-)
-
 func (mqttHandler *MQTTHandler) SetupClientOptions() {
 	mqttHandler.clientOptions.AddBroker(brokerName)
 	mqttHandler.clientOptions.SetClientID(clientName)
@@ -61,9 +55,9 @@ func (mqttHandler *MQTTHandler) CreateClient() {
 	mqttHandler.client = mqtt.NewClient(&mqttHandler.clientOptions)
 }
 
-func (mqttHandler *MQTTHandler) SetSubscription(messageProcessor mqtt.MessageHandler) {
+func (mqttHandler *MQTTHandler) SetSubscription(messageProcessor mqtt.MessageHandler, topic string) {
 
-	if token := (mqttHandler.client).Subscribe(tableLampSub, 0, messageProcessor); token.Wait() && token.Error() != nil {
+	if token := (mqttHandler.client).Subscribe(topic, 0, messageProcessor); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to create subscription: %v", token.Error())
 	}
 }
