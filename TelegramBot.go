@@ -31,7 +31,7 @@ func (user *User) Recipient() string {
 
 func (telegramBot *TelegramBot) CreateBot() {
 
-	token, err := ioutil.ReadFile("Authentication/BotToken")
+	token, err := ioutil.ReadFile("Auth/BotToken")
 	telegramBot.bot, err = tb.NewBot(tb.Settings{
 		Token: string(token),
 		Poller: &tb.LongPoller{

@@ -37,13 +37,13 @@ func (mqttHandler *MQTTHandler) SetupClientOptions() {
 
 func (mqttHandler *MQTTHandler) GenerateTlsConfig() *tls.Config {
 	certpool := x509.NewCertPool()
-	ca, err := ioutil.ReadFile("Authentication/ca/ca.crt")
+	ca, err := ioutil.ReadFile("Auth/ca/ca.crt")
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
 	certpool.AppendCertsFromPEM(ca)
 
-	certificateKeyPair, certReadingErr := tls.LoadX509KeyPair("Authentication/client/client.crt", "Authentication/client/client.key")
+	certificateKeyPair, certReadingErr := tls.LoadX509KeyPair("Auth/client/client.crt", "Auth/client/client.key")
 
 	if certReadingErr != nil {
 		panic(certReadingErr)
