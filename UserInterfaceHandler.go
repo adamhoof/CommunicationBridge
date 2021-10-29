@@ -22,7 +22,7 @@ type ApplianceInteractionHandler interface {
 	KeyboardRequestHandler(telegramBot *TelegramBot)
 }
 
-func SetupClientInterfaceOptions(applianceInteractionHandler ApplianceInteractionHandler, telegramBot *TelegramBot,
+func SetupApplianceInteractionHandler(applianceInteractionHandler ApplianceInteractionHandler, telegramBot *TelegramBot,
 	mqttHandler *MQTTHandler, messageProcessors map[string]mqtt.MessageHandler) {
 
 	messageProcessors[applianceInteractionHandler.Name()] = applianceInteractionHandler.MessageProcessor()

@@ -17,7 +17,7 @@ func main() {
 
 	telegramBot.CreateBot()
 
-	SetupClientInterfaceOptions(&tableLampActionsHandler, &telegramBot, &mqttHandler, messageProcessors)
+	SetupApplianceInteractionHandler(&tableLampActionsHandler, &telegramBot, &mqttHandler, messageProcessors)
 
 	var routineSyncer sync.WaitGroup
 
