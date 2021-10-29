@@ -1,7 +1,6 @@
 package main
 
 import (
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 	_ "github.com/lib/pq"
 	"sync"
 )
@@ -13,11 +12,7 @@ func main() {
 	tableLampActionsHandler := TableLampActionsHandler{}
 	keyboardsController := KeyboardsController{}
 
-	messageProcessors := make(map[string]mqtt.MessageHandler)
-
 	telegramBot.CreateBot()
-
-	SetupApplianceInteractionHandler(&tableLampActionsHandler, &telegramBot, &mqttHandler, messageProcessors)
 
 	var routineSyncer sync.WaitGroup
 
@@ -27,7 +22,6 @@ func main() {
 		mqttHandler.SetupClientOptions()
 		mqttHandler.CreateClient()
 		mqttHandler.ConnectClient()
-		mqttHandler.SetSubscriptions(messageProcessors)
 	}(&routineSyncer)
 
 	routineSyncer.Add(1)
@@ -43,5 +37,6 @@ func main() {
 
 	keyboardsController.AllAppliancesKeyboardHandler(&telegramBot)
 	keyboardsController.OfficeAppliancesKeyboardHandler(&telegramBot)
+	SetupApplianceInteractionHandler(&tableLampActionsHandler, &telegramBot, &mqttHandler)
 	telegramBot.StartBot()
 }
