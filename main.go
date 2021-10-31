@@ -9,34 +9,43 @@ func main() {
 
 	mqttHandler := MQTTHandler{}
 	telegramBot := TelegramBot{}
-	tableLampActionsHandler := TableLampActionsHandler{}
-	keyboardsController := KeyboardsController{}
+	postgreSQLHandler := PostgreSQLHandler{}
 
-	telegramBot.CreateBot()
+	services := ServiceContainer{
+		mqtt:       &mqttHandler,
+		botHandler: &telegramBot,
+		db:         &postgreSQLHandler,
+	}
+
+	menuKeyboards := MenuKeyboards{}
+
+	services.botHandler.CreateBot()
 
 	var routineSyncer sync.WaitGroup
 
 	routineSyncer.Add(1)
 	go func(routineSyncer *sync.WaitGroup) {
 		defer routineSyncer.Done()
-		mqttHandler.SetupClientOptions()
-		mqttHandler.CreateClient()
-		mqttHandler.ConnectClient()
+		services.mqtt.SetupClientOptions()
+		services.mqtt.CreateClient()
+		services.mqtt.ConnectClient()
 	}(&routineSyncer)
 
 	routineSyncer.Add(1)
 	go func(routineSyncer *sync.WaitGroup) {
 		defer routineSyncer.Done()
-		postgreSQLHandler := PostgreSQLHandler{}
-		postgreSQLHandler.Connect()
-		postgreSQLHandler.TestConnection()
-		postgreSQLHandler.Disconnect()
+		services.db.Connect()
+		services.db.TestConnection()
 	}(&routineSyncer)
 
 	routineSyncer.Wait()
 
-	keyboardsController.AllAppliancesKeyboardHandler(&telegramBot)
-	keyboardsController.OfficeAppliancesKeyboardHandler(&telegramBot)
-	SetupApplianceInteractionHandler(&tableLampActionsHandler, &telegramBot, &mqttHandler)
+	menuKeyboards.AllAppliances(&telegramBot)
+	menuKeyboards.OfficeAppliances(&telegramBot)
+
+	officeTableLamp := OfficeTableLamp{}
+	cryptoQuery := CryptoQuery{}
+	SetupPhysicalToyInterface(&officeTableLamp, &services)
+	SetupVirtualToyInterface(&cryptoQuery, &services)
 	telegramBot.StartBot()
 }

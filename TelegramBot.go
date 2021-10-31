@@ -53,7 +53,15 @@ func CreateHumanReadable(applianceDataMap map[string]interface{}) string {
 	if applianceDataMap != nil {
 
 		for key, value := range applianceDataMap {
-			humanReadable += key + ": " + value.(string) + "\n"
+			switch value.(type) {
+			case string:
+				humanReadable += key + ": " + value.(string) + "\n"
+			case float64:
+				value = fmt.Sprintf("%.2f", value.(float64))
+				humanReadable += key + ": " + value.(string) + "\n"
+			default:
+				fmt.Println("REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+			}
 		}
 		return humanReadable
 	}

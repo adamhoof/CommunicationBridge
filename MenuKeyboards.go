@@ -2,11 +2,17 @@ package main
 
 import tb "gopkg.in/tucnak/telebot.v2"
 
-type KeyboardsController struct {
+const (
+	ALL_APPLIANCES_KEYBOARD    = "allAppliances"
+	OFFICE_APPLIANCES_KEYBOARD = "officeAppliances"
+	CRYPTO_DATA_KEYBOARD       = "cryptoData"
+)
+
+type MenuKeyboards struct {
 	keyboards map[string]*tb.ReplyMarkup
 }
 
-func (keyboardsController *KeyboardsController) OfficeAppliancesKeyboardHandler(telegramBot *TelegramBot) {
+func (menuKeyboards *MenuKeyboards) OfficeAppliances(telegramBot *TelegramBot) {
 	officeAppliancesKeyboard := &tb.ReplyMarkup{}
 	telegramBot.keyboards[OFFICE_APPLIANCES_KEYBOARD] = officeAppliancesKeyboard
 
@@ -21,16 +27,20 @@ func (keyboardsController *KeyboardsController) OfficeAppliancesKeyboardHandler(
 	telegramBot.UserEvent(&backBtn, "Appliances", ALL_APPLIANCES_KEYBOARD, KBOARD)
 }
 
-func (keyboardsController *KeyboardsController) AllAppliancesKeyboardHandler(telegramBot *TelegramBot) {
+func (menuKeyboards *MenuKeyboards) AllAppliances(botHandler *TelegramBot) {
 	allAppliancesKeyboard := &tb.ReplyMarkup{}
-	telegramBot.keyboards[ALL_APPLIANCES_KEYBOARD] = allAppliancesKeyboard
+	botHandler.keyboards[ALL_APPLIANCES_KEYBOARD] = allAppliancesKeyboard
 
 	officeAppliancesBtn := allAppliancesKeyboard.Text("Office appliances")
 	bedRoomAppliancesBtn := allAppliancesKeyboard.Text("Bedroom appliances")
+	cryptoDataQueryBtn := allAppliancesKeyboard.Text("Crypto data")
 
 	allAppliancesKeyboard.Reply(
 		allAppliancesKeyboard.Row(officeAppliancesBtn, bedRoomAppliancesBtn),
+		allAppliancesKeyboard.Row( cryptoDataQueryBtn),
 	)
 
-	telegramBot.UserEvent(&officeAppliancesBtn, "Office Appliances", OFFICE_APPLIANCES_KEYBOARD, KBOARD)
+	botHandler.UserEvent("/appliances", "/appliances", ALL_APPLIANCES_KEYBOARD, KBOARD)
+	botHandler.UserEvent(&officeAppliancesBtn, "Office Appliances", OFFICE_APPLIANCES_KEYBOARD, KBOARD)
+	botHandler.UserEvent(&cryptoDataQueryBtn, "Crypto Query", CRYPTO_DATA_KEYBOARD, KBOARD)
 }

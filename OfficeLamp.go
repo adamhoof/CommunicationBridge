@@ -5,6 +5,8 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
+const TABLE_LAMP_KEYBOARD = "tableLamp"
+
 const (
 	white        = "w"
 	yellow       = "y"
@@ -17,13 +19,14 @@ const (
 	tableLampSub = "room/tableLamp/espReply"
 )
 
-type TableLampActionsHandler struct{}
+type OfficeTableLamp struct {
+}
 
-func (tableLampActionsHandler *TableLampActionsHandler) Name() string {
+func (officeTableLamp *OfficeTableLamp) Name() string {
 	return "tableLamp"
 }
 
-func (tableLampActionsHandler *TableLampActionsHandler) GenerateFunctionButtons(botHandler *TelegramBot, mqttHandler *MQTTHandler) map[string]*tb.Btn {
+func (officeTableLamp *OfficeTableLamp) GenerateFunctionButtons(services *ServiceContainer) map[string]*tb.Btn {
 
 	buttons := make(map[string]*tb.Btn)
 
@@ -39,21 +42,21 @@ func (tableLampActionsHandler *TableLampActionsHandler) GenerateFunctionButtons(
 
 		func(btn *tb.Btn, color string) {
 
-			botHandler.bot.Handle(btn, func(c *tb.Callback) {
-				err := botHandler.bot.Respond(c, &tb.CallbackResponse{})
+			services.botHandler.bot.Handle(btn, func(c *tb.Callback) {
+				err := services.botHandler.bot.Respond(c, &tb.CallbackResponse{})
 				if err != nil {
 					return
 				}
-				mqttHandler.PublishUpdate(tableLampPub, color)
+				services.mqtt.PublishUpdate(tableLampPub, color)
 			})
 		}(btn, color)
 	}
 	return buttons
 }
 
-func (tableLampActionsHandler *TableLampActionsHandler) GenerateKeyboard(telegramBot *TelegramBot, mqtt *MQTTHandler) {
+func (officeTableLamp *OfficeTableLamp) KeyboardCommands(services *ServiceContainer) {
 
-	buttons := tableLampActionsHandler.GenerateFunctionButtons(telegramBot, mqtt)
+	buttons := officeTableLamp.GenerateFunctionButtons(services)
 
 	tableLampModesKeyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
 
@@ -63,20 +66,20 @@ func (tableLampActionsHandler *TableLampActionsHandler) GenerateKeyboard(telegra
 			*buttons[green], *buttons[red],
 			*buttons[pink], *buttons[off]),
 	)
-	telegramBot.keyboards[TABLE_LAMP_KEYBOARD] = tableLampModesKeyboard
+	services.botHandler.keyboards[TABLE_LAMP_KEYBOARD] = tableLampModesKeyboard
 }
 
-func (tableLampActionsHandler *TableLampActionsHandler) MessageProcessor() (TableLampMessageHandler mqtt.MessageHandler, topic string) {
+func (officeTableLamp *OfficeTableLamp) MQTTMessageProcessor(services *ServiceContainer) (TableLampMessageHandler mqtt.MessageHandler, topic string) {
 
 	TableLampMessageHandler = func(client mqtt.Client, message mqtt.Message) {
 
 		func() {
-			postgreSQLHandler := PostgreSQLHandler{}
-			postgreSQLHandler.Connect()
-			postgreSQLHandler.UpdateMode("TableLamp", string(message.Payload()))
-			postgreSQLHandler.Disconnect()
+			services.db.UpdateMode("TableLamp", string(message.Payload()))
 		}()
 	}
 	return TableLampMessageHandler, tableLampSub
 }
 
+func (officeTableLamp *OfficeTableLamp) NonKeyboardCommands(services *ServiceContainer) {
+	services.botHandler.UserEvent("/tablelamp", "Table Lamp", TABLE_LAMP_KEYBOARD, KBOARD)
+}
