@@ -27,7 +27,7 @@ func (menuKeyboards *MenuKeyboards) OfficeAppliances(telegramBot *TelegramBot) {
 	telegramBot.UserEvent(&backBtn, "Appliances", ALL_APPLIANCES_KEYBOARD, KBOARD)
 }
 
-func (menuKeyboards *MenuKeyboards) AllAppliances(botHandler *TelegramBot) {
+func (menuKeyboards *MenuKeyboards) AllToys(botHandler *TelegramBot) {
 	allAppliancesKeyboard := &tb.ReplyMarkup{}
 	botHandler.keyboards[ALL_APPLIANCES_KEYBOARD] = allAppliancesKeyboard
 

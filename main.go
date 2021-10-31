@@ -40,7 +40,7 @@ func main() {
 
 	routineSyncer.Wait()
 
-	menuKeyboards.AllAppliances(&telegramBot)
+	menuKeyboards.AllToys(&telegramBot)
 	menuKeyboards.OfficeAppliances(&telegramBot)
 
 	officeTableLamp := OfficeTableLamp{}
