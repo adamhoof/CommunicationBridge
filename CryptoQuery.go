@@ -53,6 +53,7 @@ func (cryptoQuery *CryptoQuery) GenerateFunctionButtons(services *ServiceContain
 
 	buttons["bitcoin"] = &tb.Btn{Unique: "bitcoin", Text: "BTC"}
 	buttons["ethereum"] = &tb.Btn{Unique: "ethereum", Text: "ETH"}
+	buttons["dogecoin"] = &tb.Btn{Unique: "dogecoin", Text: "DOGE"}
 
 	for currency, btn := range buttons {
 
@@ -87,7 +88,7 @@ func (cryptoQuery *CryptoQuery) KeyboardCommands(services *ServiceContainer) {
 	cryptoDataKeyboard := &tb.ReplyMarkup{}
 
 	cryptoDataKeyboard.Inline(
-		cryptoDataKeyboard.Row(*buttons["bitcoin"], *buttons["ethereum"]))
+		cryptoDataKeyboard.Row(*buttons["bitcoin"], *buttons["ethereum"], *buttons["dogecoin"]))
 
 	services.botHandler.keyboards[CRYPTO_DATA_KEYBOARD] = cryptoDataKeyboard
 
