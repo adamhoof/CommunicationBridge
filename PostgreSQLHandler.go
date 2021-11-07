@@ -29,6 +29,7 @@ func (postgreHandler *PostgreSQLHandler) Connect() {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("db connection established")
 }
 
 func (postgreHandler *PostgreSQLHandler) TestConnection() {

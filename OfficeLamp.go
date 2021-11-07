@@ -5,7 +5,7 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
-const TABLE_LAMP_KEYBOARD = "tableLamp"
+const TABLE_LAMP_KBOARD = "tableLamp"
 
 const (
 	white        = "w"
@@ -66,7 +66,7 @@ func (officeTableLamp *OfficeTableLamp) KeyboardCommands(services *ServiceContai
 			*buttons[green], *buttons[red],
 			*buttons[pink], *buttons[off]),
 	)
-	services.botHandler.keyboards[TABLE_LAMP_KEYBOARD] = tableLampModesKeyboard
+	services.botHandler.keyboards[TABLE_LAMP_KBOARD] = tableLampModesKeyboard
 }
 
 func (officeTableLamp *OfficeTableLamp) MQTTMessageProcessor(services *ServiceContainer) (TableLampMessageHandler mqtt.MessageHandler, topic string) {
@@ -81,5 +81,5 @@ func (officeTableLamp *OfficeTableLamp) MQTTMessageProcessor(services *ServiceCo
 }
 
 func (officeTableLamp *OfficeTableLamp) NonKeyboardCommands(services *ServiceContainer) {
-	services.botHandler.UserEvent("/tablelamp", "Table Lamp", TABLE_LAMP_KEYBOARD, KBOARD)
+	services.botHandler.UserEvent("/tablelamp", "Table Lamp", TABLE_LAMP_KBOARD, KBOARD)
 }

@@ -66,7 +66,7 @@ func (mqttHandler *MQTTHandler) ConnectClient() {
 	if token := (mqttHandler.client).Connect(); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to create connection: %v", token.Error())
 	}
-	fmt.Println("Client started")
+	fmt.Println("mqtt client connected")
 }
 
 func (mqttHandler *MQTTHandler) PublishUpdate(topic string, payload interface{}) {

@@ -33,9 +33,9 @@ func (user *User) Recipient() string {
 func (telegramBot *TelegramBot) CreateBot() {
 
 	token, err := ioutil.ReadFile("Auth/BotToken")
-	formatedToken := strings.Split(string(token), "\n")
+	formattedToken := strings.Split(string(token), "\n")
 	telegramBot.bot, err = tb.NewBot(tb.Settings{
-		Token: formatedToken[0],
+		Token: formattedToken[0],
 		Poller: &tb.LongPoller{
 			Timeout: 10 * time.Second,
 		},
@@ -43,16 +43,17 @@ func (telegramBot *TelegramBot) CreateBot() {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("bot created")
 	telegramBot.keyboards = make(map[string]*tb.ReplyMarkup)
 }
 
-func CreateHumanReadable(applianceDataMap map[string]interface{}) string {
+func CreateHumanReadable(toyDataMap map[string]interface{}) string {
 
 	var humanReadable string
 
-	if applianceDataMap != nil {
+	if toyDataMap != nil {
 
-		for key, value := range applianceDataMap {
+		for key, value := range toyDataMap {
 			switch value.(type) {
 			case string:
 				humanReadable += key + ": " + value.(string) + "\n"
@@ -60,12 +61,12 @@ func CreateHumanReadable(applianceDataMap map[string]interface{}) string {
 				value = fmt.Sprintf("%.2f", value.(float64))
 				humanReadable += key + ": " + value.(string) + "\n"
 			default:
-				fmt.Println("REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+				fmt.Println("unsupported type")
 			}
 		}
 		return humanReadable
 	}
-	return "map iterating yeeted"
+	return "empty map"
 }
 
 func (telegramBot *TelegramBot) StartBot() {

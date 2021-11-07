@@ -3,44 +3,43 @@ package main
 import tb "gopkg.in/tucnak/telebot.v2"
 
 const (
-	ALL_APPLIANCES_KEYBOARD    = "allAppliances"
-	OFFICE_APPLIANCES_KEYBOARD = "officeAppliances"
-	CRYPTO_DATA_KEYBOARD       = "cryptoData"
+	ALL_TOYS_KBOARD    = "allToys"
+	OFFICE_TOYS_KBOARD = "officeToys"
 )
 
 type MenuKeyboards struct {
 	keyboards map[string]*tb.ReplyMarkup
 }
 
-func (menuKeyboards *MenuKeyboards) OfficeAppliances(telegramBot *TelegramBot) {
-	officeAppliancesKeyboard := &tb.ReplyMarkup{}
-	telegramBot.keyboards[OFFICE_APPLIANCES_KEYBOARD] = officeAppliancesKeyboard
+func (menuKeyboards *MenuKeyboards) OfficeToys(telegramBot *TelegramBot) {
+	officeToysKboard := &tb.ReplyMarkup{}
+	telegramBot.keyboards[OFFICE_TOYS_KBOARD] = officeToysKboard
 
-	tableLampBtn := officeAppliancesKeyboard.Text("Table Lamp")
-	backBtn := officeAppliancesKeyboard.Text("⬅ Back")
-	officeAppliancesKeyboard.Reply(
-		officeAppliancesKeyboard.Row(tableLampBtn),
-		officeAppliancesKeyboard.Row(backBtn),
+	tableLampBtn := officeToysKboard.Text("Table Lamp")
+	backBtn := officeToysKboard.Text("⬅ Back")
+	officeToysKboard.Reply(
+		officeToysKboard.Row(tableLampBtn),
+		officeToysKboard.Row(backBtn),
 	)
 
-	telegramBot.UserEvent(&tableLampBtn, "Table lamp modes", TABLE_LAMP_KEYBOARD, KBOARD)
-	telegramBot.UserEvent(&backBtn, "Appliances", ALL_APPLIANCES_KEYBOARD, KBOARD)
+	telegramBot.UserEvent(&tableLampBtn, "Table lamp modes", TABLE_LAMP_KBOARD, KBOARD)
+	telegramBot.UserEvent(&backBtn, "All toys", ALL_TOYS_KBOARD, KBOARD)
 }
 
 func (menuKeyboards *MenuKeyboards) AllToys(botHandler *TelegramBot) {
-	allAppliancesKeyboard := &tb.ReplyMarkup{}
-	botHandler.keyboards[ALL_APPLIANCES_KEYBOARD] = allAppliancesKeyboard
+	allToysKboard := &tb.ReplyMarkup{}
+	botHandler.keyboards[ALL_TOYS_KBOARD] = allToysKboard
 
-	officeAppliancesBtn := allAppliancesKeyboard.Text("Office appliances")
-	bedRoomAppliancesBtn := allAppliancesKeyboard.Text("Bedroom appliances")
-	cryptoDataQueryBtn := allAppliancesKeyboard.Text("Crypto data")
+	officeToyBtn := allToysKboard.Text("Office toys")
+	bedroomToyBtn := allToysKboard.Text("Bedroom toys")
+	cryptoQueryBtn := allToysKboard.Text("Crypto query")
 
-	allAppliancesKeyboard.Reply(
-		allAppliancesKeyboard.Row(officeAppliancesBtn, bedRoomAppliancesBtn),
-		allAppliancesKeyboard.Row( cryptoDataQueryBtn),
+	allToysKboard.Reply(
+		allToysKboard.Row(officeToyBtn, bedroomToyBtn),
+		allToysKboard.Row(cryptoQueryBtn),
 	)
 
-	botHandler.UserEvent("/appliances", "/appliances", ALL_APPLIANCES_KEYBOARD, KBOARD)
-	botHandler.UserEvent(&officeAppliancesBtn, "Office Appliances", OFFICE_APPLIANCES_KEYBOARD, KBOARD)
-	botHandler.UserEvent(&cryptoDataQueryBtn, "Crypto Query", CRYPTO_DATA_KEYBOARD, KBOARD)
+	botHandler.UserEvent("/toys", "/toys", ALL_TOYS_KBOARD, KBOARD)
+	botHandler.UserEvent(&officeToyBtn, "Office Toys", OFFICE_TOYS_KBOARD, KBOARD)
+	botHandler.UserEvent(&cryptoQueryBtn, "Crypto Query", CRYPTO_QUERY_KBOARD, KBOARD)
 }

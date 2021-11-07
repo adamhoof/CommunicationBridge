@@ -17,8 +17,6 @@ func main() {
 		db:         &postgreSQLHandler,
 	}
 
-	menuKeyboards := MenuKeyboards{}
-
 	services.botHandler.CreateBot()
 
 	var routineSyncer sync.WaitGroup
@@ -40,8 +38,10 @@ func main() {
 
 	routineSyncer.Wait()
 
+	menuKeyboards := MenuKeyboards{}
+
 	menuKeyboards.AllToys(&telegramBot)
-	menuKeyboards.OfficeAppliances(&telegramBot)
+	menuKeyboards.OfficeToys(&telegramBot)
 
 	officeTableLamp := OfficeTableLamp{}
 	cryptoQuery := CryptoQuery{}

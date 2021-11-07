@@ -12,6 +12,8 @@ import (
 type CryptoQuery struct {
 }
 
+const CRYPTO_QUERY_KBOARD = "cryptoQuery"
+
 func (cryptoQuery *CryptoQuery) RequestData(cryptoCurrency string) *http.Response {
 	request := "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=" + cryptoCurrency + "&order=market_cap_desc&per_page=1&page=1&price_change_percentage=24h%2C7d%2C14d%2C30d"
 	response, err := http.Get(request)
@@ -62,7 +64,7 @@ func (cryptoQuery *CryptoQuery) GenerateFunctionButtons(services *ServiceContain
 			services.botHandler.bot.Handle(btn, func(c *tb.Callback) {
 				err := services.botHandler.bot.Respond(c, &tb.CallbackResponse{})
 				if err != nil {
-					fmt.Println("REEEEEEROOO", err)
+					fmt.Println("Invalid crypto button", err)
 				}
 
 				response := cryptoQuery.RequestData(currency)
@@ -90,10 +92,10 @@ func (cryptoQuery *CryptoQuery) KeyboardCommands(services *ServiceContainer) {
 	cryptoDataKeyboard.Inline(
 		cryptoDataKeyboard.Row(*buttons["bitcoin"], *buttons["ethereum"], *buttons["dogecoin"]))
 
-	services.botHandler.keyboards[CRYPTO_DATA_KEYBOARD] = cryptoDataKeyboard
+	services.botHandler.keyboards[CRYPTO_QUERY_KBOARD] = cryptoDataKeyboard
 
 }
 
 func (cryptoQuery *CryptoQuery) NonKeyboardCommands(services *ServiceContainer) {
-	services.botHandler.UserEvent("/crypto", "Crypto Data", CRYPTO_DATA_KEYBOARD, KBOARD)
+	services.botHandler.UserEvent("/crypto", "Crypto Data", CRYPTO_QUERY_KBOARD, KBOARD)
 }
