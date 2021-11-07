@@ -73,7 +73,7 @@ func (telegramBot *TelegramBot) StartBot() {
 	telegramBot.bot.Start()
 }
 
-func SendMessage(telegramBotHandler *TelegramBot, usr *User, title string, message interface{}) {
+func (telegramBot *TelegramBot)SendMessage(telegramBotHandler *TelegramBot, usr *User, title string, message interface{}) {
 
 	_, err := telegramBotHandler.bot.Send(usr, title, message)
 	if err != nil {
@@ -89,14 +89,14 @@ func (telegramBot *TelegramBot) UserEvent(event interface{}, title string, paylo
 			if !m.Private() {
 				return
 			}
-			SendMessage(telegramBot, &me, title, telegramBot.keyboards[payload])
+			telegramBot.SendMessage(telegramBot, &me, title, telegramBot.keyboards[payload])
 		})
 	case TXT:
 		telegramBot.bot.Handle(event, func(m *tb.Message) {
 			if !m.Private() {
 				return
 			}
-			SendMessage(telegramBot, &me, title, payload)
+			telegramBot.SendMessage(telegramBot, &me, title, payload)
 		})
 	}
 }

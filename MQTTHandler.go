@@ -69,7 +69,7 @@ func (mqttHandler *MQTTHandler) ConnectClient() {
 	fmt.Println("mqtt client connected")
 }
 
-func (mqttHandler *MQTTHandler) PublishUpdate(topic string, payload interface{}) {
+func (mqttHandler *MQTTHandler) PublishText(topic string, payload string) {
 
 	if token := (mqttHandler.client).Publish(topic, 0, true, payload); token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to send upd: %v", token.Error())

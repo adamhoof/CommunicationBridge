@@ -47,7 +47,7 @@ func (officeTableLamp *OfficeTableLamp) GenerateFunctionButtons(services *Servic
 				if err != nil {
 					return
 				}
-				services.mqtt.PublishUpdate(tableLampPub, color)
+				services.mqtt.PublishText(tableLampPub, color)
 			})
 		}(btn, color)
 	}
