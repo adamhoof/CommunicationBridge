@@ -5,7 +5,7 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
-const TABLE_LAMP_KBOARD = "tableLamp"
+const OFFICE_LAMP_KEYBOARD = "officelamp"
 
 const (
 	white        = "w"
@@ -15,18 +15,18 @@ const (
 	red          = "r"
 	pink         = "p"
 	off          = "o"
-	tableLampPub = "room/tableLamp/rpiSet"
-	tableLampSub = "room/tableLamp/espReply"
+	officeLampPub = "room/officeLamp/rpiSet"
+	officeLampSub = "room/officeLamp/espReply"
 )
 
-type OfficeTableLamp struct {
+type OfficeLamp struct {
 }
 
-func (officeTableLamp *OfficeTableLamp) Name() string {
-	return "tableLamp"
+func (officeLamp *OfficeLamp) Name() string {
+	return "officeLamp"
 }
 
-func (officeTableLamp *OfficeTableLamp) GenerateFunctionButtons(services *ServiceContainer) map[string]*tb.Btn {
+func (officeLamp *OfficeLamp) GenerateFunctionButtons(services *ServiceContainer) map[string]*tb.Btn {
 
 	buttons := make(map[string]*tb.Btn)
 
@@ -47,39 +47,39 @@ func (officeTableLamp *OfficeTableLamp) GenerateFunctionButtons(services *Servic
 				if err != nil {
 					return
 				}
-				services.mqtt.PublishText(tableLampPub, color)
+				services.mqtt.PublishText(officeLampPub, color)
 			})
 		}(btn, color)
 	}
 	return buttons
 }
 
-func (officeTableLamp *OfficeTableLamp) KeyboardCommands(services *ServiceContainer) {
+func (officeLamp *OfficeLamp) KeyboardCommands(services *ServiceContainer) {
 
-	buttons := officeTableLamp.GenerateFunctionButtons(services)
+	buttons := officeLamp.GenerateFunctionButtons(services)
 
-	tableLampModesKeyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
+	officeLampModesKeyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
 
-	tableLampModesKeyboard.Inline(
-		tableLampModesKeyboard.Row(*buttons[white],
+	officeLampModesKeyboard.Inline(
+		officeLampModesKeyboard.Row(*buttons[white],
 			*buttons[yellow], *buttons[blue],
 			*buttons[green], *buttons[red],
 			*buttons[pink], *buttons[off]),
 	)
-	services.botHandler.keyboards[TABLE_LAMP_KBOARD] = tableLampModesKeyboard
+	services.botHandler.keyboards[OFFICE_LAMP_KEYBOARD] = officeLampModesKeyboard
 }
 
-func (officeTableLamp *OfficeTableLamp) MQTTMessageProcessor(services *ServiceContainer) (TableLampMessageHandler mqtt.MessageHandler, topic string) {
+func (officeLamp *OfficeLamp) MQTTMessageProcessor(services *ServiceContainer) (OfficeLampMessageHandler mqtt.MessageHandler, topic string) {
 
-	TableLampMessageHandler = func(client mqtt.Client, message mqtt.Message) {
+	OfficeLampMessageHandler = func(client mqtt.Client, message mqtt.Message) {
 
 		func() {
-			services.db.UpdateMode("TableLamp", string(message.Payload()))
+			services.db.UpdateMode("OfficeLamp", string(message.Payload()))
 		}()
 	}
-	return TableLampMessageHandler, tableLampSub
+	return OfficeLampMessageHandler, officeLampSub
 }
 
-func (officeTableLamp *OfficeTableLamp) NonKeyboardCommands(services *ServiceContainer) {
-	services.botHandler.UserEvent("/tablelamp", "Table Lamp", TABLE_LAMP_KBOARD, KBOARD)
+func (officeLamp *OfficeLamp) NonKeyboardCommands(services *ServiceContainer) {
+	services.botHandler.UserEvent("/officelamp", "Office lamp", OFFICE_LAMP_KEYBOARD, KBOARD)
 }

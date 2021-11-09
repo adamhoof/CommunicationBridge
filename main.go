@@ -43,9 +43,9 @@ func main() {
 	menuKeyboards.AllToys(&telegramBot)
 	menuKeyboards.OfficeToys(&telegramBot)
 
-	officeTableLamp := OfficeTableLamp{}
+	OfficeLamp := OfficeLamp{}
 	cryptoQuery := CryptoQuery{}
-	SetupPhysicalToyInterface(&officeTableLamp, &services)
+	SetupPhysicalToyInterface(&OfficeLamp, &services)
 	SetupVirtualToyInterface(&cryptoQuery, &services)
 	telegramBot.StartBot()
 }
