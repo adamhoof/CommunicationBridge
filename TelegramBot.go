@@ -11,6 +11,9 @@ import (
 type TelegramBot struct {
 	bot       *tb.Bot
 	keyboards map[string]*tb.ReplyMarkup
+	lastCommand string
+	eventTimeSetting bool
+	eventSetting bool
 }
 
 type User struct {

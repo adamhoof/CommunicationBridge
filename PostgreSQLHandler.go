@@ -18,6 +18,7 @@ const (
 )
 
 const updateSingleSQLStatement = `UPDATE HomeAppliances SET mode = $2 WHERE name = $1;`
+const createToySQLStatement = `INSERT INTO HomeAppliances (name, mode) VALUES ($1, $2) ON CONFLICT DO NOTHING;`
 
 func (postgreHandler *PostgreSQLHandler) Connect() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
@@ -46,9 +47,16 @@ func (postgreHandler *PostgreSQLHandler) Disconnect() {
 	}
 }
 
-func (postgreHandler *PostgreSQLHandler) UpdateMode(applianceType string, applianceMode string) {
-	_, err := postgreHandler.db.Exec(updateSingleSQLStatement, applianceType, applianceMode)
+func (postgreHandler *PostgreSQLHandler) UpdateToyMode(toyName string, toyMode string) {
+	_, err := postgreHandler.db.Exec(updateSingleSQLStatement, toyName, toyMode)
 	if err != nil {
 		fmt.Println("Couldnt update mode", err)
+	}
+}
+
+func (postgreHandler *PostgreSQLHandler) CreateToy(toyName string, toyMode string){
+	_, err := postgreHandler.db.Exec(createToySQLStatement, toyName, toyMode)
+	if err != nil {
+		fmt.Println("unable to create toy object in db", err)
 	}
 }

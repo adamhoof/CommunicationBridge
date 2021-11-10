@@ -23,6 +23,8 @@ func SetupPhysicalToyInterface(physicalToy PhysicalToy, services *ServiceContain
 
 	physicalToy.KeyboardCommands(services)
 	physicalToy.NonKeyboardCommands(services)
+
+	services.db.CreateToy(physicalToy.Name(), "")
 }
 
 func SetupVirtualToyInterface(virtualToy VirtualToy, services *ServiceContainer) {

@@ -26,6 +26,10 @@ func (officeLamp *OfficeLamp) Name() string {
 	return "officeLamp"
 }
 
+func (officeLamp *OfficeLamp) CreateDBObject(toyName string, toyMode string, postgreHandler *PostgreSQLHandler) {
+	postgreHandler.CreateToy(toyName, toyMode)
+}
+
 func (officeLamp *OfficeLamp) GenerateFunctionButtons(services *ServiceContainer) map[string]*tb.Btn {
 
 	buttons := make(map[string]*tb.Btn)
@@ -74,7 +78,7 @@ func (officeLamp *OfficeLamp) MQTTMessageProcessor(services *ServiceContainer) (
 	OfficeLampMessageHandler = func(client mqtt.Client, message mqtt.Message) {
 
 		func() {
-			services.db.UpdateMode("OfficeLamp", string(message.Payload()))
+			services.db.UpdateToyMode(officeLamp.Name(), string(message.Payload()))
 		}()
 	}
 	return OfficeLampMessageHandler, officeLampSub
