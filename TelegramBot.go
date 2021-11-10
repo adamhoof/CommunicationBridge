@@ -9,11 +9,11 @@ import (
 )
 
 type TelegramBot struct {
-	bot       *tb.Bot
-	keyboards map[string]*tb.ReplyMarkup
-	lastCommand string
+	bot              *tb.Bot
+	keyboards        map[string]*tb.ReplyMarkup
+	lastCommand      string
 	eventTimeSetting bool
-	eventSetting bool
+	eventSetting     bool
 }
 
 type User struct {
@@ -76,7 +76,7 @@ func (telegramBot *TelegramBot) StartBot() {
 	telegramBot.bot.Start()
 }
 
-func (telegramBot *TelegramBot)SendMessage(telegramBotHandler *TelegramBot, usr *User, title string, message interface{}) {
+func (telegramBot *TelegramBot) SendMessage(telegramBotHandler *TelegramBot, usr *User, title string, message interface{}) {
 
 	_, err := telegramBotHandler.bot.Send(usr, title, message)
 	if err != nil {

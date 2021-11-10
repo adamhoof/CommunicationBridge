@@ -8,13 +8,13 @@ import (
 const OFFICE_LAMP_KEYBOARD = "officelamp"
 
 const (
-	white        = "w"
-	yellow       = "y"
-	blue         = "b"
-	green        = "g"
-	red          = "r"
-	pink         = "p"
-	off          = "o"
+	white         = "w"
+	yellow        = "y"
+	blue          = "b"
+	green         = "g"
+	red           = "r"
+	pink          = "p"
+	off           = "o"
 	officeLampPub = "room/officeLamp/rpiSet"
 	officeLampSub = "room/officeLamp/espReply"
 )

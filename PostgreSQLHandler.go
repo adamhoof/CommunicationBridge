@@ -54,7 +54,7 @@ func (postgreHandler *PostgreSQLHandler) UpdateToyMode(toyName string, toyMode s
 	}
 }
 
-func (postgreHandler *PostgreSQLHandler) CreateToy(toyName string, toyMode string){
+func (postgreHandler *PostgreSQLHandler) CreateToy(toyName string, toyMode string) {
 	_, err := postgreHandler.db.Exec(createToySQLStatement, toyName, toyMode)
 	if err != nil {
 		fmt.Println("unable to create toy object in db", err)
