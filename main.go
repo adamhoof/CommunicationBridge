@@ -44,8 +44,10 @@ func main() {
 	menuKeyboards.OfficeToys(&telegramBot)
 
 	officeLamp := OfficeLamp{}
+	officeCeilLight := OfficeCeilLight{}
 	cryptoQuery := CryptoQuery{}
 	SetupPhysicalToyInterface(&officeLamp, &services)
+	SetupPhysicalToyInterface(&officeCeilLight, &services)
 	SetupVirtualToyInterface(&cryptoQuery, &services)
 	telegramBot.StartBot()
 }

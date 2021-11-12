@@ -5,8 +5,6 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
-const OFFICE_LAMP_KEYBOARD = "officelamp"
-
 const (
 	white         = "w"
 	yellow        = "y"
@@ -17,20 +15,28 @@ const (
 	off           = "o"
 	officeLampPub = "room/officeLamp/rpiSet"
 	officeLampSub = "room/officeLamp/espReply"
+	OFFICE_LAMP_KEYBOARD = "officelamp"
 )
 
 type OfficeLamp struct {
 }
 
 func (officeLamp *OfficeLamp) Name() string {
-	return "officeLamp"
+	return "officelamp"
 }
 
-func (officeLamp *OfficeLamp) CreateDBObject(toyName string, toyMode string, postgreHandler *PostgreSQLHandler) {
-	postgreHandler.CreateToy(toyName, toyMode)
+func (officeLamp *OfficeLamp) MQTTMessageProcessor(services *ServiceContainer) (OfficeLampMessageHandler mqtt.MessageHandler, topic string) {
+
+	OfficeLampMessageHandler = func(client mqtt.Client, message mqtt.Message) {
+
+		func() {
+			services.db.UpdateToyMode(officeLamp.Name(), string(message.Payload()))
+		}()
+	}
+	return OfficeLampMessageHandler, officeLampSub
 }
 
-func (officeLamp *OfficeLamp) GenerateFunctionButtons(services *ServiceContainer) map[string]*tb.Btn {
+func (officeLamp *OfficeLamp) GenerateKboardBtns() map[string]*tb.Btn {
 
 	buttons := make(map[string]*tb.Btn)
 
@@ -41,6 +47,29 @@ func (officeLamp *OfficeLamp) GenerateFunctionButtons(services *ServiceContainer
 	buttons[red] = &tb.Btn{Unique: red, Text: "\U0001F7E5"}
 	buttons[pink] = &tb.Btn{Unique: pink, Text: "\U0001F7EA"}
 	buttons[off] = &tb.Btn{Unique: off, Text: "🚫"}
+
+	return buttons
+}
+
+func (officeLamp *OfficeLamp) Kboard(services *ServiceContainer) {
+
+	buttons := officeLamp.GenerateKboardBtns()
+
+	officeLampModesKeyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
+
+	officeLampModesKeyboard.Inline(
+		officeLampModesKeyboard.Row(*buttons[white],
+			*buttons[yellow], *buttons[blue],
+			*buttons[green], *buttons[red],
+			*buttons[pink], *buttons[off]),
+	)
+
+	officeLamp.AwakenButtons(buttons, services)
+
+	services.botHandler.keyboards[OFFICE_LAMP_KEYBOARD] = officeLampModesKeyboard
+}
+
+func (officeLamp *OfficeLamp) AwakenButtons(buttons map[string]*tb.Btn, services *ServiceContainer) {
 
 	for color, btn := range buttons {
 
@@ -55,35 +84,8 @@ func (officeLamp *OfficeLamp) GenerateFunctionButtons(services *ServiceContainer
 			})
 		}(btn, color)
 	}
-	return buttons
 }
 
-func (officeLamp *OfficeLamp) KeyboardCommands(services *ServiceContainer) {
-
-	buttons := officeLamp.GenerateFunctionButtons(services)
-
-	officeLampModesKeyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
-
-	officeLampModesKeyboard.Inline(
-		officeLampModesKeyboard.Row(*buttons[white],
-			*buttons[yellow], *buttons[blue],
-			*buttons[green], *buttons[red],
-			*buttons[pink], *buttons[off]),
-	)
-	services.botHandler.keyboards[OFFICE_LAMP_KEYBOARD] = officeLampModesKeyboard
-}
-
-func (officeLamp *OfficeLamp) MQTTMessageProcessor(services *ServiceContainer) (OfficeLampMessageHandler mqtt.MessageHandler, topic string) {
-
-	OfficeLampMessageHandler = func(client mqtt.Client, message mqtt.Message) {
-
-		func() {
-			services.db.UpdateToyMode(officeLamp.Name(), string(message.Payload()))
-		}()
-	}
-	return OfficeLampMessageHandler, officeLampSub
-}
-
-func (officeLamp *OfficeLamp) NonKeyboardCommands(services *ServiceContainer) {
+func (officeLamp *OfficeLamp) TextCommands(services *ServiceContainer) {
 	services.botHandler.UserEvent("/officelamp", "Office lamp", OFFICE_LAMP_KEYBOARD, KBOARD)
 }

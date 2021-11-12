@@ -16,13 +16,16 @@ func (menuKeyboards *MenuKeyboards) OfficeToys(telegramBot *TelegramBot) {
 	telegramBot.keyboards[OFFICE_TOYS_KBOARD] = officeToysKboard
 
 	officeLampBtn := officeToysKboard.Text("Table Lamp")
+	officeCeilLightBtn := officeToysKboard.Text("Office Ceil Light")
 	backBtn := officeToysKboard.Text("⬅ Back")
+
 	officeToysKboard.Reply(
-		officeToysKboard.Row(officeLampBtn),
+		officeToysKboard.Row(officeLampBtn, officeCeilLightBtn),
 		officeToysKboard.Row(backBtn),
 	)
 
 	telegramBot.UserEvent(&officeLampBtn, "Office lamp modes", OFFICE_LAMP_KEYBOARD, KBOARD)
+	telegramBot.UserEvent(&officeCeilLightBtn, "Office Ceil Light Modes", OFFICE_CEIL_LIGHT_KBOARD, KBOARD)
 	telegramBot.UserEvent(&backBtn, "All toys", ALL_TOYS_KBOARD, KBOARD)
 }
 
