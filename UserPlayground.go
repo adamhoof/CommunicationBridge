@@ -7,8 +7,8 @@ import (
 type PhysicalToy interface {
 	Name() string
 	MQTTMessageProcessor(services *ServiceContainer) (MessageHandler mqtt.MessageHandler, topic string)
-	KeyboardCommands(services *ServiceContainer)
-	NonKeyboardCommands(services *ServiceContainer)
+	Kboard(services *ServiceContainer)
+	TextCommands(services *ServiceContainer)
 }
 
 type VirtualToy interface {
@@ -21,8 +21,8 @@ func SetupPhysicalToyInterface(physicalToy PhysicalToy, services *ServiceContain
 	processor, topic := physicalToy.MQTTMessageProcessor(services)
 	services.mqtt.SetSubscription(processor, topic)
 
-	physicalToy.KeyboardCommands(services)
-	physicalToy.NonKeyboardCommands(services)
+	physicalToy.Kboard(services)
+	physicalToy.TextCommands(services)
 
 	services.db.CreateToy(physicalToy.Name(), "")
 }
