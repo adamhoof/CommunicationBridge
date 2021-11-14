@@ -26,10 +26,6 @@ func (officeLamp *OfficeLamp) Name() string {
 	return "officeLamp"
 }
 
-func (officeLamp *OfficeLamp) CreateDBObject(toyName string, toyMode string, postgreHandler *PostgreSQLHandler) {
-	postgreHandler.CreateToy(toyName, toyMode)
-}
-
 func (officeLamp *OfficeLamp) GenerateFunctionButtons(services *ServiceContainer) map[string]*tb.Btn {
 
 	buttons := make(map[string]*tb.Btn)
