@@ -6,18 +6,16 @@ import (
 )
 
 type OfficeCeilLight struct {
-
 }
 
 const (
-	officeCeilLightPub = "officeCeilLight/rpiSet"
-	officeCeilLightSub = "officeCeilLight/espReply"
-	on = "O"
-	offOfficeCeil = "o"
-	offCeilBtn = "oCLB"
+	officeCeilLightPub       = "officeceil/rpiSet"
+	officeCeilLightSub       = "officeceil/espReply"
+	on                       = "O"
+	offOfficeCeil            = "o"
+	offCeilBtn               = "oCLB"
 	OFFICE_CEIL_LIGHT_KBOARD = "officeCeilLight"
 )
-
 
 func (officeCeilLight *OfficeCeilLight) Name() string {
 	return "officeceillight"
@@ -53,7 +51,7 @@ func (officeCeilLight *OfficeCeilLight) Kboard(services *ServiceContainer) {
 	officeCeilLightModesKeyboard.Inline(
 		officeCeilLightModesKeyboard.Row(*buttons[on],
 			*buttons[offOfficeCeil],
-	))
+		))
 
 	officeCeilLight.AwakenButtons(buttons, services)
 
