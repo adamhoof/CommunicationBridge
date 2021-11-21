@@ -6,7 +6,7 @@ import (
 
 type PhysicalToy interface {
 	Name() string
-	MQTTMessageProcessor(services *ServiceContainer) (MessageHandler mqtt.MessageHandler, topic string)
+	MQTTProcessor(services *ServiceContainer) (MessageHandler mqtt.MessageHandler, topic string)
 	Kboard(services *ServiceContainer)
 	TextCommands(services *ServiceContainer)
 }
@@ -18,7 +18,7 @@ type VirtualToy interface {
 
 func SetupPhysicalToyInterface(physicalToy PhysicalToy, services *ServiceContainer) {
 
-	processor, topic := physicalToy.MQTTMessageProcessor(services)
+	processor, topic := physicalToy.MQTTProcessor(services)
 	services.mqtt.SetSubscription(processor, topic)
 
 	physicalToy.Kboard(services)

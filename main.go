@@ -46,8 +46,11 @@ func main() {
 	officeLamp := OfficeLamp{}
 	officeCeilLight := OfficeCeilLight{}
 	cryptoQuery := CryptoQuery{}
+	/*mep := make(map[string]PhysicalToy)*/
 	SetupPhysicalToyInterface(&officeLamp, &services)
 	SetupPhysicalToyInterface(&officeCeilLight, &services)
 	SetupVirtualToyInterface(&cryptoQuery, &services)
+	SetupPhysicalToyInterface(&cryptoQuery, &services)
+
 	telegramBot.StartBot()
 }

@@ -25,7 +25,7 @@ func (officeLamp *OfficeLamp) Name() string {
 	return "officelamp"
 }
 
-func (officeLamp *OfficeLamp) MQTTMessageProcessor(services *ServiceContainer) (OfficeLampMessageHandler mqtt.MessageHandler, topic string) {
+func (officeLamp *OfficeLamp) MQTTProcessor(services *ServiceContainer) (OfficeLampMessageHandler mqtt.MessageHandler, topic string) {
 
 	OfficeLampMessageHandler = func(client mqtt.Client, message mqtt.Message) {
 
