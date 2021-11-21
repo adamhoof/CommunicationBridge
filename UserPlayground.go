@@ -12,8 +12,8 @@ type PhysicalToy interface {
 }
 
 type VirtualToy interface {
-	KeyboardCommands(services *ServiceContainer)
-	NonKeyboardCommands(services *ServiceContainer)
+	Kboard(services *ServiceContainer)
+	TextCommands(services *ServiceContainer)
 }
 
 func SetupPhysicalToyInterface(physicalToy PhysicalToy, services *ServiceContainer) {
@@ -28,6 +28,6 @@ func SetupPhysicalToyInterface(physicalToy PhysicalToy, services *ServiceContain
 }
 
 func SetupVirtualToyInterface(virtualToy VirtualToy, services *ServiceContainer) {
-	virtualToy.KeyboardCommands(services)
-	virtualToy.NonKeyboardCommands(services)
+	virtualToy.Kboard(services)
+	virtualToy.TextCommands(services)
 }

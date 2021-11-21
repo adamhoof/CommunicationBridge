@@ -83,7 +83,7 @@ func (cryptoQuery *CryptoQuery) GenerateFunctionButtons(services *ServiceContain
 	return buttons
 }
 
-func (cryptoQuery *CryptoQuery) KeyboardCommands(services *ServiceContainer) {
+func (cryptoQuery *CryptoQuery) Kboard(services *ServiceContainer) {
 
 	buttons := cryptoQuery.GenerateFunctionButtons(services)
 
@@ -96,6 +96,6 @@ func (cryptoQuery *CryptoQuery) KeyboardCommands(services *ServiceContainer) {
 
 }
 
-func (cryptoQuery *CryptoQuery) NonKeyboardCommands(services *ServiceContainer) {
+func (cryptoQuery *CryptoQuery) TextCommands(services *ServiceContainer) {
 	services.botHandler.UserEvent("/crypto", "Crypto Data", CRYPTO_QUERY_KBOARD, KBOARD)
 }
