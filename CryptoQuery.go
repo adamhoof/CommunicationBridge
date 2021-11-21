@@ -3,51 +3,41 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	tb "gopkg.in/tucnak/telebot.v2"
-	"io/ioutil"
-	"log"
-	"net/http"
 )
 
 type CryptoQuery struct {
 }
 
-const CRYPTO_QUERY_KBOARD = "cryptoQuery"
+const (
+	CRYPTO_QUERY_KBOARD = "cryptoQuery"
+	cryptoQueryPub      = "cryptoquery/rpiCommand"
+	cryptoQuerySub      = "cryptoquery/toyReply"
+)
 
-func (cryptoQuery *CryptoQuery) RequestData(cryptoCurrency string) *http.Response {
-	request := "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=" + cryptoCurrency + "&order=market_cap_desc&per_page=1&page=1&price_change_percentage=24h%2C7d%2C14d%2C30d"
-	response, err := http.Get(request)
-	if err != nil {
-		log.Fatalln("failed to get response", err)
-	}
-	return response
+func (cryptoQuery *CryptoQuery) Name() string {
+	return "officeceillight"
 }
 
-func (cryptoQuery *CryptoQuery) CreateBody(response *http.Response) []byte {
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	return body
-}
+func (cryptoQuery *CryptoQuery) MQTTProcessor(services *ServiceContainer) (cryptoQueryMqttHandler mqtt.MessageHandler, topic string) {
 
-func (cryptoQuery *CryptoQuery) FilterUnwanted(body []byte) map[string]interface{} {
-	var queryResult []map[string]interface{}
-	err := json.Unmarshal(body, &queryResult)
-	if err != nil {
-		fmt.Println(err)
-	}
+	cryptoQueryMqttHandler = func(client mqtt.Client, message mqtt.Message) {
 
-	filteredData := make(map[string]interface{})
-	filteredData["price"] = queryResult[0]["current_price"]
-	filteredData["high_24h"] = queryResult[0]["high_24h"]
-	filteredData["low_24h"] = queryResult[0]["low_24h"]
-	filteredData["price_change_24h"] = queryResult[0]["price_change_24h"]
-	filteredData["pc_change_perc_24h"] = queryResult[0]["price_change_percentage_24h"]
-	filteredData["pc_change_perc_7d"] = queryResult[0]["price_change_percentage_7d_in_currency"]
-	filteredData["pc_change_perc_14d"] = queryResult[0]["price_change_percentage_14d_in_currency"]
-	/*filteredData["image"] = queryResult[0]["image"]*/
-	return filteredData
+		func() {
+			queryResultMap := make(map[string]interface{})
+			err := json.Unmarshal(message.Payload(), &queryResultMap)
+			if err != nil {
+				fmt.Println("unable to unmarshal crypto data", err)
+			}
+			humanReadable := CreateHumanReadable(queryResultMap)
+			_, err = services.botHandler.bot.Send(&me, humanReadable)
+			if err != nil {
+				fmt.Println("unable to send crypto query data", err)
+			}
+		}()
+	}
+	return cryptoQueryMqttHandler, cryptoQuerySub
 }
 
 func (cryptoQuery *CryptoQuery) GenerateFunctionButtons(services *ServiceContainer) map[string]*tb.Btn {
@@ -66,20 +56,10 @@ func (cryptoQuery *CryptoQuery) GenerateFunctionButtons(services *ServiceContain
 				if err != nil {
 					fmt.Println("Invalid crypto button", err)
 				}
-
-				response := cryptoQuery.RequestData(currency)
-				body := cryptoQuery.CreateBody(response)
-				cryptoData := cryptoQuery.FilterUnwanted(body)
-				humanReadable := CreateHumanReadable(cryptoData)
-
-				_, err = services.botHandler.bot.Send(&me, humanReadable)
-				if err != nil {
-					fmt.Println(err)
-				}
+				services.mqtt.PublishText(cryptoQueryPub, currency)
 			})
 		}(btn, currency)
 	}
-
 	return buttons
 }
 

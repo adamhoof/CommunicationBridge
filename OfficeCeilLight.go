@@ -21,7 +21,7 @@ func (officeCeilLight *OfficeCeilLight) Name() string {
 	return "officeceillight"
 }
 
-func (officeCeilLight *OfficeCeilLight) MQTTMessageProcessor(services *ServiceContainer) (officeCeilLightHandler mqtt.MessageHandler, topic string) {
+func (officeCeilLight *OfficeCeilLight) MQTTProcessor(services *ServiceContainer) (officeCeilLightHandler mqtt.MessageHandler, topic string) {
 
 	officeCeilLightHandler = func(client mqtt.Client, message mqtt.Message) {
 
