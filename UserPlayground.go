@@ -4,19 +4,14 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
-type PhysicalToy interface {
+type Toy interface {
 	Name() string
 	MQTTProcessor(services *ServiceContainer) (MessageHandler mqtt.MessageHandler, topic string)
 	Kboard(services *ServiceContainer)
 	TextCommands(services *ServiceContainer)
 }
 
-type VirtualToy interface {
-	Kboard(services *ServiceContainer)
-	TextCommands(services *ServiceContainer)
-}
-
-func SetupPhysicalToyInterface(physicalToy PhysicalToy, services *ServiceContainer) {
+func SetupPhysicalToyInterface(physicalToy Toy, services *ServiceContainer) {
 
 	processor, topic := physicalToy.MQTTProcessor(services)
 	services.mqtt.SetSubscription(processor, topic)
@@ -25,9 +20,4 @@ func SetupPhysicalToyInterface(physicalToy PhysicalToy, services *ServiceContain
 	physicalToy.TextCommands(services)
 
 	services.db.CreateToy(physicalToy.Name(), "")
-}
-
-func SetupVirtualToyInterface(virtualToy VirtualToy, services *ServiceContainer) {
-	virtualToy.Kboard(services)
-	virtualToy.TextCommands(services)
 }
