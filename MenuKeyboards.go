@@ -3,8 +3,9 @@ package main
 import tb "gopkg.in/tucnak/telebot.v2"
 
 const (
-	ALL_TOYS_KBOARD    = "allToys"
-	OFFICE_TOYS_KBOARD = "officeToys"
+	ALL_TOYS_KBOARD     = "allToys"
+	OFFICE_TOYS_KBOARD  = "officeToys"
+	BEDROOM_TOYS_KBOARD = "bedroomToys"
 )
 
 type MenuKeyboards struct {
@@ -29,6 +30,21 @@ func (menuKeyboards *MenuKeyboards) OfficeToys(telegramBot *TelegramBot) {
 	telegramBot.UserEvent(&backBtn, "All toys", ALL_TOYS_KBOARD, KBOARD)
 }
 
+func (menuKeyboards *MenuKeyboards) BedroomToys(telegramBot *TelegramBot) {
+	bedroomToysKboard := &tb.ReplyMarkup{}
+	telegramBot.keyboards[BEDROOM_TOYS_KBOARD] = bedroomToysKboard
+
+	bedroomShadesBtn := bedroomToysKboard.Text("Shades")
+	backBtn := bedroomToysKboard.Text("⬅ Back")
+
+	bedroomToysKboard.Reply(
+		bedroomToysKboard.Row(bedroomShadesBtn),
+		bedroomToysKboard.Row(backBtn))
+
+	telegramBot.UserEvent(&bedroomShadesBtn, "Bedroom shades modes", BEDROOM_SHADES_KEYBOARD, KBOARD)
+	telegramBot.UserEvent(&backBtn, "All toys", ALL_TOYS_KBOARD, KBOARD)
+}
+
 func (menuKeyboards *MenuKeyboards) AllToys(botHandler *TelegramBot) {
 	allToysKboard := &tb.ReplyMarkup{}
 	botHandler.keyboards[ALL_TOYS_KBOARD] = allToysKboard
@@ -44,5 +60,6 @@ func (menuKeyboards *MenuKeyboards) AllToys(botHandler *TelegramBot) {
 
 	botHandler.UserEvent("/toys", "/toys", ALL_TOYS_KBOARD, KBOARD)
 	botHandler.UserEvent(&officeToyBtn, "Office Toys", OFFICE_TOYS_KBOARD, KBOARD)
+	botHandler.UserEvent(&bedroomToyBtn, "Bedroom Toys", BEDROOM_TOYS_KBOARD, KBOARD)
 	botHandler.UserEvent(&cryptoQueryBtn, "Crypto Query", CRYPTO_QUERY_KBOARD, KBOARD)
 }
