@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
@@ -11,9 +12,8 @@ type BedroomShades struct {
 const (
 	bedroomShadesSub        = "bedroomshades/espReply"
 	bedroomShadesPub        = "bedroomshades/rpiSet"
-	fullyClose              = "f"
-	fullyOpen               = "F"
-	halfOpen                = "h"
+	fullyClose              = "0"
+	fullyOpen               = "1"
 	BEDROOM_SHADES_KEYBOARD = "bedroomShades"
 )
 
@@ -27,6 +27,10 @@ func (bedroomShades *BedroomShades) MQTTProcessor(services *ServiceContainer) (b
 
 		func() {
 			services.db.UpdateToyMode(bedroomShades.Name(), string(message.Payload()))
+			_, err := services.botHandler.bot.Send(&me, "message.Payload()")
+			if err != nil {
+				fmt.Println(err)
+			}
 		}()
 	}
 	return bedroomShadesMQTTHandler, bedroomShadesSub
@@ -37,7 +41,6 @@ func (bedroomShades *BedroomShades) GenerateKboardBtns() map[string]*tb.Btn {
 	buttons := make(map[string]*tb.Btn)
 
 	buttons[fullyOpen] = &tb.Btn{Unique: fullyOpen, Text: "🌞"}
-	buttons[halfOpen] = &tb.Btn{Unique: halfOpen, Text: "🌓"}
 	buttons[fullyClose] = &tb.Btn{Unique: fullyClose, Text: "🌚"}
 
 	return buttons
@@ -49,7 +52,7 @@ func (bedroomShades *BedroomShades) Kboard(services *ServiceContainer) {
 	bedroomShadesModesKeyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
 
 	bedroomShadesModesKeyboard.Inline(
-		bedroomShadesModesKeyboard.Row(*buttons[fullyOpen], *buttons[halfOpen], *buttons[fullyClose]))
+		bedroomShadesModesKeyboard.Row(*buttons[fullyOpen], *buttons[fullyClose]))
 
 	bedroomShades.AwakenButtons(buttons, services)
 
