@@ -26,8 +26,9 @@ func (bedroomShades *BedroomShades) MQTTProcessor(services *ServiceContainer) (b
 	bedroomShadesMQTTHandler = func(client mqtt.Client, message mqtt.Message) {
 
 		func() {
+			msg := string(message.Payload())
 			services.db.UpdateToyMode(bedroomShades.Name(), string(message.Payload()))
-			_, err := services.botHandler.bot.Send(&me, "message.Payload()")
+			_, err := services.botHandler.bot.Send(&me, msg)
 			if err != nil {
 				fmt.Println(err)
 			}
