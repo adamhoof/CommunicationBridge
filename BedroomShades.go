@@ -21,9 +21,9 @@ func (bedroomShades *BedroomShades) Name() string {
 	return "bedroomShades"
 }
 
-func (bedroomShades *BedroomShades) MQTTProcessor(services *ServiceContainer) (bedroomShadesMQTTHandler mqtt.MessageHandler, topic string) {
+func (bedroomShades *BedroomShades) MQTTCommandHandler(services *ServiceContainer) (handler mqtt.MessageHandler, topic string) {
 
-	bedroomShadesMQTTHandler = func(client mqtt.Client, message mqtt.Message) {
+	handler = func(client mqtt.Client, message mqtt.Message) {
 
 		func() {
 			msg := string(message.Payload())
@@ -34,7 +34,7 @@ func (bedroomShades *BedroomShades) MQTTProcessor(services *ServiceContainer) (b
 			}
 		}()
 	}
-	return bedroomShadesMQTTHandler, bedroomShadesSub
+	return handler, bedroomShadesSub
 }
 
 func (bedroomShades *BedroomShades) GenerateKboardBtns() map[string]*tb.Btn {

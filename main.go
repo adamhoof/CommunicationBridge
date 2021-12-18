@@ -44,15 +44,12 @@ func main() {
 	menuKeyboards.OfficeToys(&telegramBot)
 	menuKeyboards.BedroomToys(&telegramBot)
 
-	officeLamp := OfficeLamp{}
-	officeCeilLight := OfficeCeilLight{}
-	cryptoQuery := CryptoQuery{}
-	bedroomShades := BedroomShades{}
+	playground := Playground{}
 
-	SetupPhysicalToyInterface(&officeLamp, &services)
-	SetupPhysicalToyInterface(&officeCeilLight, &services)
-	SetupPhysicalToyInterface(&cryptoQuery, &services)
-	SetupPhysicalToyInterface(&bedroomShades, &services)
+	playground.AddToy(&OfficeLamp{}, &services)
+	playground.AddToy(&OfficeCeilLight{}, &services)
+	playground.AddToy(&CryptoQuery{}, &services)
+	playground.AddToy(&BedroomShades{}, &services)
 
 	telegramBot.StartBot()
 }

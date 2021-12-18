@@ -4,20 +4,23 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
+type Playground struct {
+}
+
 type Toy interface {
 	Name() string
-	MQTTProcessor(services *ServiceContainer) (MessageHandler mqtt.MessageHandler, topic string)
+	MQTTCommandHandler(services *ServiceContainer) (MessageHandler mqtt.MessageHandler, topic string)
 	Kboard(services *ServiceContainer)
 	TextCommands(services *ServiceContainer)
 }
 
-func SetupPhysicalToyInterface(physicalToy Toy, services *ServiceContainer) {
+func (playground *Playground) AddToy(toy Toy, services *ServiceContainer) {
 
-	processor, topic := physicalToy.MQTTProcessor(services)
-	services.mqtt.SetSubscription(processor, topic)
+	handler, topic := toy.MQTTCommandHandler(services)
+	services.mqtt.SetSubscription(handler, topic)
 
-	physicalToy.Kboard(services)
-	physicalToy.TextCommands(services)
+	toy.Kboard(services)
+	toy.TextCommands(services)
 
-	services.db.CreateToy(physicalToy.Name(), "")
+	services.db.CreateToy(toy.Name(), "")
 }

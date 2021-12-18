@@ -20,9 +20,9 @@ func (cryptoQuery *CryptoQuery) Name() string {
 	return "officeceillight"
 }
 
-func (cryptoQuery *CryptoQuery) MQTTProcessor(services *ServiceContainer) (cryptoQueryMqttHandler mqtt.MessageHandler, topic string) {
+func (cryptoQuery *CryptoQuery) MQTTCommandHandler(services *ServiceContainer) (handler mqtt.MessageHandler, topic string) {
 
-	cryptoQueryMqttHandler = func(client mqtt.Client, message mqtt.Message) {
+	handler = func(client mqtt.Client, message mqtt.Message) {
 
 		func() {
 			queryResultMap := make(map[string]interface{})
@@ -37,7 +37,7 @@ func (cryptoQuery *CryptoQuery) MQTTProcessor(services *ServiceContainer) (crypt
 			}
 		}()
 	}
-	return cryptoQueryMqttHandler, cryptoQuerySub
+	return handler, cryptoQuerySub
 }
 
 func (cryptoQuery *CryptoQuery) GenerateFunctionButtons(services *ServiceContainer) map[string]*tb.Btn {

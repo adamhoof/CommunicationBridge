@@ -25,15 +25,15 @@ func (officeLamp *OfficeLamp) Name() string {
 	return "officelamp"
 }
 
-func (officeLamp *OfficeLamp) MQTTProcessor(services *ServiceContainer) (OfficeLampMessageHandler mqtt.MessageHandler, topic string) {
+func (officeLamp *OfficeLamp) MQTTCommandHandler(services *ServiceContainer) (handler mqtt.MessageHandler, topic string) {
 
-	OfficeLampMessageHandler = func(client mqtt.Client, message mqtt.Message) {
+	handler = func(client mqtt.Client, message mqtt.Message) {
 
 		func() {
 			services.db.UpdateToyMode(officeLamp.Name(), string(message.Payload()))
 		}()
 	}
-	return OfficeLampMessageHandler, officeLampSub
+	return handler, officeLampSub
 }
 
 func (officeLamp *OfficeLamp) GenerateKboardBtns() map[string]*tb.Btn {

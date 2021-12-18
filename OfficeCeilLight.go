@@ -21,15 +21,15 @@ func (officeCeilLight *OfficeCeilLight) Name() string {
 	return "officeceillight"
 }
 
-func (officeCeilLight *OfficeCeilLight) MQTTProcessor(services *ServiceContainer) (officeCeilLightHandler mqtt.MessageHandler, topic string) {
+func (officeCeilLight *OfficeCeilLight) MQTTCommandHandler(services *ServiceContainer) (handler mqtt.MessageHandler, topic string) {
 
-	officeCeilLightHandler = func(client mqtt.Client, message mqtt.Message) {
+	handler = func(client mqtt.Client, message mqtt.Message) {
 
 		func() {
 			services.db.UpdateToyMode(officeCeilLight.Name(), string(message.Payload()))
 		}()
 	}
-	return officeCeilLightHandler, officeCeilLightSub
+	return handler, officeCeilLightSub
 }
 
 func (officeCeilLight *OfficeCeilLight) GenerateKboardBtns() map[string]*tb.Btn {
