@@ -1,6 +1,8 @@
 package main
 
-import tb "gopkg.in/tucnak/telebot.v2"
+import (
+	tb "gopkg.in/tucnak/telebot.v2"
+)
 
 const (
 	ALL_TOYS_KBOARD     = "allToys"

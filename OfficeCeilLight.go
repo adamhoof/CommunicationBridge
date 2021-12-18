@@ -11,9 +11,8 @@ type OfficeCeilLight struct {
 const (
 	officeCeilLightPub       = "officeceil/rpiSet"
 	officeCeilLightSub       = "officeceil/espReply"
-	on                       = "O"
-	offOfficeCeil            = "o"
-	offCeilBtn               = "oCLB"
+	officeCeilLightOn        = "on"
+	officeCeilLightOff       = "off"
 	OFFICE_CEIL_LIGHT_KBOARD = "officeCeilLight"
 )
 
@@ -36,8 +35,8 @@ func (officeCeilLight *OfficeCeilLight) GenerateKboardBtns() map[string]*tb.Btn 
 
 	buttons := make(map[string]*tb.Btn)
 
-	buttons[on] = &tb.Btn{Unique: on, Text: "⬜"}
-	buttons[off] = &tb.Btn{Unique: offCeilBtn, Text: "🚫"}
+	buttons[officeCeilLightOn] = &tb.Btn{Unique: officeCeilLightOn + "oclb", Text: "⬜"}
+	buttons[officeCeilLightOff] = &tb.Btn{Unique: officeCeilLightOff + "oclb", Text: "🚫"}
 
 	return buttons
 }
@@ -49,8 +48,8 @@ func (officeCeilLight *OfficeCeilLight) Kboard(services *ServiceContainer) {
 	officeCeilLightModesKeyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
 
 	officeCeilLightModesKeyboard.Inline(
-		officeCeilLightModesKeyboard.Row(*buttons[on],
-			*buttons[offOfficeCeil],
+		officeCeilLightModesKeyboard.Row(*buttons[officeCeilLightOn],
+			*buttons[officeCeilLightOff],
 		))
 
 	officeCeilLight.AwakenButtons(buttons, services)

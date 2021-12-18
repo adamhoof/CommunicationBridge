@@ -6,13 +6,13 @@ import (
 )
 
 const (
-	white                = "w"
-	yellow               = "y"
-	blue                 = "b"
-	green                = "g"
-	red                  = "r"
-	pink                 = "p"
-	off                  = "o"
+	officeLampWhite      = "white"
+	officeLampYellow     = "yellow"
+	officeLampBlue       = "blue"
+	officeLampGreen      = "green"
+	officeLampRed        = "red"
+	officeLampPink       = "pink"
+	officeLampOff        = "off"
 	officeLampPub        = "officelamp/rpiSet"
 	officeLampSub        = "officelamp/espReply"
 	OFFICE_LAMP_KEYBOARD = "officelamp"
@@ -40,13 +40,13 @@ func (officeLamp *OfficeLamp) GenerateKboardBtns() map[string]*tb.Btn {
 
 	buttons := make(map[string]*tb.Btn)
 
-	buttons[white] = &tb.Btn{Unique: white, Text: "⬜"}
-	buttons[yellow] = &tb.Btn{Unique: yellow, Text: "\U0001F7E8"}
-	buttons[blue] = &tb.Btn{Unique: blue, Text: "\U0001F7E6"}
-	buttons[green] = &tb.Btn{Unique: green, Text: "\U0001F7E9"}
-	buttons[red] = &tb.Btn{Unique: red, Text: "\U0001F7E5"}
-	buttons[pink] = &tb.Btn{Unique: pink, Text: "\U0001F7EA"}
-	buttons[off] = &tb.Btn{Unique: off, Text: "🚫"}
+	buttons[officeLampWhite] = &tb.Btn{Unique: officeLampWhite + "ol", Text: "⬜"}
+	buttons[officeLampYellow] = &tb.Btn{Unique: officeLampYellow + "ol", Text: "\U0001F7E8"}
+	buttons[officeLampBlue] = &tb.Btn{Unique: officeLampBlue + "ol", Text: "\U0001F7E6"}
+	buttons[officeLampGreen] = &tb.Btn{Unique: officeLampGreen + "ol", Text: "\U0001F7E9"}
+	buttons[officeLampRed] = &tb.Btn{Unique: officeLampRed + "ol", Text: "\U0001F7E5"}
+	buttons[officeLampPink] = &tb.Btn{Unique: officeLampPink + "ol", Text: "\U0001F7EA"}
+	buttons[officeLampOff] = &tb.Btn{Unique: officeLampOff + "ol", Text: "🚫"}
 
 	return buttons
 }
@@ -58,10 +58,10 @@ func (officeLamp *OfficeLamp) Kboard(services *ServiceContainer) {
 	officeLampModesKeyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
 
 	officeLampModesKeyboard.Inline(
-		officeLampModesKeyboard.Row(*buttons[white],
-			*buttons[yellow], *buttons[blue],
-			*buttons[green], *buttons[red],
-			*buttons[pink], *buttons[off]),
+		officeLampModesKeyboard.Row(*buttons[officeLampWhite],
+			*buttons[officeLampYellow], *buttons[officeLampBlue],
+			*buttons[officeLampGreen], *buttons[officeLampRed],
+			*buttons[officeLampPink], *buttons[officeLampOff]),
 	)
 
 	officeLamp.AwakenButtons(buttons, services)

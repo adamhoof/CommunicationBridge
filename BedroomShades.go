@@ -12,8 +12,8 @@ type BedroomShades struct {
 const (
 	bedroomShadesSub        = "bedroomshades/espReply"
 	bedroomShadesPub        = "bedroomshades/rpiSet"
-	fullyClose              = "0"
-	fullyOpen               = "1"
+	bedroomShadesFullyOpen  = "1"
+	bedroomShadesFullyClose = "0"
 	BEDROOM_SHADES_KEYBOARD = "bedroomShades"
 )
 
@@ -41,8 +41,8 @@ func (bedroomShades *BedroomShades) GenerateKboardBtns() map[string]*tb.Btn {
 
 	buttons := make(map[string]*tb.Btn)
 
-	buttons[fullyOpen] = &tb.Btn{Unique: fullyOpen, Text: "🌞"}
-	buttons[fullyClose] = &tb.Btn{Unique: fullyClose, Text: "🌚"}
+	buttons[bedroomShadesFullyOpen] = &tb.Btn{Unique: bedroomShadesFullyOpen + "bsb", Text: "🌞"}
+	buttons[bedroomShadesFullyClose] = &tb.Btn{Unique: bedroomShadesFullyClose + "bsb", Text: "🌚"}
 
 	return buttons
 }
@@ -53,7 +53,7 @@ func (bedroomShades *BedroomShades) Kboard(services *ServiceContainer) {
 	bedroomShadesModesKeyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
 
 	bedroomShadesModesKeyboard.Inline(
-		bedroomShadesModesKeyboard.Row(*buttons[fullyOpen], *buttons[fullyClose]))
+		bedroomShadesModesKeyboard.Row(*buttons[bedroomShadesFullyOpen], *buttons[bedroomShadesFullyClose]))
 
 	bedroomShades.AwakenButtons(buttons, services)
 
