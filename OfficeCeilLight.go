@@ -25,7 +25,12 @@ func (officeCeilLight *OfficeCeilLight) MQTTCommandHandler(services *ServiceCont
 	handler = func(client mqtt.Client, message mqtt.Message) {
 
 		func() {
-			services.db.UpdateToyMode(officeCeilLight.Name(), string(message.Payload()))
+			msg := string(message.Payload())
+			services.db.UpdateToyMode(officeCeilLight.Name(), msg)
+			_, err := services.botHandler.bot.Send(&me, officeCeilLight.Name()+": "+msg)
+			if err != nil {
+				return
+			}
 		}()
 	}
 	return handler, officeCeilLightSub

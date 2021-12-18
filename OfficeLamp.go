@@ -30,7 +30,13 @@ func (officeLamp *OfficeLamp) MQTTCommandHandler(services *ServiceContainer) (ha
 	handler = func(client mqtt.Client, message mqtt.Message) {
 
 		func() {
-			services.db.UpdateToyMode(officeLamp.Name(), string(message.Payload()))
+			msg := string(message.Payload())
+			services.db.UpdateToyMode(officeLamp.Name(), msg)
+			_, err := services.botHandler.bot.Send(&me, officeLamp.Name()+": "+msg)
+			if err != nil {
+				return
+			}
+
 		}()
 	}
 	return handler, officeLampSub

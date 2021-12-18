@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
@@ -30,7 +29,7 @@ func (bedroomShades *BedroomShades) MQTTCommandHandler(services *ServiceContaine
 			services.db.UpdateToyMode(bedroomShades.Name(), msg)
 			_, err := services.botHandler.bot.Send(&me, msg)
 			if err != nil {
-				fmt.Println(err)
+				return
 			}
 		}()
 	}
