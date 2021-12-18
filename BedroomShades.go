@@ -26,8 +26,10 @@ func (bedroomShades *BedroomShades) MQTTCommandHandler(services *ServiceContaine
 
 		func() {
 			msg := string(message.Payload())
-			services.db.UpdateToyMode(bedroomShades.Name(), msg)
-			_, err := services.botHandler.bot.Send(&me, msg)
+			if msg != "done" {
+				services.db.UpdateToyMode(bedroomShades.Name(), msg)
+			}
+			_, err := services.botHandler.bot.Send(&me, bedroomShades.Name()+": "+msg)
 			if err != nil {
 				return
 			}
