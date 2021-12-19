@@ -17,7 +17,7 @@ const (
 )
 
 func (officeCeilLight *OfficeCeilLight) Name() string {
-	return "officeceillight"
+	return "Office Ceil Light"
 }
 
 func (officeCeilLight *OfficeCeilLight) MQTTCommandHandler(services *ServiceContainer) (handler mqtt.MessageHandler, topic string) {

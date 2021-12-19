@@ -17,7 +17,7 @@ const (
 )
 
 func (bedroomShades *BedroomShades) Name() string {
-	return "bedroomShades"
+	return "Bedroom Shades"
 }
 
 func (bedroomShades *BedroomShades) MQTTCommandHandler(services *ServiceContainer) (handler mqtt.MessageHandler, topic string) {

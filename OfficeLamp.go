@@ -22,7 +22,7 @@ type OfficeLamp struct {
 }
 
 func (officeLamp *OfficeLamp) Name() string {
-	return "officelamp"
+	return "Office Lamp"
 }
 
 func (officeLamp *OfficeLamp) MQTTCommandHandler(services *ServiceContainer) (handler mqtt.MessageHandler, topic string) {
