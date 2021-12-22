@@ -50,6 +50,7 @@ func main() {
 	playground.AddToy(&OfficeCeilLight{}, &services)
 	playground.AddToy(&CryptoQuery{}, &services)
 	playground.AddToy(&BedroomShades{}, &services)
+	playground.AddToy(&BedroomLamp{}, &services)
 
 	telegramBot.StartBot()
 }
