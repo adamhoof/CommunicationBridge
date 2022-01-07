@@ -14,13 +14,15 @@ type Toy interface {
 	TextCommands(services *ServiceContainer)
 }
 
-func (playground *Playground) AddToy(toy Toy, services *ServiceContainer) {
+func (playground *Playground) takeOutToys(toyStorage *ToyStorage, services *ServiceContainer) {
 
-	handler, topic := toy.MQTTCommandHandler(services)
-	services.mqtt.SetSubscription(handler, topic)
+	for _, toy := range toyStorage.bag {
+		handler, topic := toy.MQTTCommandHandler(services)
+		services.mqtt.SetSubscription(handler, topic)
 
-	toy.Kboard(services)
-	toy.TextCommands(services)
+		toy.Kboard(services)
+		toy.TextCommands(services)
 
-	services.db.CreateToy(toy.Name(), "")
+		services.db.CreateToy(toy.Name(), "")
+	}
 }
