@@ -1,14 +1,14 @@
 package main
 
-type ToyStorage struct {
+type ToyBag struct {
 	bag map[string]Toy
 }
 
-func (toyStorage *ToyStorage) fill(toys []Toy) {
-	toyStorage.bag = make(map[string]Toy)
+func (toyBag *ToyBag) fill(toys []Toy) {
+	toyBag.bag = make(map[string]Toy)
 
 	for _, toy := range toys {
-		toyStorage.bag[toy.Name()] = toy
+		toyBag.bag[toy.Name()] = toy
 		toy.Name()
 	}
 }

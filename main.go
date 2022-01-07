@@ -45,7 +45,7 @@ func main() {
 	menuKeyboards.BedroomToys(&telegramBot)
 
 	playground := Playground{}
-	toyBag := ToyStorage{}
+	toyBag := ToyBag{}
 
 	var toys = []Toy{&OfficeLamp{}, &OfficeCeilLight{}, &CryptoQuery{}, &BedroomLamp{}, &BedroomShades{}}
 

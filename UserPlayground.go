@@ -14,7 +14,7 @@ type Toy interface {
 	TextCommands(services *ServiceContainer)
 }
 
-func (playground *Playground) takeOutToys(toyStorage *ToyStorage, services *ServiceContainer) {
+func (playground *Playground) takeOutToys(toyStorage *ToyBag, services *ServiceContainer) {
 
 	for _, toy := range toyStorage.bag {
 		handler, topic := toy.MQTTCommandHandler(services)
