@@ -45,12 +45,13 @@ func main() {
 	menuKeyboards.BedroomToys(&telegramBot)
 
 	playground := Playground{}
+	toyBag := ToyStorage{}
 
-	playground.AddToy(&OfficeLamp{}, &services)
-	playground.AddToy(&OfficeCeilLight{}, &services)
-	playground.AddToy(&CryptoQuery{}, &services)
-	playground.AddToy(&BedroomShades{}, &services)
-	playground.AddToy(&BedroomLamp{}, &services)
+	var toys = []Toy{&OfficeLamp{}, &OfficeCeilLight{}, &CryptoQuery{}, &BedroomLamp{}, &BedroomShades{}}
+
+	toyBag.fill(toys)
+
+	playground.takeOutToys(&toyBag, &services)
 
 	telegramBot.StartBot()
 }
