@@ -27,8 +27,8 @@ func (menuKeyboards *MenuKeyboards) OfficeToys(telegramBot *TelegramBot) {
 		officeToysKboard.Row(backBtn),
 	)
 
-	telegramBot.UserEvent(&officeLampBtn, "Office lamp modes", OfficeLampKeyboard, KBOARD)
-	telegramBot.UserEvent(&officeCeilLightBtn, "Office Ceil Light Modes", OFFICE_CEIL_LIGHT_KBOARD, KBOARD)
+	telegramBot.UserEvent(&officeLampBtn, "Office lamp modes", "OfficeLamp", KBOARD)
+	telegramBot.UserEvent(&officeCeilLightBtn, "Office Ceil Light Modes", "OfficeCeilLight", KBOARD)
 	telegramBot.UserEvent(&backBtn, "All toys", ALL_TOYS_KBOARD, KBOARD)
 }
 
@@ -44,8 +44,8 @@ func (menuKeyboards *MenuKeyboards) BedroomToys(telegramBot *TelegramBot) {
 		bedroomToysKboard.Row(bedroomShadesBtn, bedroomLampBtn),
 		bedroomToysKboard.Row(backBtn))
 
-	telegramBot.UserEvent(&bedroomShadesBtn, "Bedroom shades modes", BEDROOM_SHADES_KEYBOARD, KBOARD)
-	telegramBot.UserEvent(&bedroomLampBtn, "Bedroom lamp modes", BEDROOM_LAMP_KEYBOARD, KBOARD)
+	telegramBot.UserEvent(&bedroomShadesBtn, "Bedroom shades modes", "BedroomShades", KBOARD)
+	telegramBot.UserEvent(&bedroomLampBtn, "Bedroom lamp modes", "BedroomLamp", KBOARD)
 	telegramBot.UserEvent(&backBtn, "All toys", ALL_TOYS_KBOARD, KBOARD)
 }
 

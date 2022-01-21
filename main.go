@@ -45,19 +45,20 @@ func main() {
 	menuKeyboards.BedroomToys(&telegramBot)
 
 	playground := Playground{}
+	playground.ColorTheToys()
 	toyBag := ToyBag{}
 
 	toyBag.bag = make(map[string]Toy)
 
-	toy := postgreSQLHandler.PullToyData(1)
-	toyBag.bag[toy.name] = &toy
-	toyBag.bag[toy.name].Kboard(&services)
+	numOfToys := services.db.GetNumberOfToys()
 
-	/*var toys = []Toy{&OfficeLamp{}, &OfficeCeilLight{}, &BedroomLamp{}, &BedroomShades{}}
-
-	toyBag.fill(toys)*/
-
-	playground.takeOutToys(&toyBag, &services)
+	for i := 1; i < numOfToys+1; i++ {
+		toy := postgreSQLHandler.PullToyData(i)
+		toyBag.bag[toy.name] = &toy
+		handler, topic := toyBag.bag[toy.name].MQTTCommandHandler(&services)
+		services.mqtt.SetSubscription(handler, topic)
+		toyBag.bag[toy.name].Keyboard(&services)
+	}
 
 	telegramBot.StartBot()
 }

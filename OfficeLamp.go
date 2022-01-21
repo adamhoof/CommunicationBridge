@@ -67,7 +67,7 @@ func (officeLamp *OfficeLamp) GenerateKboardBtns() map[string]*tb.Btn {
 	return buttons
 }
 
-func (officeLamp *OfficeLamp) Kboard(services *ServiceContainer) {
+func (officeLamp *OfficeLamp) Keyboard(services *ServiceContainer) {
 
 	buttons := officeLamp.GenerateKboardBtns()
 

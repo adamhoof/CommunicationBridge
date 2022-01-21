@@ -1,21 +1,33 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
+
+var toyColors = make(map[string]string)
 
 type Playground struct {
 }
 
 type ToyAttributes struct {
 	name            string
-	commandWithName []byte
+	commandWithName []string
 	uniqueConst     string
 	publishTopic    string
 	subscribeTopic  string
+}
+
+func (playground *Playground) ColorTheToys() {
+	toyColors["on"] = "⬜"
+	toyColors["white"] = "⬜"
+	toyColors["yellow"] = "\U0001F7E8"
+	toyColors["blue"] = "\U0001F7E6"
+	toyColors["green"] = "\U0001F7E9"
+	toyColors["red"] = "\U0001F7E5"
+	toyColors["pink"] = "\U0001F7EA"
+	toyColors["orange"] = "\U0001F7E7"
+	toyColors["off"] = "🚫"
 }
 
 func (toyAttributes *ToyAttributes) Name() string {
@@ -47,19 +59,16 @@ func (toyAttributes *ToyAttributes) MQTTCommandHandler(services *ServiceContaine
 	return handler, toyAttributes.SubTopic()
 }
 
-func (toyAttributes *ToyAttributes) GenerateKboardBtns() map[string]*tb.Btn {
-
-	commandWithName := make(map[string]interface{})
-	err := json.Unmarshal(toyAttributes.commandWithName, &commandWithName)
-	if err != nil {
-		fmt.Println("shitter")
-	}
+func (toyAttributes *ToyAttributes) GenerateButtons() map[string]*tb.Btn {
 
 	buttons := make(map[string]*tb.Btn)
 
-	for command, name := range commandWithName {
-		buttons[command] = &tb.Btn{Unique: command + toyAttributes.uniqueConst, Text: name.(string)}
+	for _, command := range toyAttributes.commandWithName {
+		func() {
+			buttons[command] = &tb.Btn{Unique: command + toyAttributes.uniqueConst, Text: toyColors[command]}
+		}()
 	}
+	/*buttons[officeLampYellow] = &tb.Btn{Unique: officeLampYellow + toyAttributes.uniqueConst, Text: "\U0001F7E8"}*/
 	/*
 		buttons[officeLampWhite] = &tb.Btn{Unique: officeLampWhite + toyAttributes.uniqueConst, Text: "⬜"}
 		buttons[officeLampYellow] = &tb.Btn{Unique: officeLampYellow + toyAttributes.uniqueConst, Text: "\U0001F7E8"}
@@ -72,47 +81,40 @@ func (toyAttributes *ToyAttributes) GenerateKboardBtns() map[string]*tb.Btn {
 	return buttons
 }
 
-func (toyAttributes *ToyAttributes) Kboard(services *ServiceContainer) {
+func (toyAttributes *ToyAttributes) Keyboard(services *ServiceContainer) {
 
-	buttons := toyAttributes.GenerateKboardBtns()
+	buttons := toyAttributes.GenerateButtons()
 	var buttonsSlice = make([]tb.Btn, len(buttons))
 
-	i := 1
+	i := 0
 	for name, _ := range buttons {
 		buttonsSlice[i] = *buttons[name]
+		i++
 	}
 
-	officeLampModesKeyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
-
-	officeLampModesKeyboard.Inline(
-		officeLampModesKeyboard.Row(buttonsSlice...))
-
-	/*officeLampModesKeyboard.Inline(
-		officeLampModesKeyboard.Row(*buttons[officeLampWhite],
-			*buttons[officeLampYellow], *buttons[officeLampBlue],
-			*buttons[officeLampGreen], *buttons[officeLampRed],
-			*buttons[officeLampPink], *buttons[officeLampOff]),
-	)*/
+	keyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
+	keyboard.Inline(
+		keyboard.Row(buttonsSlice...))
 
 	toyAttributes.AwakenButtons(buttons, services)
 
-	services.botHandler.keyboards[OfficeLampKeyboard] = officeLampModesKeyboard
+	services.botHandler.keyboards[toyAttributes.Name()] = keyboard
 }
 
 func (toyAttributes *ToyAttributes) AwakenButtons(buttons map[string]*tb.Btn, services *ServiceContainer) {
 
-	for color, btn := range buttons {
+	for mode, btn := range buttons {
 
-		func(btn *tb.Btn, color string) {
+		func(btn *tb.Btn, mode string) {
 
 			services.botHandler.bot.Handle(btn, func(c *tb.Callback) {
 				err := services.botHandler.bot.Respond(c, &tb.CallbackResponse{})
 				if err != nil {
 					return
 				}
-				services.mqtt.PublishText(toyAttributes.PubTopic(), color)
+				services.mqtt.PublishText(toyAttributes.PubTopic(), mode)
 			})
-		}(btn, color)
+		}(btn, mode)
 	}
 }
 
@@ -125,7 +127,7 @@ type Toy interface {
 	PubTopic() string
 	SubTopic() string
 	MQTTCommandHandler(services *ServiceContainer) (MessageHandler mqtt.MessageHandler, topic string)
-	Kboard(services *ServiceContainer)
+	Keyboard(services *ServiceContainer)
 	TextCommands(services *ServiceContainer)
 }
 
@@ -139,7 +141,7 @@ func (playground *Playground) takeOutToys(toyStorage *ToyBag, services *ServiceC
 		handler, topic := toy.MQTTCommandHandler(services)
 		services.mqtt.SetSubscription(handler, topic)
 
-		toy.Kboard(services)
+		toy.Keyboard(services)
 		toy.TextCommands(services)
 
 		services.db.CreateToy(toy.Name(), "")

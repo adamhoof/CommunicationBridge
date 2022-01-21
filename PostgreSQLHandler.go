@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/lib/pq"
 )
 
 type PostgreSQLHandler struct {
@@ -17,8 +18,9 @@ const (
 	dbname   = "appliancestatesdb"
 )
 
-const updateSingleSQLStatement = `UPDATE HomeAppliances SET mode = $2 WHERE name = $1;`
+const updateSingleSQLStatement = `UPDATE HomeAppliances SET current_mode = $2 WHERE name = $1;`
 const createToySQLStatement = `INSERT INTO HomeAppliances (name, mode) VALUES ($1, $2) ON CONFLICT DO NOTHING;`
+const getNumberOfToys = `SELECT COUNT(id) FROM HomeAppliances;`
 const toyDataQuery = `SELECT name, command_with_name, unique_const, publish_topic, subscribe_topic FROM HomeAppliances WHERE id=$1;`
 
 func (postgreHandler *PostgreSQLHandler) Connect() {
@@ -62,10 +64,23 @@ func (postgreHandler *PostgreSQLHandler) CreateToy(toyName string, toyMode strin
 	}
 }
 
+func (postgreHandler *PostgreSQLHandler) GetNumberOfToys() (number int) {
+	row := postgreHandler.db.QueryRow(getNumberOfToys)
+	switch err := row.Scan(&number); err {
+	case sql.ErrNoRows:
+		fmt.Println("No rows were returned!")
+	case nil:
+		fmt.Println(number)
+	default:
+		panic(err)
+	}
+	return number
+}
+
 func (postgreHandler *PostgreSQLHandler) PullToyData(toyId int) (toyAttributes ToyAttributes) {
 
 	row := postgreHandler.db.QueryRow(toyDataQuery, toyId)
-	switch err := row.Scan(&toyAttributes.name, &toyAttributes.commandWithName, &toyAttributes.uniqueConst, &toyAttributes.publishTopic, &toyAttributes.subscribeTopic); err {
+	switch err := row.Scan(&toyAttributes.name, pq.Array(&toyAttributes.commandWithName), &toyAttributes.uniqueConst, &toyAttributes.publishTopic, &toyAttributes.subscribeTopic); err {
 	case sql.ErrNoRows:
 		fmt.Println("No rows were returned!")
 	case nil:

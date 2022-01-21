@@ -57,7 +57,7 @@ func (officeCeilLight *OfficeCeilLight) GenerateKboardBtns() map[string]*tb.Btn 
 	return buttons
 }
 
-func (officeCeilLight *OfficeCeilLight) Kboard(services *ServiceContainer) {
+func (officeCeilLight *OfficeCeilLight) Keyboard(services *ServiceContainer) {
 
 	buttons := officeCeilLight.GenerateKboardBtns()
 

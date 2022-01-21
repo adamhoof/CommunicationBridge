@@ -57,7 +57,7 @@ func (bedroomShades *BedroomShades) GenerateKboardBtns() map[string]*tb.Btn {
 	return buttons
 }
 
-func (bedroomShades *BedroomShades) Kboard(services *ServiceContainer) {
+func (bedroomShades *BedroomShades) Keyboard(services *ServiceContainer) {
 	buttons := bedroomShades.GenerateKboardBtns()
 
 	bedroomShadesModesKeyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
