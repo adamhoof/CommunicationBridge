@@ -3,6 +3,7 @@ package main
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	tb "gopkg.in/tucnak/telebot.v2"
+	"strconv"
 )
 
 var toyColors = make(map[string]string)
@@ -13,7 +14,7 @@ type Playground struct {
 type ToyAttributes struct {
 	name            string
 	commandWithName []string
-	uniqueConst     string
+	id              int
 	publishTopic    string
 	subscribeTopic  string
 }
@@ -65,18 +66,9 @@ func (toyAttributes *ToyAttributes) GenerateButtons() map[string]*tb.Btn {
 
 	for _, command := range toyAttributes.commandWithName {
 		func() {
-			buttons[command] = &tb.Btn{Unique: command + toyAttributes.uniqueConst, Text: toyColors[command]}
+			buttons[command] = &tb.Btn{Unique: command + strconv.Itoa(toyAttributes.id), Text: toyColors[command]}
 		}()
 	}
-	/*buttons[officeLampYellow] = &tb.Btn{Unique: officeLampYellow + toyAttributes.uniqueConst, Text: "\U0001F7E8"}*/
-	/*
-		buttons[officeLampWhite] = &tb.Btn{Unique: officeLampWhite + toyAttributes.uniqueConst, Text: "⬜"}
-		buttons[officeLampYellow] = &tb.Btn{Unique: officeLampYellow + toyAttributes.uniqueConst, Text: "\U0001F7E8"}
-		buttons[officeLampBlue] = &tb.Btn{Unique: officeLampBlue + toyAttributes.uniqueConst, Text: "\U0001F7E6"}
-		buttons[officeLampGreen] = &tb.Btn{Unique: officeLampGreen + toyAttributes.uniqueConst, Text: "\U0001F7E9"}
-		buttons[officeLampRed] = &tb.Btn{Unique: officeLampRed + toyAttributes.uniqueConst, Text: "\U0001F7E5"}
-		buttons[officeLampPink] = &tb.Btn{Unique: officeLampPink + toyAttributes.uniqueConst, Text: "\U0001F7EA"}
-		buttons[officeLampOff] = &tb.Btn{Unique: officeLampOff + toyAttributes.uniqueConst, Text: "🚫"}*/
 
 	return buttons
 }
