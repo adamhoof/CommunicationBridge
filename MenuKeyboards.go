@@ -27,7 +27,7 @@ func (menuKeyboards *MenuKeyboards) OfficeToys(telegramBot *TelegramBot) {
 		officeToysKboard.Row(backBtn),
 	)
 
-	telegramBot.UserEvent(&officeLampBtn, "Office lamp modes", OFFICE_LAMP_KEYBOARD, KBOARD)
+	telegramBot.UserEvent(&officeLampBtn, "Office lamp modes", OfficeLampKeyboard, KBOARD)
 	telegramBot.UserEvent(&officeCeilLightBtn, "Office Ceil Light Modes", OFFICE_CEIL_LIGHT_KBOARD, KBOARD)
 	telegramBot.UserEvent(&backBtn, "All toys", ALL_TOYS_KBOARD, KBOARD)
 }

@@ -5,9 +5,6 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
-type OfficeCeilLight struct {
-}
-
 const (
 	officeCeilLightPub       = "officeceil/rpiSet"
 	officeCeilLightSub       = "officeceil/espReply"
@@ -16,10 +13,24 @@ const (
 	OFFICE_CEIL_LIGHT_KBOARD = "officeCeilLight"
 )
 
-func (officeCeilLight *OfficeCeilLight) Name() string {
-	return "Office Ceil Light"
+type OfficeCeilLight struct {
+	name        string `default:"OfficeCeilLight"`
+	pub         string `default:"set/officeceillight"`
+	sub         string `default:"reply/officeceillight"`
+	uniqueConst string `default:"ocl"`
 }
 
+func (officeCeilLight *OfficeCeilLight) Name() string {
+	return officeCeilLight.name
+}
+
+func (officeCeilLight *OfficeCeilLight) PubTopic() string {
+	return officeCeilLight.pub
+}
+
+func (officeCeilLight *OfficeCeilLight) SubTopic() string {
+	return officeCeilLight.sub
+}
 func (officeCeilLight *OfficeCeilLight) MQTTCommandHandler(services *ServiceContainer) (handler mqtt.MessageHandler, topic string) {
 
 	handler = func(client mqtt.Client, message mqtt.Message) {
@@ -33,15 +44,15 @@ func (officeCeilLight *OfficeCeilLight) MQTTCommandHandler(services *ServiceCont
 			}
 		}()
 	}
-	return handler, officeCeilLightSub
+	return handler, officeCeilLight.SubTopic()
 }
 
 func (officeCeilLight *OfficeCeilLight) GenerateKboardBtns() map[string]*tb.Btn {
 
 	buttons := make(map[string]*tb.Btn)
 
-	buttons[officeCeilLightOn] = &tb.Btn{Unique: officeCeilLightOn + "oclb", Text: "⬜"}
-	buttons[officeCeilLightOff] = &tb.Btn{Unique: officeCeilLightOff + "oclb", Text: "🚫"}
+	buttons[officeCeilLightOn] = &tb.Btn{Unique: officeCeilLightOn + officeCeilLight.uniqueConst, Text: "⬜"}
+	buttons[officeCeilLightOff] = &tb.Btn{Unique: officeCeilLightOff + officeCeilLight.uniqueConst, Text: "🚫"}
 
 	return buttons
 }
@@ -73,7 +84,7 @@ func (officeCeilLight *OfficeCeilLight) AwakenButtons(buttons map[string]*tb.Btn
 				if err != nil {
 					return
 				}
-				services.mqtt.PublishText(officeCeilLightPub, color)
+				services.mqtt.PublishText(officeCeilLight.PubTopic(), color)
 			})
 		}(btn, color)
 	}

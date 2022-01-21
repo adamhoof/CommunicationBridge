@@ -47,9 +47,15 @@ func main() {
 	playground := Playground{}
 	toyBag := ToyBag{}
 
-	var toys = []Toy{&OfficeLamp{}, &OfficeCeilLight{}, &CryptoQuery{}, &BedroomLamp{}, &BedroomShades{}}
+	toyBag.bag = make(map[string]Toy)
 
-	toyBag.fill(toys)
+	toy := postgreSQLHandler.PullToyData(1)
+	toyBag.bag[toy.name] = &toy
+	toyBag.bag[toy.name].Kboard(&services)
+
+	/*var toys = []Toy{&OfficeLamp{}, &OfficeCeilLight{}, &BedroomLamp{}, &BedroomShades{}}
+
+	toyBag.fill(toys)*/
 
 	playground.takeOutToys(&toyBag, &services)
 

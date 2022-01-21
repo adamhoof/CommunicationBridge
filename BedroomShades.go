@@ -5,21 +5,30 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
-type BedroomShades struct {
-}
-
 const (
-	bedroomShadesSub        = "bedroomshades/espReply"
-	bedroomShadesPub        = "bedroomshades/rpiSet"
 	bedroomShadesFullyOpen  = "1"
 	bedroomShadesFullyClose = "0"
 	BEDROOM_SHADES_KEYBOARD = "bedroomShades"
 )
 
-func (bedroomShades *BedroomShades) Name() string {
-	return "Bedroom Shades"
+type BedroomShades struct {
+	name        string `default:"BedroomShades"`
+	pub         string `default:"set/bedroomshades"`
+	sub         string `default:"reply/bedroomshades"`
+	uniqueConst string `default:"bs"`
 }
 
+func (bedroomShades *BedroomShades) Name() string {
+	return bedroomShades.name
+}
+
+func (bedroomShades *BedroomShades) PubTopic() string {
+	return bedroomShades.pub
+}
+
+func (bedroomShades *BedroomShades) SubTopic() string {
+	return bedroomShades.sub
+}
 func (bedroomShades *BedroomShades) MQTTCommandHandler(services *ServiceContainer) (handler mqtt.MessageHandler, topic string) {
 
 	handler = func(client mqtt.Client, message mqtt.Message) {
@@ -35,7 +44,7 @@ func (bedroomShades *BedroomShades) MQTTCommandHandler(services *ServiceContaine
 			}
 		}()
 	}
-	return handler, bedroomShadesSub
+	return handler, bedroomShades.SubTopic()
 }
 
 func (bedroomShades *BedroomShades) GenerateKboardBtns() map[string]*tb.Btn {
@@ -72,7 +81,7 @@ func (bedroomShades *BedroomShades) AwakenButtons(buttons map[string]*tb.Btn, se
 				if err != nil {
 					return
 				}
-				services.mqtt.PublishText(bedroomShadesPub, mode)
+				services.mqtt.PublishText(bedroomShades.PubTopic(), mode)
 			})
 		}(btn, mode)
 	}

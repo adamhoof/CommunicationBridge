@@ -17,7 +17,7 @@ const (
 )
 
 func (cryptoQuery *CryptoQuery) Name() string {
-	return "Crypto Query"
+	return "CryptoQuery"
 }
 
 func (cryptoQuery *CryptoQuery) MQTTCommandHandler(services *ServiceContainer) (handler mqtt.MessageHandler, topic string) {

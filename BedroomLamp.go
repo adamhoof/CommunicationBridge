@@ -13,16 +13,26 @@ const (
 	bedroomLampRed        = "red"
 	bedroomLampPink       = "pink"
 	bedroomLampOff        = "off"
-	bedroomLampPub        = "bedroomlamp/rpiSet"
-	bedroomLampSub        = "bedroomlamp/espReply"
 	BEDROOM_LAMP_KEYBOARD = "bedroomlamp"
 )
 
 type BedroomLamp struct {
+	name        string `default:"BedroomLamp"`
+	pub         string `default:"set/bedroomlamp"`
+	sub         string `default:"reply/bedroomlamp"`
+	uniqueConst string `default:"bl"`
 }
 
 func (bedroomLamp *BedroomLamp) Name() string {
-	return "Bedroom Lamp"
+	return bedroomLamp.name
+}
+
+func (bedroomLamp *BedroomLamp) PubTopic() string {
+	return bedroomLamp.pub
+}
+
+func (bedroomLamp *BedroomLamp) SubTopic() string {
+	return bedroomLamp.sub
 }
 
 func (bedroomLamp *BedroomLamp) MQTTCommandHandler(services *ServiceContainer) (handler mqtt.MessageHandler, topic string) {
@@ -39,7 +49,7 @@ func (bedroomLamp *BedroomLamp) MQTTCommandHandler(services *ServiceContainer) (
 
 		}()
 	}
-	return handler, bedroomLampSub
+	return handler, bedroomLamp.SubTopic()
 }
 
 func (bedroomLamp *BedroomLamp) GenerateKboardBtns() map[string]*tb.Btn {
@@ -86,12 +96,12 @@ func (bedroomLamp *BedroomLamp) AwakenButtons(buttons map[string]*tb.Btn, servic
 				if err != nil {
 					return
 				}
-				services.mqtt.PublishText(bedroomLampPub, color)
+				services.mqtt.PublishText(bedroomLamp.PubTopic(), color)
 			})
 		}(btn, color)
 	}
 }
 
 func (bedroomLamp *BedroomLamp) TextCommands(services *ServiceContainer) {
-	services.botHandler.UserEvent("/bedroomlamp", "Bedroom lamp", BEDROOM_LAMP_KEYBOARD, KBOARD)
+	services.botHandler.UserEvent("/bedroomlamp", bedroomLamp.Name(), BEDROOM_LAMP_KEYBOARD, KBOARD)
 }

@@ -6,23 +6,33 @@ import (
 )
 
 const (
-	officeLampWhite      = "white"
-	officeLampYellow     = "yellow"
-	officeLampBlue       = "blue"
-	officeLampGreen      = "green"
-	officeLampRed        = "red"
-	officeLampPink       = "pink"
-	officeLampOff        = "off"
-	officeLampPub        = "officelamp/rpiSet"
-	officeLampSub        = "officelamp/espReply"
-	OFFICE_LAMP_KEYBOARD = "officelamp"
+	officeLampWhite    = "white"
+	officeLampYellow   = "yellow"
+	officeLampBlue     = "blue"
+	officeLampGreen    = "green"
+	officeLampRed      = "red"
+	officeLampPink     = "pink"
+	officeLampOff      = "off"
+	OfficeLampKeyboard = "officelamp"
 )
 
 type OfficeLamp struct {
+	name        string `default:"OfficeLamp"`
+	pub         string `default:"set/officelamp"`
+	sub         string `default:"reply/officelamp"`
+	uniqueConst string `default:"ol"`
 }
 
 func (officeLamp *OfficeLamp) Name() string {
-	return "Office Lamp"
+	return officeLamp.name
+}
+
+func (officeLamp *OfficeLamp) PubTopic() string {
+	return officeLamp.pub
+}
+
+func (officeLamp *OfficeLamp) SubTopic() string {
+	return officeLamp.sub
 }
 
 func (officeLamp *OfficeLamp) MQTTCommandHandler(services *ServiceContainer) (handler mqtt.MessageHandler, topic string) {
@@ -39,20 +49,20 @@ func (officeLamp *OfficeLamp) MQTTCommandHandler(services *ServiceContainer) (ha
 
 		}()
 	}
-	return handler, officeLampSub
+	return handler, officeLamp.SubTopic()
 }
 
 func (officeLamp *OfficeLamp) GenerateKboardBtns() map[string]*tb.Btn {
 
 	buttons := make(map[string]*tb.Btn)
 
-	buttons[officeLampWhite] = &tb.Btn{Unique: officeLampWhite + "ol", Text: "⬜"}
-	buttons[officeLampYellow] = &tb.Btn{Unique: officeLampYellow + "ol", Text: "\U0001F7E8"}
-	buttons[officeLampBlue] = &tb.Btn{Unique: officeLampBlue + "ol", Text: "\U0001F7E6"}
-	buttons[officeLampGreen] = &tb.Btn{Unique: officeLampGreen + "ol", Text: "\U0001F7E9"}
-	buttons[officeLampRed] = &tb.Btn{Unique: officeLampRed + "ol", Text: "\U0001F7E5"}
-	buttons[officeLampPink] = &tb.Btn{Unique: officeLampPink + "ol", Text: "\U0001F7EA"}
-	buttons[officeLampOff] = &tb.Btn{Unique: officeLampOff + "ol", Text: "🚫"}
+	buttons[officeLampWhite] = &tb.Btn{Unique: officeLampWhite + officeLamp.uniqueConst, Text: "⬜"}
+	buttons[officeLampYellow] = &tb.Btn{Unique: officeLampYellow + officeLamp.uniqueConst, Text: "\U0001F7E8"}
+	buttons[officeLampBlue] = &tb.Btn{Unique: officeLampBlue + officeLamp.uniqueConst, Text: "\U0001F7E6"}
+	buttons[officeLampGreen] = &tb.Btn{Unique: officeLampGreen + officeLamp.uniqueConst, Text: "\U0001F7E9"}
+	buttons[officeLampRed] = &tb.Btn{Unique: officeLampRed + officeLamp.uniqueConst, Text: "\U0001F7E5"}
+	buttons[officeLampPink] = &tb.Btn{Unique: officeLampPink + officeLamp.uniqueConst, Text: "\U0001F7EA"}
+	buttons[officeLampOff] = &tb.Btn{Unique: officeLampOff + officeLamp.uniqueConst, Text: "🚫"}
 
 	return buttons
 }
@@ -72,7 +82,7 @@ func (officeLamp *OfficeLamp) Kboard(services *ServiceContainer) {
 
 	officeLamp.AwakenButtons(buttons, services)
 
-	services.botHandler.keyboards[OFFICE_LAMP_KEYBOARD] = officeLampModesKeyboard
+	services.botHandler.keyboards[OfficeLampKeyboard] = officeLampModesKeyboard
 }
 
 func (officeLamp *OfficeLamp) AwakenButtons(buttons map[string]*tb.Btn, services *ServiceContainer) {
@@ -86,12 +96,12 @@ func (officeLamp *OfficeLamp) AwakenButtons(buttons map[string]*tb.Btn, services
 				if err != nil {
 					return
 				}
-				services.mqtt.PublishText(officeLampPub, color)
+				services.mqtt.PublishText(officeLamp.PubTopic(), color)
 			})
 		}(btn, color)
 	}
 }
 
 func (officeLamp *OfficeLamp) TextCommands(services *ServiceContainer) {
-	services.botHandler.UserEvent("/officelamp", "Office lamp", OFFICE_LAMP_KEYBOARD, KBOARD)
+	services.botHandler.UserEvent("/officelamp", "Office lamp", OfficeLampKeyboard, KBOARD)
 }

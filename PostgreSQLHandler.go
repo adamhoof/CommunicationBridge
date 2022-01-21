@@ -19,6 +19,7 @@ const (
 
 const updateSingleSQLStatement = `UPDATE HomeAppliances SET mode = $2 WHERE name = $1;`
 const createToySQLStatement = `INSERT INTO HomeAppliances (name, mode) VALUES ($1, $2) ON CONFLICT DO NOTHING;`
+const toyDataQuery = `SELECT name, command_with_name, unique_const, publish_topic, subscribe_topic FROM HomeAppliances WHERE id=$1;`
 
 func (postgreHandler *PostgreSQLHandler) Connect() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
@@ -59,4 +60,18 @@ func (postgreHandler *PostgreSQLHandler) CreateToy(toyName string, toyMode strin
 	if err != nil {
 		fmt.Println("unable to create toy object in db", err)
 	}
+}
+
+func (postgreHandler *PostgreSQLHandler) PullToyData(toyId int) (toyAttributes ToyAttributes) {
+
+	row := postgreHandler.db.QueryRow(toyDataQuery, toyId)
+	switch err := row.Scan(&toyAttributes.name, &toyAttributes.commandWithName, &toyAttributes.uniqueConst, &toyAttributes.publishTopic, &toyAttributes.subscribeTopic); err {
+	case sql.ErrNoRows:
+		fmt.Println("No rows were returned!")
+	case nil:
+		fmt.Println(toyAttributes.name, toyAttributes.commandWithName, toyAttributes.uniqueConst, toyAttributes.publishTopic, toyAttributes.subscribeTopic)
+	default:
+		panic(err)
+	}
+	return toyAttributes
 }
