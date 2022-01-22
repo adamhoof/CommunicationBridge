@@ -19,8 +19,6 @@ const (
 )
 
 const updateSingleSQLStatement = `UPDATE HomeAppliances SET current_mode = $2 WHERE name = $1;`
-const createToySQLStatement = `INSERT INTO HomeAppliances (name, mode) VALUES ($1, $2) ON CONFLICT DO NOTHING;`
-const getNumberOfToys = `SELECT COUNT(id) FROM HomeAppliances;`
 const toysDataQuery = `SELECT name, available_modes, id, publish_topic, subscribe_topic FROM HomeAppliances;`
 
 func (postgreHandler *PostgreSQLHandler) Connect() {
@@ -55,26 +53,6 @@ func (postgreHandler *PostgreSQLHandler) UpdateToyMode(toyName string, toyMode s
 	if err != nil {
 		fmt.Println("Couldnt update mode", err)
 	}
-}
-
-func (postgreHandler *PostgreSQLHandler) CreateToy(toyName string, toyMode string) {
-	_, err := postgreHandler.db.Exec(createToySQLStatement, toyName, toyMode)
-	if err != nil {
-		fmt.Println("unable to create toy object in db", err)
-	}
-}
-
-func (postgreHandler *PostgreSQLHandler) GetNumberOfToys() (number int) {
-	row := postgreHandler.db.QueryRow(getNumberOfToys)
-	switch err := row.Scan(&number); err {
-	case sql.ErrNoRows:
-		fmt.Println("No rows were returned!")
-	case nil:
-		fmt.Println(number)
-	default:
-		panic(err)
-	}
-	return number
 }
 
 func (postgreHandler *PostgreSQLHandler) PullToyData(toyBag map[string]Toy) {

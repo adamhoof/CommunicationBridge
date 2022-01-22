@@ -44,8 +44,6 @@ func main() {
 	menuKeyboards.OfficeToys(&telegramBot)
 	menuKeyboards.BedroomToys(&telegramBot)
 
-	playground := Playground{}
-	playground.ColorTheToys()
 	toyBag := ToyBag{}
 
 	toyBag.bag = make(map[string]Toy)
@@ -53,8 +51,8 @@ func main() {
 	postgreSQLHandler.PullToyData(toyBag.bag)
 
 	for _, toy := range toyBag.bag {
-		handler, topic := toyBag.bag[toy.Name()].MQTTCommandHandler(&services)
-		services.mqtt.SetSubscription(handler, topic)
+		handler := toyBag.bag[toy.Name()].MQTTCommandHandler(&services)
+		services.mqtt.SetSubscription(handler, toy.SubTopic())
 		toyBag.bag[toy.Name()].Keyboard(&services)
 	}
 
