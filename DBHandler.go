@@ -6,7 +6,7 @@ import (
 	"github.com/lib/pq"
 )
 
-type PostgreSQLHandler struct {
+type DBHandler struct {
 	db *sql.DB
 }
 
@@ -21,45 +21,45 @@ const (
 const updateSingleSQLStatement = `UPDATE HomeAppliances SET current_mode = $2 WHERE name = $1;`
 const toysDataQuery = `SELECT name, available_modes, id, publish_topic, subscribe_topic FROM HomeAppliances;`
 
-func (postgreHandler *PostgreSQLHandler) Connect() {
+func (dbHandler *DBHandler) Connect() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s",
 		host, port, user, password, dbname)
 
 	var err error
-	postgreHandler.db, err = sql.Open("postgres", psqlInfo)
+	dbHandler.db, err = sql.Open("postgres", psqlInfo)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println("db connection established")
 }
 
-func (postgreHandler *PostgreSQLHandler) TestConnection() {
-	result := postgreHandler.db.Ping()
+func (dbHandler *DBHandler) TestConnection() {
+	result := dbHandler.db.Ping()
 	if result != nil {
 		panic(result)
 	}
 }
 
-func (postgreHandler *PostgreSQLHandler) Disconnect() {
-	err := postgreHandler.db.Close()
+func (dbHandler *DBHandler) Disconnect() {
+	err := dbHandler.db.Close()
 	if err != nil {
 		panic(err)
 	}
 }
 
-func (postgreHandler *PostgreSQLHandler) UpdateToyMode(toyName string, toyMode string) {
-	_, err := postgreHandler.db.Exec(updateSingleSQLStatement, toyName, toyMode)
+func (dbHandler *DBHandler) UpdateToyMode(toyName string, toyMode string) {
+	_, err := dbHandler.db.Exec(updateSingleSQLStatement, toyName, toyMode)
 	if err != nil {
 		fmt.Println("Couldnt update mode", err)
 	}
 }
 
-func (postgreHandler *PostgreSQLHandler) PullToyData() (toyBag map[string]Toy) {
+func (dbHandler *DBHandler) PullToyData() (toyBag map[string]Toy) {
 
 	toyBag = make(map[string]Toy)
 
-	rows, err := postgreHandler.db.Query(toysDataQuery)
+	rows, err := dbHandler.db.Query(toysDataQuery)
 	if err != nil {
 		fmt.Println("unable to query data", err)
 	}

@@ -9,12 +9,12 @@ func main() {
 
 	mqttHandler := MQTTHandler{}
 	telegramBot := TelegramBot{}
-	postgreSQLHandler := PostgreSQLHandler{}
+	dbHandler := DBHandler{}
 
 	services := ServiceContainer{
 		mqtt:       &mqttHandler,
 		botHandler: &telegramBot,
-		db:         &postgreSQLHandler,
+		db:         &dbHandler,
 	}
 
 	var routineSyncer sync.WaitGroup
@@ -44,7 +44,7 @@ func main() {
 	menuKeyboards.OfficeToys(&telegramBot)
 	menuKeyboards.BedroomToys(&telegramBot)
 
-	toyBag := postgreSQLHandler.PullToyData()
+	toyBag := dbHandler.PullToyData()
 
 	for _, toy := range toyBag {
 		toyBag[toy.Name()].MQTTCommandHandler(&services)
