@@ -17,8 +17,6 @@ func main() {
 		db:         &postgreSQLHandler,
 	}
 
-	services.botHandler.CreateBot()
-
 	var routineSyncer sync.WaitGroup
 
 	routineSyncer.Add(1)
@@ -40,18 +38,18 @@ func main() {
 
 	menuKeyboards := MenuKeyboards{}
 
+	services.botHandler.CreateBot()
+
 	menuKeyboards.AllToys(&telegramBot)
 	menuKeyboards.OfficeToys(&telegramBot)
 	menuKeyboards.BedroomToys(&telegramBot)
 
-	playground := Playground{}
-	toyBag := ToyBag{}
+	toyBag := postgreSQLHandler.PullToyData()
 
-	var toys = []Toy{&OfficeLamp{}, &OfficeCeilLight{}, &CryptoQuery{}, &BedroomLamp{}, &BedroomShades{}}
-
-	toyBag.fill(toys)
-
-	playground.takeOutToys(&toyBag, &services)
+	for _, toy := range toyBag {
+		toyBag[toy.Name()].MQTTCommandHandler(&services)
+		toyBag[toy.Name()].Keyboard(&services)
+	}
 
 	telegramBot.StartBot()
 }

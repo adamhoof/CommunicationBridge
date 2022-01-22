@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/lib/pq"
 )
 
 type PostgreSQLHandler struct {
@@ -17,8 +18,8 @@ const (
 	dbname   = "appliancestatesdb"
 )
 
-const updateSingleSQLStatement = `UPDATE HomeAppliances SET mode = $2 WHERE name = $1;`
-const createToySQLStatement = `INSERT INTO HomeAppliances (name, mode) VALUES ($1, $2) ON CONFLICT DO NOTHING;`
+const updateSingleSQLStatement = `UPDATE HomeAppliances SET current_mode = $2 WHERE name = $1;`
+const toysDataQuery = `SELECT name, available_modes, id, publish_topic, subscribe_topic FROM HomeAppliances;`
 
 func (postgreHandler *PostgreSQLHandler) Connect() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
@@ -54,9 +55,28 @@ func (postgreHandler *PostgreSQLHandler) UpdateToyMode(toyName string, toyMode s
 	}
 }
 
-func (postgreHandler *PostgreSQLHandler) CreateToy(toyName string, toyMode string) {
-	_, err := postgreHandler.db.Exec(createToySQLStatement, toyName, toyMode)
+func (postgreHandler *PostgreSQLHandler) PullToyData() (toyBag map[string]Toy) {
+
+	toyBag = make(map[string]Toy)
+
+	rows, err := postgreHandler.db.Query(toysDataQuery)
 	if err != nil {
-		fmt.Println("unable to create toy object in db", err)
+		fmt.Println("unable to query data", err)
 	}
+	defer func(rows *sql.Rows) {
+		err = rows.Close()
+		if err != nil {
+			fmt.Println("unable to close rows", err)
+		}
+	}(rows)
+
+	for rows.Next() {
+		toy := ToyAttributes{}
+		err = rows.Scan(&toy.name, pq.Array(&toy.availableModes), &toy.id, &toy.publishTopic, &toy.subscribeTopic)
+		if err != nil {
+			fmt.Println("unable to fetch toy data into toyAttributes", err)
+		}
+		toyBag[toy.Name()] = &toy
+	}
+	return toyBag
 }
