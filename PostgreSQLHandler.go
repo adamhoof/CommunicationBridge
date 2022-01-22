@@ -55,7 +55,9 @@ func (postgreHandler *PostgreSQLHandler) UpdateToyMode(toyName string, toyMode s
 	}
 }
 
-func (postgreHandler *PostgreSQLHandler) PullToyData(toyBag map[string]Toy) {
+func (postgreHandler *PostgreSQLHandler) PullToyData() (toyBag map[string]Toy) {
+
+	toyBag = make(map[string]Toy)
 
 	rows, err := postgreHandler.db.Query(toysDataQuery)
 	if err != nil {
@@ -76,4 +78,5 @@ func (postgreHandler *PostgreSQLHandler) PullToyData(toyBag map[string]Toy) {
 		}
 		toyBag[toy.Name()] = &toy
 	}
+	return toyBag
 }

@@ -39,9 +39,9 @@ func (toyAttributes *ToyAttributes) SubTopic() string {
 	return toyAttributes.subscribeTopic
 }
 
-func (toyAttributes *ToyAttributes) MQTTCommandHandler(services *ServiceContainer) (handler mqtt.MessageHandler) {
+func (toyAttributes *ToyAttributes) MQTTCommandHandler(services *ServiceContainer) {
 
-	handler = func(client mqtt.Client, message mqtt.Message) {
+	handler := func(client mqtt.Client, message mqtt.Message) {
 
 		func() {
 			msg := string(message.Payload())
@@ -53,7 +53,7 @@ func (toyAttributes *ToyAttributes) MQTTCommandHandler(services *ServiceContaine
 
 		}()
 	}
-	return handler
+	services.mqtt.SetSubscription(handler, toyAttributes.SubTopic())
 }
 
 func (toyAttributes *ToyAttributes) GenerateButtons() map[string]*tb.Btn {

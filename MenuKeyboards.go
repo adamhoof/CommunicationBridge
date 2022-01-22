@@ -5,9 +5,9 @@ import (
 )
 
 const (
-	ALL_TOYS_KBOARD     = "allToys"
-	OFFICE_TOYS_KBOARD  = "officeToys"
-	BEDROOM_TOYS_KBOARD = "bedroomToys"
+	AllToysKeyboard     = "allToys"
+	OfficeToysKeyboard  = "officeToys"
+	BedroomToysKeyboard = "bedroomToys"
 )
 
 type MenuKeyboards struct {
@@ -15,30 +15,30 @@ type MenuKeyboards struct {
 }
 
 func (menuKeyboards *MenuKeyboards) OfficeToys(telegramBot *TelegramBot) {
-	officeToysKboard := &tb.ReplyMarkup{}
-	telegramBot.keyboards[OFFICE_TOYS_KBOARD] = officeToysKboard
+	officeToysKeyboard := &tb.ReplyMarkup{}
+	telegramBot.keyboards[OfficeToysKeyboard] = officeToysKeyboard
 
-	officeLampBtn := officeToysKboard.Text("Table Lamp")
-	officeCeilLightBtn := officeToysKboard.Text("Main Light")
-	backBtn := officeToysKboard.Text("⬅ Back")
+	officeLampBtn := officeToysKeyboard.Text("Table Lamp")
+	officeCeilLightBtn := officeToysKeyboard.Text("Main Light")
+	backBtn := officeToysKeyboard.Text("⬅")
 
-	officeToysKboard.Reply(
-		officeToysKboard.Row(officeLampBtn, officeCeilLightBtn),
-		officeToysKboard.Row(backBtn),
+	officeToysKeyboard.Reply(
+		officeToysKeyboard.Row(officeLampBtn, officeCeilLightBtn),
+		officeToysKeyboard.Row(backBtn),
 	)
 
 	telegramBot.UserEvent(&officeLampBtn, "Office lamp modes", "OfficeLamp", KBOARD)
 	telegramBot.UserEvent(&officeCeilLightBtn, "Office Ceil Light Modes", "OfficeCeilLight", KBOARD)
-	telegramBot.UserEvent(&backBtn, "All toys", ALL_TOYS_KBOARD, KBOARD)
+	telegramBot.UserEvent(&backBtn, "All toys", AllToysKeyboard, KBOARD)
 }
 
 func (menuKeyboards *MenuKeyboards) BedroomToys(telegramBot *TelegramBot) {
 	bedroomToysKboard := &tb.ReplyMarkup{}
-	telegramBot.keyboards[BEDROOM_TOYS_KBOARD] = bedroomToysKboard
+	telegramBot.keyboards[BedroomToysKeyboard] = bedroomToysKboard
 
 	bedroomShadesBtn := bedroomToysKboard.Text("Shades")
 	bedroomLampBtn := bedroomToysKboard.Text("Lamp")
-	backBtn := bedroomToysKboard.Text("⬅ Back")
+	backBtn := bedroomToysKboard.Text("⬅")
 
 	bedroomToysKboard.Reply(
 		bedroomToysKboard.Row(bedroomShadesBtn, bedroomLampBtn),
@@ -46,24 +46,21 @@ func (menuKeyboards *MenuKeyboards) BedroomToys(telegramBot *TelegramBot) {
 
 	telegramBot.UserEvent(&bedroomShadesBtn, "Bedroom shades modes", "BedroomShades", KBOARD)
 	telegramBot.UserEvent(&bedroomLampBtn, "Bedroom lamp modes", "BedroomLamp", KBOARD)
-	telegramBot.UserEvent(&backBtn, "All toys", ALL_TOYS_KBOARD, KBOARD)
+	telegramBot.UserEvent(&backBtn, "All toys", AllToysKeyboard, KBOARD)
 }
 
 func (menuKeyboards *MenuKeyboards) AllToys(botHandler *TelegramBot) {
 	allToysKboard := &tb.ReplyMarkup{}
-	botHandler.keyboards[ALL_TOYS_KBOARD] = allToysKboard
+	botHandler.keyboards[AllToysKeyboard] = allToysKboard
 
 	officeToyBtn := allToysKboard.Text("Office toys")
 	bedroomToyBtn := allToysKboard.Text("Bedroom toys")
-	cryptoQueryBtn := allToysKboard.Text("Crypto query")
 
 	allToysKboard.Reply(
 		allToysKboard.Row(officeToyBtn, bedroomToyBtn),
-		allToysKboard.Row(cryptoQueryBtn),
 	)
 
-	botHandler.UserEvent("/toys", "/toys", ALL_TOYS_KBOARD, KBOARD)
-	botHandler.UserEvent(&officeToyBtn, "Office Toys", OFFICE_TOYS_KBOARD, KBOARD)
-	botHandler.UserEvent(&bedroomToyBtn, "Bedroom Toys", BEDROOM_TOYS_KBOARD, KBOARD)
-	botHandler.UserEvent(&cryptoQueryBtn, "Crypto Query", CRYPTO_QUERY_KBOARD, KBOARD)
+	botHandler.UserEvent("/toys", "/toys", AllToysKeyboard, KBOARD)
+	botHandler.UserEvent(&officeToyBtn, "Office Toys", OfficeToysKeyboard, KBOARD)
+	botHandler.UserEvent(&bedroomToyBtn, "Bedroom Toys", BedroomToysKeyboard, KBOARD)
 }
