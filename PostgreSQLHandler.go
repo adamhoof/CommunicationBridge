@@ -21,7 +21,7 @@ const (
 const updateSingleSQLStatement = `UPDATE HomeAppliances SET current_mode = $2 WHERE name = $1;`
 const createToySQLStatement = `INSERT INTO HomeAppliances (name, mode) VALUES ($1, $2) ON CONFLICT DO NOTHING;`
 const getNumberOfToys = `SELECT COUNT(id) FROM HomeAppliances;`
-const toyDataQuery = `SELECT name, command_with_name, id, publish_topic, subscribe_topic FROM HomeAppliances WHERE id=$1;`
+const toysDataQuery = `SELECT name, command_with_name, id, publish_topic, subscribe_topic FROM HomeAppliances;`
 
 func (postgreHandler *PostgreSQLHandler) Connect() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
@@ -77,16 +77,25 @@ func (postgreHandler *PostgreSQLHandler) GetNumberOfToys() (number int) {
 	return number
 }
 
-func (postgreHandler *PostgreSQLHandler) PullToyData(toyId int) (toyAttributes ToyAttributes) {
+func (postgreHandler *PostgreSQLHandler) PullToyData(toyBag map[string]Toy) {
 
-	row := postgreHandler.db.QueryRow(toyDataQuery, toyId)
-	switch err := row.Scan(&toyAttributes.name, pq.Array(&toyAttributes.commandWithName), &toyAttributes.id, &toyAttributes.publishTopic, &toyAttributes.subscribeTopic); err {
-	case sql.ErrNoRows:
-		fmt.Println("No rows were returned!")
-	case nil:
-		fmt.Println(toyAttributes.name, toyAttributes.commandWithName, toyAttributes.id, toyAttributes.publishTopic, toyAttributes.subscribeTopic)
-	default:
-		panic(err)
+	rows, err := postgreHandler.db.Query(toysDataQuery)
+	if err != nil {
+		fmt.Println("unable to query data", err)
 	}
-	return toyAttributes
+	defer func(rows *sql.Rows) {
+		err = rows.Close()
+		if err != nil {
+			fmt.Println("unable to close rows", err)
+		}
+	}(rows)
+
+	for rows.Next() {
+		toy := ToyAttributes{}
+		err = rows.Scan(&toy.name, pq.Array(&toy.commandWithName), &toy.id, &toy.publishTopic, &toy.subscribeTopic)
+		if err != nil {
+			fmt.Println("unable to fetch toy data into toyAttributes", err)
+		}
+		toyBag[toy.Name()] = &toy
+	}
 }

@@ -50,14 +50,12 @@ func main() {
 
 	toyBag.bag = make(map[string]Toy)
 
-	numOfToys := services.db.GetNumberOfToys()
+	postgreSQLHandler.PullToyData(toyBag.bag)
 
-	for i := 1; i < numOfToys+1; i++ {
-		toy := postgreSQLHandler.PullToyData(i)
-		toyBag.bag[toy.name] = &toy
-		handler, topic := toyBag.bag[toy.name].MQTTCommandHandler(&services)
+	for _, toy := range toyBag.bag {
+		handler, topic := toyBag.bag[toy.Name()].MQTTCommandHandler(&services)
 		services.mqtt.SetSubscription(handler, topic)
-		toyBag.bag[toy.name].Keyboard(&services)
+		toyBag.bag[toy.Name()].Keyboard(&services)
 	}
 
 	telegramBot.StartBot()
