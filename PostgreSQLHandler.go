@@ -21,7 +21,7 @@ const (
 const updateSingleSQLStatement = `UPDATE HomeAppliances SET current_mode = $2 WHERE name = $1;`
 const createToySQLStatement = `INSERT INTO HomeAppliances (name, mode) VALUES ($1, $2) ON CONFLICT DO NOTHING;`
 const getNumberOfToys = `SELECT COUNT(id) FROM HomeAppliances;`
-const toysDataQuery = `SELECT name, command_with_name, id, publish_topic, subscribe_topic FROM HomeAppliances;`
+const toysDataQuery = `SELECT name, available_modes, id, publish_topic, subscribe_topic FROM HomeAppliances;`
 
 func (postgreHandler *PostgreSQLHandler) Connect() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
@@ -92,7 +92,7 @@ func (postgreHandler *PostgreSQLHandler) PullToyData(toyBag map[string]Toy) {
 
 	for rows.Next() {
 		toy := ToyAttributes{}
-		err = rows.Scan(&toy.name, pq.Array(&toy.commandWithName), &toy.id, &toy.publishTopic, &toy.subscribeTopic)
+		err = rows.Scan(&toy.name, pq.Array(&toy.availableModes), &toy.id, &toy.publishTopic, &toy.subscribeTopic)
 		if err != nil {
 			fmt.Println("unable to fetch toy data into toyAttributes", err)
 		}

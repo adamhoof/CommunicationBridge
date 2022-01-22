@@ -12,11 +12,11 @@ type Playground struct {
 }
 
 type ToyAttributes struct {
-	name            string
-	commandWithName []string
-	id              int
-	publishTopic    string
-	subscribeTopic  string
+	name           string
+	availableModes []string
+	id             int
+	publishTopic   string
+	subscribeTopic string
 }
 
 func (playground *Playground) ColorTheToys() {
@@ -29,6 +29,8 @@ func (playground *Playground) ColorTheToys() {
 	toyColors["pink"] = "\U0001F7EA"
 	toyColors["orange"] = "\U0001F7E7"
 	toyColors["off"] = "🚫"
+	toyColors["open"] = "🌞"
+	toyColors["close"] = "🌚"
 }
 
 func (toyAttributes *ToyAttributes) Name() string {
@@ -64,7 +66,7 @@ func (toyAttributes *ToyAttributes) GenerateButtons() map[string]*tb.Btn {
 
 	buttons := make(map[string]*tb.Btn)
 
-	for _, command := range toyAttributes.commandWithName {
+	for _, command := range toyAttributes.availableModes {
 		func() {
 			buttons[command] = &tb.Btn{Unique: command + strconv.Itoa(toyAttributes.id), Text: toyColors[command]}
 		}()
