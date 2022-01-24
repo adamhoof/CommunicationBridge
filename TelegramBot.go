@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	tb "gopkg.in/tucnak/telebot.v2"
+	tb "gopkg.in/telebot.v3"
 	"io/ioutil"
 	"strings"
 	"time"
@@ -88,18 +88,20 @@ func (telegramBot *TelegramBot) UserEvent(event interface{}, title string, paylo
 
 	switch responseType {
 	case KBOARD:
-		telegramBot.bot.Handle(event, func(m *tb.Message) {
-			if !m.Private() {
-				return
+		telegramBot.bot.Handle(event, func(c tb.Context) (err error) {
+			if !c.Message().Private() {
+				return tb.ErrBadRecipient
 			}
 			telegramBot.SendMessage(telegramBot, &me, title, telegramBot.keyboards[payload])
+			return err
 		})
 	case TXT:
-		telegramBot.bot.Handle(event, func(m *tb.Message) {
-			if !m.Private() {
-				return
+		telegramBot.bot.Handle(event, func(c tb.Context) (err error) {
+			if !c.Message().Private() {
+				return tb.ErrBadRecipient
 			}
 			telegramBot.SendMessage(telegramBot, &me, title, payload)
+			return err
 		})
 	}
 }

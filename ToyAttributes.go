@@ -2,7 +2,7 @@ package main
 
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	tb "gopkg.in/tucnak/telebot.v2"
+	tb "gopkg.in/telebot.v3"
 	"strconv"
 )
 
@@ -80,7 +80,7 @@ func (toyAttributes *ToyAttributes) Keyboard(services *ServiceContainer) {
 		i++
 	}
 
-	keyboard := &tb.ReplyMarkup{ResizeReplyKeyboard: true}
+	keyboard := &tb.ReplyMarkup{ResizeKeyboard: true}
 	keyboard.Inline(
 		keyboard.Row(buttonsSlice...))
 
@@ -95,12 +95,13 @@ func (toyAttributes *ToyAttributes) AwakenButtons(buttons map[string]*tb.Btn, se
 
 		func(btn *tb.Btn, mode string) {
 
-			services.botHandler.bot.Handle(btn, func(c *tb.Callback) {
-				err := services.botHandler.bot.Respond(c, &tb.CallbackResponse{})
+			services.botHandler.bot.Handle(btn, func(c tb.Context) error {
+				err := services.botHandler.bot.Respond(c.Callback(), &tb.CallbackResponse{})
 				if err != nil {
-					return
+					return err
 				}
 				services.mqtt.PublishText(toyAttributes.PubTopic(), mode)
+				return nil
 			})
 		}(btn, mode)
 	}
