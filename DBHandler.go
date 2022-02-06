@@ -71,7 +71,7 @@ func (dbHandler *DBHandler) PullToyData() (toyBag map[string]Toy) {
 	}(rows)
 
 	for rows.Next() {
-		toyAttributes := ToyAttributes{}
+		toyAttributes := GeneralToy{}
 		err = rows.Scan(&toyAttributes.name, pq.Array(&toyAttributes.availableModes), &toyAttributes.id, &toyAttributes.publishTopic, &toyAttributes.subscribeTopic)
 		if err != nil {
 			fmt.Println("unable to fetch toyAttributes data into toyAttributes", err)

@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-type ToyAttributes struct {
+type GeneralToy struct {
 	name           string
 	availableModes []string
 	id             int
@@ -24,54 +24,54 @@ var toyColors = map[string]string{
 	"pink":   "\U0001F7EA",
 	"orange": "\U0001F7E7",
 	"off":    "🚫",
-	"open":   "🌞",
-	"close":  "🌚"}
+	"1":      "🌞",
+	"0":      "🌚"}
 
-func (toyAttributes *ToyAttributes) Name() string {
-	return toyAttributes.name
+func (toy *GeneralToy) Name() string {
+	return toy.name
 }
 
-func (toyAttributes *ToyAttributes) PubTopic() string {
-	return toyAttributes.publishTopic
+func (toy *GeneralToy) PubTopic() string {
+	return toy.publishTopic
 }
 
-func (toyAttributes *ToyAttributes) SubTopic() string {
-	return toyAttributes.subscribeTopic
+func (toy *GeneralToy) SubTopic() string {
+	return toy.subscribeTopic
 }
 
-func (toyAttributes *ToyAttributes) MQTTCommandHandler(services *ServiceContainer) {
+func (toy *GeneralToy) MQTTCommandHandler(services *ServiceContainer) {
 
 	handler := func(client mqtt.Client, message mqtt.Message) {
 
 		func() {
 			msg := string(message.Payload())
-			services.db.UpdateToyMode(toyAttributes.Name(), msg)
-			_, err := services.botHandler.bot.Send(&me, toyAttributes.Name()+": "+msg)
+			services.db.UpdateToyMode(toy.Name(), msg)
+			_, err := services.botHandler.bot.Send(&me, toy.Name()+": "+msg)
 			if err != nil {
 				return
 			}
 
 		}()
 	}
-	services.mqtt.SetSubscription(handler, toyAttributes.SubTopic())
+	services.mqtt.SetSubscription(handler, toy.SubTopic())
 }
 
-func (toyAttributes *ToyAttributes) GenerateButtons() map[string]*tb.Btn {
+func (toy *GeneralToy) GenerateButtons() map[string]*tb.Btn {
 
 	buttons := make(map[string]*tb.Btn)
 
-	for _, command := range toyAttributes.availableModes {
+	for _, command := range toy.availableModes {
 		func() {
-			buttons[command] = &tb.Btn{Unique: command + strconv.Itoa(toyAttributes.id), Text: toyColors[command]}
+			buttons[command] = &tb.Btn{Unique: command + strconv.Itoa(toy.id), Text: toyColors[command]}
 		}()
 	}
 
 	return buttons
 }
 
-func (toyAttributes *ToyAttributes) Keyboard(services *ServiceContainer) {
+func (toy *GeneralToy) Keyboard(services *ServiceContainer) {
 
-	buttons := toyAttributes.GenerateButtons()
+	buttons := toy.GenerateButtons()
 	var buttonsSlice = make([]tb.Btn, len(buttons))
 
 	i := 0
@@ -84,12 +84,12 @@ func (toyAttributes *ToyAttributes) Keyboard(services *ServiceContainer) {
 	keyboard.Inline(
 		keyboard.Row(buttonsSlice...))
 
-	toyAttributes.AwakenButtons(buttons, services)
+	toy.AwakenButtons(buttons, services)
 
-	services.botHandler.keyboards[toyAttributes.Name()] = keyboard
+	services.botHandler.keyboards[toy.Name()] = keyboard
 }
 
-func (toyAttributes *ToyAttributes) AwakenButtons(buttons map[string]*tb.Btn, services *ServiceContainer) {
+func (toy *GeneralToy) AwakenButtons(buttons map[string]*tb.Btn, services *ServiceContainer) {
 
 	for mode, btn := range buttons {
 
@@ -100,7 +100,7 @@ func (toyAttributes *ToyAttributes) AwakenButtons(buttons map[string]*tb.Btn, se
 				if err != nil {
 					return err
 				}
-				services.mqtt.PublishText(toyAttributes.PubTopic(), mode)
+				services.mqtt.PublishText(toy.PubTopic(), mode)
 				return nil
 			})
 		}(btn, mode)
