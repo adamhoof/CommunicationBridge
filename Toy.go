@@ -2,9 +2,10 @@ package main
 
 type Toy struct {
 	name              string
+	id                int
 	availableCommands []string
 	lastKnownCommand  string
-	id                int
 	publishTopic      string
 	subscribeTopic    string
+	keyboardName      string
 }
