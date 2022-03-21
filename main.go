@@ -47,6 +47,7 @@ func main() {
 	toyBag := dbHandler.PullToyData()
 
 	for _, toy := range toyBag {
+		/*mqttHandler.RegisterDevice(toy, &services)*/
 		toyBag[toy.Name()].MQTTCommandHandler(&services)
 		toyBag[toy.Name()].Keyboard(&services)
 	}

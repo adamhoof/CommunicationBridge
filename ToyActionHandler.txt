@@ -1,0 +1,17 @@
+/*package main
+
+type ToyActionHandler struct {
+
+}
+
+func (toyActionHandler *ToyActionHandler) RegisterToys (map[string]Toy, services *ServiceContainer){
+
+}
+
+golang services, DI (dependency injecton), d. container
+//method(toys)
+forech toys(){
+	handler
+	registerHandler
+}*/
+//get services

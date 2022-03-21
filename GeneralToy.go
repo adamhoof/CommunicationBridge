@@ -7,25 +7,13 @@ import (
 )
 
 type GeneralToy struct {
-	name           string
-	availableModes []string
-	id             int
-	publishTopic   string
-	subscribeTopic string
+	name             string
+	availableModes   []string
+	lastKnownCommand string
+	id               int
+	publishTopic     string
+	subscribeTopic   string
 }
-
-var toyColors = map[string]string{
-	"on":     "⬜",
-	"white":  "⬜",
-	"yellow": "\U0001F7E8",
-	"blue":   "\U0001F7E6",
-	"green":  "\U0001F7E9",
-	"red":    "\U0001F7E5",
-	"pink":   "\U0001F7EA",
-	"orange": "\U0001F7E7",
-	"off":    "🚫",
-	"1":      "🌞",
-	"0":      "🌚"}
 
 func (toy *GeneralToy) Name() string {
 	return toy.name
@@ -44,9 +32,8 @@ func (toy *GeneralToy) MQTTCommandHandler(services *ServiceContainer) {
 	handler := func(client mqtt.Client, message mqtt.Message) {
 
 		func() {
-			msg := string(message.Payload())
-			services.db.UpdateToyMode(toy.Name(), msg)
-			_, err := services.botHandler.bot.Send(&me, toy.Name()+": "+msg)
+			services.db.UpdateToyMode(toy.Name(), toy.lastKnownCommand)
+			_, err := services.botHandler.bot.Send(&me, toy.Name()+": "+toy.lastKnownCommand)
 			if err != nil {
 				return
 			}
@@ -62,7 +49,7 @@ func (toy *GeneralToy) GenerateButtons() map[string]*tb.Btn {
 
 	for _, command := range toy.availableModes {
 		func() {
-			buttons[command] = &tb.Btn{Unique: command + strconv.Itoa(toy.id), Text: toyColors[command]}
+			buttons[command] = &tb.Btn{Unique: command + strconv.Itoa(toy.id), Text: commandAndColorTemplatesForButton[command]}
 		}()
 	}
 
@@ -91,18 +78,19 @@ func (toy *GeneralToy) Keyboard(services *ServiceContainer) {
 
 func (toy *GeneralToy) AwakenButtons(buttons map[string]*tb.Btn, services *ServiceContainer) {
 
-	for mode, btn := range buttons {
+	for command, btn := range buttons {
 
-		func(btn *tb.Btn, mode string) {
+		func(btn *tb.Btn, command string) {
 
 			services.botHandler.bot.Handle(btn, func(c tb.Context) error {
 				err := services.botHandler.bot.Respond(c.Callback(), &tb.CallbackResponse{})
 				if err != nil {
 					return err
 				}
-				services.mqtt.PublishText(toy.PubTopic(), mode)
+				toy.lastKnownCommand = command
+				services.mqtt.PublishText(toy.PubTopic(), command)
 				return nil
 			})
-		}(btn, mode)
+		}(btn, command)
 	}
 }
