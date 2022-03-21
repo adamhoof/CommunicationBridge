@@ -9,3 +9,7 @@ type Toy struct {
 	subscribeTopic    string
 	keyboardName      string
 }
+
+func (toy *Toy) assignKeyboardName(name string) {
+	toy.keyboardName = name
+}

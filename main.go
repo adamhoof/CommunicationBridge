@@ -2,10 +2,27 @@ package main
 
 import (
 	"fmt"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	_ "github.com/lib/pq"
 	"strconv"
 	"sync"
 )
+
+func defaultResponseHandler(toy *Toy, services *ServiceContainer) func(client mqtt.Client, message mqtt.Message) {
+
+	handler := func(client mqtt.Client, message mqtt.Message) {
+
+		func() {
+			services.db.UpdateToyMode(toy.name, toy.lastKnownCommand)
+			_, err := services.botHandler.bot.Send(&me, toy.name+": "+toy.lastKnownCommand)
+			if err != nil {
+				return
+			}
+
+		}()
+	}
+	return handler
+}
 
 func main() {
 
