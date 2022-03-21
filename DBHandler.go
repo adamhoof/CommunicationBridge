@@ -55,9 +55,9 @@ func (dbHandler *DBHandler) UpdateToyMode(toyName string, toyMode string) {
 	}
 }
 
-func (dbHandler *DBHandler) PullToyData() (toyBag map[string]Toy) {
+func (dbHandler *DBHandler) PullToyData() (toyBag map[string]*Toy) {
 
-	toyBag = make(map[string]Toy)
+	toyBag = make(map[string]*Toy)
 
 	rows, err := dbHandler.db.Query(toysDataQuery)
 	if err != nil {
@@ -71,12 +71,12 @@ func (dbHandler *DBHandler) PullToyData() (toyBag map[string]Toy) {
 	}(rows)
 
 	for rows.Next() {
-		toyAttributes := GeneralToy{}
-		err = rows.Scan(&toyAttributes.name, pq.Array(&toyAttributes.availableCommands), &toyAttributes.id, &toyAttributes.publishTopic, &toyAttributes.subscribeTopic)
+		toy := Toy{}
+		err = rows.Scan(&toy.name, pq.Array(&toy.availableCommands), &toy.id, &toy.publishTopic, &toy.subscribeTopic)
 		if err != nil {
-			fmt.Println("unable to fetch toyAttributes data into toyAttributes", err)
+			fmt.Println("unable to fetch toy data into toy", err)
 		}
-		toyBag[toyAttributes.Name()] = &toyAttributes
+		toyBag[toy.name] = &toy
 	}
 	return toyBag
 }
