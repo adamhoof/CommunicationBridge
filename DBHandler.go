@@ -11,11 +11,11 @@ type DBHandler struct {
 }
 
 const (
-	host     = "appliancestatesdb.cyebc6nm0xm9.eu-west-2.rds.amazonaws.com"
-	port     = 5432
-	user     = "postgres"
-	password = "asdbpassword"
-	dbname   = "appliancestatesdb"
+	host     = "x"
+	port     = 1
+	user     = "x"
+	password = "x"
+	dbname   = "x"
 )
 
 const updateSingleSQLStatement = `UPDATE HomeAppliances SET current_mode = $2 WHERE name = $1;`
