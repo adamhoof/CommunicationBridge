@@ -1,13 +1,14 @@
 package main
 
 import (
+	"RPICommandHandler/pkg/Backend/MQTT"
 	_ "github.com/lib/pq"
 	"sync"
 )
 
 func main() {
 
-	mqttHandler := MQTTHandler{}
+	mqttHandler := MQTT.Handler{}
 	telegramBot := TelegramBot{}
 	dbHandler := DBHandler{}
 
