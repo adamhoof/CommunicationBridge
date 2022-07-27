@@ -1,12 +1,13 @@
-package main
+package database
 
 import (
+	"RPICommandHandler"
 	"database/sql"
 	"fmt"
 	"github.com/lib/pq"
 )
 
-type DBHandler struct {
+type PostgresSQLHandler struct {
 	db *sql.DB
 }
 
@@ -21,7 +22,7 @@ const (
 const updateSingleSQLStatement = `UPDATE HomeAppliances SET current_mode = $2 WHERE name = $1;`
 const toysDataQuery = `SELECT name, available_modes, id, publish_topic, subscribe_topic FROM HomeAppliances;`
 
-func (dbHandler *DBHandler) Connect() {
+func (dbHandler *PostgresSQLHandler) Connect() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s",
 		host, port, user, password, dbname)
@@ -34,30 +35,30 @@ func (dbHandler *DBHandler) Connect() {
 	fmt.Println("db connection established")
 }
 
-func (dbHandler *DBHandler) TestConnection() {
+func (dbHandler *PostgresSQLHandler) TestConnection() {
 	result := dbHandler.db.Ping()
 	if result != nil {
 		panic(result)
 	}
 }
 
-func (dbHandler *DBHandler) Disconnect() {
+func (dbHandler *PostgresSQLHandler) Disconnect() {
 	err := dbHandler.db.Close()
 	if err != nil {
 		panic(err)
 	}
 }
 
-func (dbHandler *DBHandler) UpdateToyMode(toyName string, toyMode string) {
+func (dbHandler *PostgresSQLHandler) UpdateToyMode(toyName string, toyMode string) {
 	_, err := dbHandler.db.Exec(updateSingleSQLStatement, toyName, toyMode)
 	if err != nil {
 		fmt.Println("Couldnt update mode", err)
 	}
 }
 
-func (dbHandler *DBHandler) PullToyData() (toyBag map[string]Toy) {
+func (dbHandler *PostgresSQLHandler) PullToyData() (toyBag map[string]main.Toy) {
 
-	toyBag = make(map[string]Toy)
+	toyBag = make(map[string]main.Toy)
 
 	rows, err := dbHandler.db.Query(toysDataQuery)
 	if err != nil {
@@ -71,7 +72,7 @@ func (dbHandler *DBHandler) PullToyData() (toyBag map[string]Toy) {
 	}(rows)
 
 	for rows.Next() {
-		toyAttributes := GeneralToy{}
+		toyAttributes := main.GeneralToy{}
 		err = rows.Scan(&toyAttributes.name, pq.Array(&toyAttributes.availableModes), &toyAttributes.id, &toyAttributes.publishTopic, &toyAttributes.subscribeTopic)
 		if err != nil {
 			fmt.Println("unable to fetch toyAttributes data into toyAttributes", err)

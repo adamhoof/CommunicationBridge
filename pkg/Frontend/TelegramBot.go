@@ -1,4 +1,4 @@
-package main
+package telegrambot
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type TelegramBot struct {
+type Handler struct {
 	bot              *tb.Bot
 	keyboards        map[string]*tb.ReplyMarkup
 	lastCommand      string
@@ -33,11 +33,11 @@ func (user *User) Recipient() string {
 	return user.id
 }
 
-func (telegramBot *TelegramBot) CreateBot() {
+func (handler *Handler) CreateBot() {
 
 	token, err := ioutil.ReadFile("Auth/BotToken")
 	formattedToken := strings.Split(string(token), "\n")
-	telegramBot.bot, err = tb.NewBot(tb.Settings{
+	handler.bot, err = tb.NewBot(tb.Settings{
 		Token: formattedToken[0],
 		Poller: &tb.LongPoller{
 			Timeout: 10 * time.Second,
@@ -47,7 +47,7 @@ func (telegramBot *TelegramBot) CreateBot() {
 		panic(err)
 	}
 	fmt.Println("bot created")
-	telegramBot.keyboards = make(map[string]*tb.ReplyMarkup)
+	handler.keyboards = make(map[string]*tb.ReplyMarkup)
 }
 
 func CreateHumanReadable(toyDataMap map[string]interface{}) string {
@@ -72,11 +72,11 @@ func CreateHumanReadable(toyDataMap map[string]interface{}) string {
 	return "empty map"
 }
 
-func (telegramBot *TelegramBot) StartBot() {
-	telegramBot.bot.Start()
+func (handler *Handler) StartBot() {
+	handler.bot.Start()
 }
 
-func (telegramBot *TelegramBot) SendMessage(telegramBotHandler *TelegramBot, usr *User, title string, message interface{}) {
+func (handler *Handler) SendMessage(telegramBotHandler *Handler, usr *User, title string, message interface{}) {
 
 	_, err := telegramBotHandler.bot.Send(usr, title, message)
 	if err != nil {
@@ -84,23 +84,23 @@ func (telegramBot *TelegramBot) SendMessage(telegramBotHandler *TelegramBot, usr
 	}
 }
 
-func (telegramBot *TelegramBot) UserEvent(event interface{}, title string, payload string, responseType uint8) {
+func (handler *Handler) UserEvent(event interface{}, title string, payload string, responseType uint8) {
 
 	switch responseType {
 	case KBOARD:
-		telegramBot.bot.Handle(event, func(c tb.Context) (err error) {
+		handler.bot.Handle(event, func(c tb.Context) (err error) {
 			if !c.Message().Private() {
 				return tb.ErrBadRecipient
 			}
-			telegramBot.SendMessage(telegramBot, &me, title, telegramBot.keyboards[payload])
+			handler.SendMessage(handler, &me, title, handler.keyboards[payload])
 			return err
 		})
 	case TXT:
-		telegramBot.bot.Handle(event, func(c tb.Context) (err error) {
+		handler.bot.Handle(event, func(c tb.Context) (err error) {
 			if !c.Message().Private() {
 				return tb.ErrBadRecipient
 			}
-			telegramBot.SendMessage(telegramBot, &me, title, payload)
+			handler.SendMessage(handler, &me, title, payload)
 			return err
 		})
 	}
