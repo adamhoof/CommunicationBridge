@@ -12,7 +12,7 @@ func main() {
 
 	mqttHandler := mqtts.Client{}
 	telegramBot := telegrambot.Handler{}
-	postsgresSQLHandler := database.PostgresSQLHandler{}
+	postgresSQLHandler := database.PostgresSQLHandler{}
 
 	var routineSyncer sync.WaitGroup
 
@@ -27,8 +27,8 @@ func main() {
 	routineSyncer.Add(1)
 	go func(routineSyncer *sync.WaitGroup) {
 		defer routineSyncer.Done()
-		postsgresSQLHandler.Connect()
-		postsgresSQLHandler.TestConnection()
+		postgresSQLHandler.Connect()
+		postgresSQLHandler.TestConnection()
 	}(&routineSyncer)
 
 	routineSyncer.Wait()
@@ -41,7 +41,7 @@ func main() {
 	menuKeyboards.OfficeToys(&telegramBot)
 	menuKeyboards.BedroomToys(&telegramBot)
 
-	toyBag := postsgresSQLHandler.PullToyData()
+	toyBag := postgresSQLHandler.PullToyData()
 
 	for _, toy := range toyBag {
 		toyBag[toy.Name()].MQTTCommandHandler(&
