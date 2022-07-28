@@ -1,4 +1,4 @@
-package main
+package device
 
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-type GeneralToy struct {
+type Toy struct {
 	name           string
 	availableModes []string
 	id             int
@@ -27,26 +27,34 @@ var toyColors = map[string]string{
 	"1":      "🌞",
 	"0":      "🌚"}
 
-func (toy *GeneralToy) Name() string {
+func (toy *Toy) Name() string {
 	return toy.name
 }
 
-func (toy *GeneralToy) PubTopic() string {
+func (toy *Toy) ID() int {
+	return toy.id
+}
+
+func (toy *Toy) PublishTopic() string {
 	return toy.publishTopic
 }
 
-func (toy *GeneralToy) SubTopic() string {
+func (toy *Toy) SubscribeTopic() string {
 	return toy.subscribeTopic
 }
 
-func (toy *GeneralToy) MQTTCommandHandler(services *ServiceContainer) {
+func (toy *Toy) AvailableCommands() []string {
+	return toy.availableModes
+}
+
+func (toy *Toy) MQTTCommandHandler(services *ServiceContainer) {
 
 	handler := func(client mqtt.Client, message mqtt.Message) {
 
 		func() {
 			msg := string(message.Payload())
 			services.db.UpdateToyMode(toy.Name(), msg)
-			_, err := services.botHandler.bot.Send(&me, toy.Name()+": "+msg)
+			_, err := services.botHandler.bot.Send(&bot.me, toy.Name()+": "+msg)
 			if err != nil {
 				return
 			}
@@ -56,7 +64,7 @@ func (toy *GeneralToy) MQTTCommandHandler(services *ServiceContainer) {
 	services.mqtt.SetSubscription(handler, toy.SubTopic())
 }
 
-func (toy *GeneralToy) GenerateButtons() map[string]*tb.Btn {
+func (toy *Toy) GenerateButtons() map[string]*tb.Btn {
 
 	buttons := make(map[string]*tb.Btn)
 
@@ -69,7 +77,7 @@ func (toy *GeneralToy) GenerateButtons() map[string]*tb.Btn {
 	return buttons
 }
 
-func (toy *GeneralToy) Keyboard(services *ServiceContainer) {
+func (toy *Toy) Keyboard(services *ServiceContainer) {
 
 	buttons := toy.GenerateButtons()
 	var buttonsSlice = make([]tb.Btn, len(buttons))
@@ -89,7 +97,7 @@ func (toy *GeneralToy) Keyboard(services *ServiceContainer) {
 	services.botHandler.keyboards[toy.Name()] = keyboard
 }
 
-func (toy *GeneralToy) AwakenButtons(buttons map[string]*tb.Btn, services *ServiceContainer) {
+func (toy *Toy) AwakenButtons(buttons map[string]*tb.Btn, services *ServiceContainer) {
 
 	for mode, btn := range buttons {
 
