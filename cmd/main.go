@@ -2,9 +2,9 @@ package main
 
 import (
 	connectable "RPICommandHandler/pkg/ConnectableDevices"
-	"RPICommandHandler/pkg/Database"
+	database "RPICommandHandler/pkg/Database"
 	env "RPICommandHandler/pkg/Env"
-	"RPICommandHandler/pkg/MQTT"
+	mqtts "RPICommandHandler/pkg/MQTTs"
 	"fmt"
 	_ "github.com/lib/pq"
 	"os"
