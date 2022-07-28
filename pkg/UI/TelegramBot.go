@@ -1,4 +1,4 @@
-package telegrambot
+package UI
 
 import (
 	"fmt"

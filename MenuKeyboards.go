@@ -1,5 +1,10 @@
 package main
 
+/*
+
+
+
+
 import (
 	tb "gopkg.in/telebot.v3"
 )
@@ -64,3 +69,4 @@ func (menuKeyboards *MenuKeyboards) AllToys(botHandler *TelegramBot) {
 	botHandler.UserEvent(&officeToyBtn, "Office Toys", OfficeToysKeyboard, KBOARD)
 	botHandler.UserEvent(&bedroomToyBtn, "Bedroom Toys", BedroomToysKeyboard, KBOARD)
 }
+*/

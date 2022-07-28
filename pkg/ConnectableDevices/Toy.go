@@ -1,19 +1,14 @@
-package device
-
-import (
-	mqtt "github.com/eclipse/paho.mqtt.golang"
-	tb "gopkg.in/telebot.v3"
-	"strconv"
-)
+package connectable
 
 type Toy struct {
-	name           string
-	availableModes []string
-	id             int
-	publishTopic   string
-	subscribeTopic string
+	Name           string
+	AvailableModes []string
+	Id             int
+	PublishTopic   string
+	SubscribeTopic string
 }
 
+/*
 var toyColors = map[string]string{
 	"on":     "⬜",
 	"white":  "⬜",
@@ -27,25 +22,6 @@ var toyColors = map[string]string{
 	"1":      "🌞",
 	"0":      "🌚"}
 
-func (toy *Toy) Name() string {
-	return toy.name
-}
-
-func (toy *Toy) ID() int {
-	return toy.id
-}
-
-func (toy *Toy) PublishTopic() string {
-	return toy.publishTopic
-}
-
-func (toy *Toy) SubscribeTopic() string {
-	return toy.subscribeTopic
-}
-
-func (toy *Toy) AvailableCommands() []string {
-	return toy.availableModes
-}
 
 func (toy *Toy) MQTTCommandHandler(services *ServiceContainer) {
 
@@ -68,9 +44,9 @@ func (toy *Toy) GenerateButtons() map[string]*tb.Btn {
 
 	buttons := make(map[string]*tb.Btn)
 
-	for _, command := range toy.availableModes {
+	for _, command := range toy.AvailableModes {
 		func() {
-			buttons[command] = &tb.Btn{Unique: command + strconv.Itoa(toy.id), Text: toyColors[command]}
+			buttons[command] = &tb.Btn{Unique: command + strconv.Itoa(toy.Id), Text: toyColors[command]}
 		}()
 	}
 
@@ -114,3 +90,4 @@ func (toy *Toy) AwakenButtons(buttons map[string]*tb.Btn, services *ServiceConta
 		}(btn, mode)
 	}
 }
+*/

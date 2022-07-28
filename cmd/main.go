@@ -1,18 +1,21 @@
 package main
 
 import (
-	"RPICommandHandler/pkg/Backend/Database"
-	"RPICommandHandler/pkg/Backend/MQTT"
-	telegrambot "RPICommandHandler/pkg/Frontend"
+	connectable "RPICommandHandler/pkg/ConnectableDevices"
+	"RPICommandHandler/pkg/Database"
+	env "RPICommandHandler/pkg/Env"
+	"RPICommandHandler/pkg/MQTT"
+	"fmt"
 	_ "github.com/lib/pq"
+	"os"
 	"sync"
 )
 
 func main() {
+	env.SetEnv()
 
 	mqttHandler := mqtts.Client{}
-	telegramBot := telegrambot.Handler{}
-	postgresSQLHandler := database.PostgresSQLHandler{}
+	postgresHandler := database.PostgresHandler{}
 
 	var routineSyncer sync.WaitGroup
 
@@ -27,26 +30,22 @@ func main() {
 	routineSyncer.Add(1)
 	go func(routineSyncer *sync.WaitGroup) {
 		defer routineSyncer.Done()
-		postgresSQLHandler.Connect()
-		postgresSQLHandler.TestConnection()
+		psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
+			"password=%s dbname=%s",
+			os.Getenv("dbHost"),
+			os.Getenv("dbPort"),
+			os.Getenv("dbUser"),
+			os.Getenv("dbPassword"),
+			os.Getenv("fads"))
+
+		if err := postgresHandler.Connect(&psqlInfo); err != nil {
+			panic(err)
+		}
 	}(&routineSyncer)
 
 	routineSyncer.Wait()
 
-	menuKeyboards := MenuKeyboards{}
-
-	telegramBot.CreateBot()
-
-	menuKeyboards.AllToys(&telegramBot)
-	menuKeyboards.OfficeToys(&telegramBot)
-	menuKeyboards.BedroomToys(&telegramBot)
-
-	toyBag := postgresSQLHandler.PullToyData()
-
-	for _, toy := range toyBag {
-		toyBag[toy.Name()].MQTTCommandHandler(&
-		toyBag[toy.Name()].Keyboard(&
-	}
-
-	telegramBot.StartBot()
+	toys := make(map[string]*connectable.Toy)
+	postgresHandler.PullToyData(toys)
+	fmt.Println("shit")
 }
