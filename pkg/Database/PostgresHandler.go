@@ -18,8 +18,7 @@ func (handler *PostgresHandler) Connect(connectionString *string) (err error) {
 	if err != nil {
 		return err
 	}
-	err = handler.Ping()
-	return err
+	return handler.Ping()
 }
 
 func (handler *PostgresHandler) Ping() (err error) {
