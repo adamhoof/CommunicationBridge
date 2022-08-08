@@ -1,4 +1,4 @@
-package mqtts
+package mqtt2
 
 import (
 	"fmt"
