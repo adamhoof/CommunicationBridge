@@ -4,8 +4,9 @@ import (
 	connectable "RPICommandHandler/pkg/ConnectableDevices"
 	database "RPICommandHandler/pkg/Database"
 	env "RPICommandHandler/pkg/Env"
-	mqtts "RPICommandHandler/pkg/MQTTs"
+	mqtt2 "RPICommandHandler/pkg/MQTT"
 	"fmt"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	_ "github.com/lib/pq"
 	"os"
 	"sync"
@@ -14,38 +15,42 @@ import (
 func main() {
 	env.SetEnv()
 
-	mqttHandler := mqtts.Client{}
+	mqttClient := mqtt2.MQTTClient{}
 	postgresHandler := database.PostgresHandler{}
 
 	var routineSyncer sync.WaitGroup
+	routineSyncer.Add(1)
+	go func(routineSyncer *sync.WaitGroup, client *mqtt2.MQTTClient) {
+		defer routineSyncer.Done()
+		options := mqtt.ClientOptions{}
+		options.AddBroker(os.Getenv("mqttServer"))
+		options.SetClientID(os.Getenv("mqttClientName"))
+		options.SetAutoReconnect(true)
+		options.SetConnectRetry(true)
+		options.SetCleanSession(false)
+		options.SetOrderMatters(false)
+		// use options.SetTLSConfig if you are running MQTT broker on remote server instead of localhost
+		client.SetOptions(options)
+		client.Connect()
+	}(&routineSyncer, &mqttClient)
 
 	routineSyncer.Add(1)
-	go func(routineSyncer *sync.WaitGroup) {
-		defer routineSyncer.Done()
-		mqttHandler.SetupClientOptions()
-		mqttHandler.CreateClient()
-		mqttHandler.ConnectClient()
-	}(&routineSyncer)
+	go func(syncer *sync.WaitGroup, handler database.DatabaseHandler) {
+		defer syncer.Done()
 
-	routineSyncer.Add(1)
-	go func(routineSyncer *sync.WaitGroup) {
-		defer routineSyncer.Done()
-		psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
-			"password=%s dbname=%s",
+		dbConnectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s",
 			os.Getenv("dbHost"),
 			os.Getenv("dbPort"),
 			os.Getenv("dbUser"),
 			os.Getenv("dbPassword"),
-			os.Getenv("fads"))
+			os.Getenv("dbName"))
 
-		if err := postgresHandler.Connect(&psqlInfo); err != nil {
+		if err := postgresHandler.Connect(dbConnectionString); err != nil {
 			panic(err)
 		}
-	}(&routineSyncer)
-
+	}(&routineSyncer, &postgresHandler)
 	routineSyncer.Wait()
 
 	toys := make(map[string]*connectable.Toy)
 	postgresHandler.PullToyData(toys)
-	fmt.Println("shit")
 }
