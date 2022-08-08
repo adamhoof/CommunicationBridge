@@ -37,10 +37,25 @@ func (handler *BotHandler) OwnerVerify(id int64) bool {
 	return true
 }
 
-func (handler *BotHandler) SendTextMessage(owner *User, title string, message string) {
+func (handler *BotHandler) SendTextMessage(owner *User, message string) {
 
-	_, err := handler.Bot.Send(owner, title, message)
+	_, err := handler.Bot.Send(owner, message)
 	if err != nil {
 		fmt.Println("Failed to send message", err)
 	}
+}
+
+func (handler *BotHandler) SendKeyboardOnButtonClick(button *tb.Btn, title string, keyboard *tb.ReplyMarkup) {
+	handler.Bot.Handle(&button, func(c tb.Context) (err error) {
+		if !handler.OwnerVerify(c.Message().Sender.ID) {
+			handler.SendTextMessage(&handler.Owner, "failed to verify owner")
+			fmt.Println("owner not verified", err)
+
+		}
+		_, err = handler.Bot.Send(&handler.Owner, title, keyboard)
+		if err != nil {
+			fmt.Println("could not send keyboard", err)
+		}
+		return fmt.Errorf("could not send keyboard on button click: %s", err)
+	})
 }

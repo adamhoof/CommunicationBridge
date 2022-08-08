@@ -9,12 +9,12 @@ import (
 type MQTTClient struct {
 }
 
-func (client *MQTTClient) SetOptions(options mqtt.ClientOptions) {
-	client.SetOptions(options)
+func (handler *MQTTClient) SetOptions(options mqtt.ClientOptions) {
+	handler.SetOptions(options)
 }
 
-func (client *MQTTClient) Connect() mqtt.Token {
-	token := client.Connect()
+func (handler *MQTTClient) Connect() mqtt.Token {
+	token := handler.Connect()
 
 	if token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to create connection: %v", token.Error())
@@ -23,20 +23,20 @@ func (client *MQTTClient) Connect() mqtt.Token {
 	return token
 }
 
-func (client *MQTTClient) IsConnected() bool {
-	return client.IsConnected()
+func (handler *MQTTClient) IsConnected() bool {
+	return handler.IsConnected()
 }
 
-func (client *MQTTClient) IsConnectionOpen() bool {
-	return client.IsConnectionOpen()
+func (handler *MQTTClient) IsConnectionOpen() bool {
+	return handler.IsConnectionOpen()
 }
 
-func (client *MQTTClient) Disconnect(quiesce uint) {
-	client.Disconnect(quiesce)
+func (handler *MQTTClient) Disconnect(quiesce uint) {
+	handler.Disconnect(quiesce)
 }
 
-func (client *MQTTClient) Publish(topic string, qos byte, retained bool, payload interface{}) mqtt.Token {
-	token := client.Publish(topic, qos, retained, payload)
+func (handler *MQTTClient) Publish(topic string, qos byte, retained bool, payload interface{}) mqtt.Token {
+	token := handler.Publish(topic, qos, retained, payload)
 
 	if token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to send upd: %v", token.Error())
@@ -44,8 +44,8 @@ func (client *MQTTClient) Publish(topic string, qos byte, retained bool, payload
 	return token
 }
 
-func (client *MQTTClient) PublishText(topic string, payload string) mqtt.Token {
-	token := client.Publish(topic, 0, true, payload)
+func (handler *MQTTClient) PublishText(topic string, payload string) mqtt.Token {
+	token := handler.Publish(topic, 0, true, payload)
 
 	if token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to send upd: %v", token.Error())
@@ -53,25 +53,25 @@ func (client *MQTTClient) PublishText(topic string, payload string) mqtt.Token {
 	return token
 }
 
-func (client *MQTTClient) Subscribe(topic string, qos byte, callback mqtt.MessageHandler) mqtt.Token {
-	token := client.Subscribe(topic, 0, callback)
+func (handler *MQTTClient) Subscribe(topic string, qos byte, callback mqtt.MessageHandler) mqtt.Token {
+	token := handler.Subscribe(topic, 0, callback)
 	if token.Wait() && token.Error() != nil {
 		log.Fatalf("failed to create subscription: %v", token.Error())
 	}
 	return token
 }
 
-func (client *MQTTClient) SubscribeMultiple(filters map[string]byte, callback mqtt.MessageHandler) mqtt.Token {
-	return client.SubscribeMultiple(filters, callback)
+func (handler *MQTTClient) SubscribeMultiple(filters map[string]byte, callback mqtt.MessageHandler) mqtt.Token {
+	return handler.SubscribeMultiple(filters, callback)
 }
 
-func (client *MQTTClient) Unsubscribe(topics ...string) mqtt.Token {
-	return client.Unsubscribe(topics...)
+func (handler *MQTTClient) Unsubscribe(topics ...string) mqtt.Token {
+	return handler.Unsubscribe(topics...)
 }
 
-func (client *MQTTClient) AddRoute(topic string, callback mqtt.MessageHandler) {
-	client.AddRoute(topic, callback)
+func (handler *MQTTClient) AddRoute(topic string, callback mqtt.MessageHandler) {
+	handler.AddRoute(topic, callback)
 }
-func (client *MQTTClient) OptionsReader() mqtt.ClientOptionsReader {
-	return client.OptionsReader()
+func (handler *MQTTClient) OptionsReader() mqtt.ClientOptionsReader {
+	return handler.OptionsReader()
 }

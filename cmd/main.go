@@ -54,6 +54,11 @@ func main() {
 	}(&routineSyncer, &postgresHandler)
 	routineSyncer.Wait()
 
+	keyboardStorage := telegram.KeyboardStorage{}
+	telegram.CreateAllToysKeyboardUI(&botHandler, &keyboardStorage)
+	telegram.CreateOfficeToysKeyboardUI(&botHandler, &keyboardStorage)
+	telegram.CreateBedroomToysKeyboardUI(&botHandler, &keyboardStorage)
+
 	toys := make(map[string]*connectable.Toy)
 	postgresHandler.PullToyData(toys)
 
