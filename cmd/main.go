@@ -5,6 +5,7 @@ import (
 	database "RPICommandHandler/pkg/Database"
 	env "RPICommandHandler/pkg/Env"
 	mqtt2 "RPICommandHandler/pkg/MQTT"
+	telegram "RPICommandHandler/pkg/Telegram"
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	_ "github.com/lib/pq"
@@ -17,6 +18,8 @@ func main() {
 
 	mqttClient := mqtt2.MQTTClient{}
 	postgresHandler := database.PostgresHandler{}
+	me := telegram.User{Id: os.Getenv("telegramBotOwner")}
+	botHandler := telegram.BotHandler{Owner: me}
 
 	var routineSyncer sync.WaitGroup
 	routineSyncer.Add(1)
@@ -53,4 +56,7 @@ func main() {
 
 	toys := make(map[string]*connectable.Toy)
 	postgresHandler.PullToyData(toys)
+
+	botHandler.CreateBot(os.Getenv("telegramBotToken"))
+	botHandler.StartBot()
 }

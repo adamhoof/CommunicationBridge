@@ -1,8 +1,9 @@
 module RPICommandHandler
 
-go 1.17
+go 1.18
 
 require (
+	github.com/adamhoof/GolangTypeConvertorWrapper/pkg v0.0.0-20220808182259-8a13b9876eed
 	github.com/eclipse/paho.mqtt.golang v1.4.1
 	github.com/lib/pq v1.10.6
 	gopkg.in/telebot.v3 v3.0.0
