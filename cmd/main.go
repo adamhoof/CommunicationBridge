@@ -48,7 +48,7 @@ func main() {
 			os.Getenv("dbPassword"),
 			os.Getenv("dbName"))
 
-		if err := postgresHandler.Connect(dbConnectionString); err != nil {
+		if err := handler.Connect(dbConnectionString); err != nil {
 			panic(err)
 		}
 	}(&routineSyncer, &postgresHandler)
