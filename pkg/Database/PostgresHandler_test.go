@@ -18,7 +18,7 @@ func TestPostgresHandler_Connect(t *testing.T) {
 		os.Getenv("dbName"))
 
 	handler := PostgresHandler{}
-	result := handler.Connect(&psqlInfo)
+	result := handler.Connect(psqlInfo)
 
 	if result != nil {
 		t.Errorf("FAILED, expected nil, got %s", result)
