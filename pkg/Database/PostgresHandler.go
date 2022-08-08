@@ -33,7 +33,7 @@ func (handler *PostgresHandler) ExecuteStatement(statement string) {
 
 func (handler *PostgresHandler) Disconnect() {
 	if err := handler.db.Close(); err != nil {
-		panic(err)
+		fmt.Println("failed to close db connection", err)
 	}
 }
 
