@@ -19,8 +19,8 @@ var toyColors = map[string]string{
 	"pink":   "\U0001F7EA",
 	"orange": "\U0001F7E7",
 	"off":    "🚫",
-	"1":      "🌞",
-	"0":      "🌚"}
+	"open":      "🌞",
+	"close":      "🌚"}
 
 
 func (toy *Toy) MQTTCommandHandler(services *ServiceContainer) {
