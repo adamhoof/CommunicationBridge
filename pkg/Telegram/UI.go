@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	connectable "RPICommandHandler/pkg/ConnectableDevices"
 	tb "gopkg.in/telebot.v3"
 )
 
@@ -10,39 +11,21 @@ const (
 	BedroomToysKeyboard = "bedroomToys"
 )
 
-func CreateOfficeToysKeyboardUI(handler *BotHandler, keyboards map[string]*tb.ReplyMarkup) {
-	officeToysKeyboard := &tb.ReplyMarkup{}
-	keyboards[OfficeToysKeyboard] = officeToysKeyboard
+func CreateRoomOfToysKeyboard(handler *BotHandler, keyboards map[string]*tb.ReplyMarkup, toys map[string]*connectable.Toy, name string, buttonNameUnificator string) {
+	keyboard := &tb.ReplyMarkup{}
+	keyboards[name] = keyboard
 
-	officeLampBtn := officeToysKeyboard.Text("o Table Lamp")
-	officeCeilLightBtn := officeToysKeyboard.Text("o Ceil Light")
-	backBtn := officeToysKeyboard.Text("⬅")
+	var buttons []tb.Btn
+	for _, toy := range toys {
+		button := tb.Btn{Text: buttonNameUnificator + toy.Name}
+		buttons = append(buttons, button)
+	}
+	backBtn := keyboard.Text("⬅")
+	handler.SendKeyboardOnButtonClick(&backBtn, "⬅", keyboards, AllToysKeyboard)
 
-	officeToysKeyboard.Reply(
-		officeToysKeyboard.Row(officeLampBtn, officeCeilLightBtn),
-		officeToysKeyboard.Row(backBtn),
-	)
-
-	handler.SendKeyboardOnButtonClick(&officeLampBtn, "o Table Lamp modes", keyboards["OfficeLamp"])
-	handler.SendKeyboardOnButtonClick(&officeCeilLightBtn, "o Office Light modes", keyboards["OfficeCeilLight"])
-	handler.SendKeyboardOnButtonClick(&backBtn, "⬅", keyboards[AllToysKeyboard])
-}
-
-func CreateBedroomToysKeyboardUI(handler *BotHandler, keyboards map[string]*tb.ReplyMarkup) {
-	bedroomToysKeyboard := &tb.ReplyMarkup{}
-	keyboards["BedroomToysKeyboard"] = bedroomToysKeyboard
-
-	bedroomShadesBtn := bedroomToysKeyboard.Text("b Shades")
-	bedroomLampBtn := bedroomToysKeyboard.Text("b Table Lamp")
-	backBtn := bedroomToysKeyboard.Text("⬅")
-
-	bedroomToysKeyboard.Reply(
-		bedroomToysKeyboard.Row(bedroomShadesBtn, bedroomLampBtn),
-		bedroomToysKeyboard.Row(backBtn))
-
-	handler.SendKeyboardOnButtonClick(&bedroomShadesBtn, "b Shades modes", keyboards["BedroomShades"])
-	handler.SendKeyboardOnButtonClick(&bedroomLampBtn, "b Table Lamp modes", keyboards["BedroomLamp"])
-	handler.SendKeyboardOnButtonClick(&backBtn, "⬅", keyboards[AllToysKeyboard])
+	keyboard.Reply(
+		keyboard.Row(buttons...),
+		keyboard.Row(backBtn))
 }
 
 func CreateAllToysKeyboardUI(handler *BotHandler, keyboards map[string]*tb.ReplyMarkup) {
@@ -56,6 +39,6 @@ func CreateAllToysKeyboardUI(handler *BotHandler, keyboards map[string]*tb.Reply
 		allToysKeyboard.Row(officeToysBtn, bedroomToysBtn),
 	)
 
-	handler.SendKeyboardOnButtonClick(&officeToysBtn, "Office Toys", keyboards[OfficeToysKeyboard])
-	handler.SendKeyboardOnButtonClick(&bedroomToysBtn, "Bedroom Toys", keyboards[BedroomToysKeyboard])
+	handler.SendKeyboardOnButtonClick(&officeToysBtn, "Office Toys", keyboards, OfficeToysKeyboard)
+	handler.SendKeyboardOnButtonClick(&bedroomToysBtn, "Bedroom Toys", keyboards, BedroomToysKeyboard)
 }

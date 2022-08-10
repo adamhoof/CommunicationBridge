@@ -45,17 +45,17 @@ func (handler *BotHandler) SendTextMessage(owner *User, message string) {
 	}
 }
 
-func (handler *BotHandler) SendKeyboardOnButtonClick(button *tb.Btn, title string, keyboard *tb.ReplyMarkup) {
+func (handler *BotHandler) SendKeyboardOnButtonClick(button *tb.Btn, title string, keyboards map[string]*tb.ReplyMarkup, keyboardName string) {
 	handler.Bot.Handle(button, func(c tb.Context) (err error) {
 		if !handler.OwnerVerify(c.Message().Sender.ID) {
 			handler.SendTextMessage(&handler.Owner, "failed to verify owner")
 			fmt.Println("owner not verified", err)
 
 		}
-		_, err = handler.Bot.Send(&handler.Owner, title, keyboard)
+		_, err = handler.Bot.Send(&handler.Owner, title, keyboards[keyboardName])
 		if err != nil {
-			fmt.Println("could not send keyboard", err)
+			fmt.Println("could not send keyboard on button click:", err)
 		}
-		return fmt.Errorf("could not send keyboard on button click: %s", err)
+		return nil
 	})
 }

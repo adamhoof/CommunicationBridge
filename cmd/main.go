@@ -53,13 +53,17 @@ func main() {
 	botHandler := telegram.BotHandler{Owner: me}
 	botHandler.CreateBot(os.Getenv("telegramBotToken"))
 
-	keyboards := make(map[string]*tb.ReplyMarkup)
-	telegram.CreateAllToysKeyboardUI(&botHandler, keyboards)
-	telegram.CreateOfficeToysKeyboardUI(&botHandler, keyboards)
-	telegram.CreateBedroomToysKeyboardUI(&botHandler, keyboards)
+	roomKeyboards := make(map[string]*tb.ReplyMarkup) //create storage for keyboards THAT HOLD buttons for individual toys -> Office holds buttons for lamp, shades...
+	/*toyKeyboards := make(map[string]*tb.ReplyMarkup)*/ // create storage for keyboards of individual toys -> Each toy has its own keyboard of commands
 
 	toys := make(map[string]*connectable.Toy)
 	postgresHandler.PullToyData(toys)
+
+	telegram.CreateRoomOfToysKeyboard(&botHandler, roomKeyboards, toys, telegram.BedroomToysKeyboard, "b ")
+	/*handler.SendKeyboardOnButtonClick(&button, toy.Name+" modes", keyboards, toy.Name)*/
+	telegram.CreateRoomOfToysKeyboard(&botHandler, roomKeyboards, toys, telegram.OfficeToysKeyboard, "o ")
+
+	telegram.CreateAllToysKeyboardUI(&botHandler, roomKeyboards)
 
 	botHandler.StartBot()
 }
