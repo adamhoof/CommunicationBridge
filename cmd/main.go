@@ -6,7 +6,7 @@ import (
 	env "RPICommandHandler/pkg/Env"
 	telegram "RPICommandHandler/pkg/Telegram"
 	"fmt"
-	pahomqtt "github.com/eclipse/paho.mqtt.golang"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	_ "github.com/lib/pq"
 	tb "gopkg.in/telebot.v3"
 	"os"
@@ -16,7 +16,7 @@ import (
 func main() {
 	env.SetEnv()
 
-	options := pahomqtt.ClientOptions{}
+	options := mqtt.ClientOptions{}
 	options.AddBroker(os.Getenv("mqttServer"))
 	options.SetClientID(os.Getenv("mqttClientName"))
 	options.SetAutoReconnect(true)
@@ -24,7 +24,7 @@ func main() {
 	options.SetCleanSession(false)
 	options.SetOrderMatters(false)
 	// use options.SetTLSConfig if you want to establish secure connection (not required on localhost, recommended when connecting to remote server)
-	mqttClient := pahomqtt.NewClient(&options)
+	mqttClient := mqtt.NewClient(&options)
 	if token := mqttClient.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	}
