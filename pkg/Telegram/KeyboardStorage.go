@@ -1,15 +1,15 @@
-package telegrambot
+package telegram
 
 import tb "gopkg.in/telebot.v3"
 
 type KeyboardStorage struct {
-	keyboards map[string]*tb.ReplyMarkup
+	Keyboards map[string]*tb.ReplyMarkup
 }
 
 func (storage *KeyboardStorage) AddKeyboard(name string, keyboard *tb.ReplyMarkup) {
-	storage.keyboards[name] = keyboard
+	storage.Keyboards[name] = keyboard
 }
 
 func (storage *KeyboardStorage) GetKeyboardByName(name string) *tb.ReplyMarkup {
-	return storage.keyboards[name]
+	return storage.Keyboards[name]
 }

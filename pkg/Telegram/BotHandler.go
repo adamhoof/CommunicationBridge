@@ -1,4 +1,4 @@
-package telegrambot
+package telegram
 
 import (
 	"fmt"
@@ -46,7 +46,7 @@ func (handler *BotHandler) SendTextMessage(owner *User, message string) {
 }
 
 func (handler *BotHandler) SendKeyboardOnButtonClick(button *tb.Btn, title string, keyboard *tb.ReplyMarkup) {
-	handler.Bot.Handle(&button, func(c tb.Context) (err error) {
+	handler.Bot.Handle(button, func(c tb.Context) (err error) {
 		if !handler.OwnerVerify(c.Message().Sender.ID) {
 			handler.SendTextMessage(&handler.Owner, "failed to verify owner")
 			fmt.Println("owner not verified", err)

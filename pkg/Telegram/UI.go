@@ -1,4 +1,4 @@
-package telegrambot
+package telegram
 
 import (
 	tb "gopkg.in/telebot.v3"
@@ -10,9 +10,9 @@ const (
 	BedroomToysKeyboard = "bedroomToys"
 )
 
-func CreateOfficeToysKeyboardUI(handler *BotHandler, keyboardStorage *KeyboardStorage) {
+func CreateOfficeToysKeyboardUI(handler *BotHandler, keyboards map[string]*tb.ReplyMarkup) {
 	officeToysKeyboard := &tb.ReplyMarkup{}
-	keyboardStorage.AddKeyboard(OfficeToysKeyboard, officeToysKeyboard)
+	keyboards[OfficeToysKeyboard] = officeToysKeyboard
 
 	officeLampBtn := officeToysKeyboard.Text("o Table Lamp")
 	officeCeilLightBtn := officeToysKeyboard.Text("o Ceil Light")
@@ -23,14 +23,14 @@ func CreateOfficeToysKeyboardUI(handler *BotHandler, keyboardStorage *KeyboardSt
 		officeToysKeyboard.Row(backBtn),
 	)
 
-	handler.SendKeyboardOnButtonClick(&officeLampBtn, "o Table Lamp modes", keyboardStorage.GetKeyboardByName("OfficeLamp"))
-	handler.SendKeyboardOnButtonClick(&officeCeilLightBtn, "o Office Light modes", keyboardStorage.GetKeyboardByName("OfficeCeilLight"))
-	handler.SendKeyboardOnButtonClick(&backBtn, "⬅", keyboardStorage.GetKeyboardByName(AllToysKeyboard))
+	handler.SendKeyboardOnButtonClick(&officeLampBtn, "o Table Lamp modes", keyboards["OfficeLamp"])
+	handler.SendKeyboardOnButtonClick(&officeCeilLightBtn, "o Office Light modes", keyboards["OfficeCeilLight"])
+	handler.SendKeyboardOnButtonClick(&backBtn, "⬅", keyboards[AllToysKeyboard])
 }
 
-func CreateBedroomToysKeyboardUI(handler *BotHandler, keyboardStorage *KeyboardStorage) {
+func CreateBedroomToysKeyboardUI(handler *BotHandler, keyboards map[string]*tb.ReplyMarkup) {
 	bedroomToysKeyboard := &tb.ReplyMarkup{}
-	keyboardStorage.AddKeyboard("BedroomToysKeyboard", bedroomToysKeyboard)
+	keyboards["BedroomToysKeyboard"] = bedroomToysKeyboard
 
 	bedroomShadesBtn := bedroomToysKeyboard.Text("b Shades")
 	bedroomLampBtn := bedroomToysKeyboard.Text("b Table Lamp")
@@ -40,14 +40,14 @@ func CreateBedroomToysKeyboardUI(handler *BotHandler, keyboardStorage *KeyboardS
 		bedroomToysKeyboard.Row(bedroomShadesBtn, bedroomLampBtn),
 		bedroomToysKeyboard.Row(backBtn))
 
-	handler.SendKeyboardOnButtonClick(&bedroomShadesBtn, "b Shades modes", keyboardStorage.GetKeyboardByName("BedroomShades"))
-	handler.SendKeyboardOnButtonClick(&bedroomLampBtn, "b Table Lamp modes", keyboardStorage.GetKeyboardByName("BedroomLamp"))
-	handler.SendKeyboardOnButtonClick(&backBtn, "⬅", keyboardStorage.GetKeyboardByName(AllToysKeyboard))
+	handler.SendKeyboardOnButtonClick(&bedroomShadesBtn, "b Shades modes", keyboards["BedroomShades"])
+	handler.SendKeyboardOnButtonClick(&bedroomLampBtn, "b Table Lamp modes", keyboards["BedroomLamp"])
+	handler.SendKeyboardOnButtonClick(&backBtn, "⬅", keyboards[AllToysKeyboard])
 }
 
-func CreateAllToysKeyboardUI(handler *BotHandler, keyboardStorage *KeyboardStorage) {
+func CreateAllToysKeyboardUI(handler *BotHandler, keyboards map[string]*tb.ReplyMarkup) {
 	allToysKeyboard := &tb.ReplyMarkup{}
-	keyboardStorage.AddKeyboard(AllToysKeyboard, allToysKeyboard)
+	keyboards[AllToysKeyboard] = allToysKeyboard
 
 	officeToysBtn := allToysKeyboard.Text("Office toys")
 	bedroomToysBtn := allToysKeyboard.Text("Bedroom toys")
@@ -56,6 +56,6 @@ func CreateAllToysKeyboardUI(handler *BotHandler, keyboardStorage *KeyboardStora
 		allToysKeyboard.Row(officeToysBtn, bedroomToysBtn),
 	)
 
-	handler.SendKeyboardOnButtonClick(&officeToysBtn, "Office Toys", keyboardStorage.GetKeyboardByName(OfficeToysKeyboard))
-	handler.SendKeyboardOnButtonClick(&bedroomToysBtn, "Bedroom Toys", keyboardStorage.GetKeyboardByName(BedroomToysKeyboard))
+	handler.SendKeyboardOnButtonClick(&officeToysBtn, "Office Toys", keyboards[OfficeToysKeyboard])
+	handler.SendKeyboardOnButtonClick(&bedroomToysBtn, "Bedroom Toys", keyboards[BedroomToysKeyboard])
 }

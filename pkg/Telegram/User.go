@@ -1,4 +1,4 @@
-package telegrambot
+package telegram
 
 type User struct {
 	Id string
