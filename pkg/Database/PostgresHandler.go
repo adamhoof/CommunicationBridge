@@ -11,7 +11,7 @@ type PostgresHandler struct {
 	db *sql.DB
 }
 
-const toysDataQuery = `SELECT name, available_modes, id, publish_topic, subscribe_topic FROM HomeAppliances;`
+const toysDataQuery = `SELECT name, available_modes, room, id, publish_topic, subscribe_topic FROM HomeAppliances;`
 
 func (handler *PostgresHandler) Connect(connectionString string) (err error) {
 	handler.db, err = sql.Open("postgres", connectionString)
@@ -51,7 +51,7 @@ func (handler *PostgresHandler) PullToyData(toyBag map[string]*connectable.Toy) 
 
 	for rows.Next() {
 		toy := connectable.Toy{}
-		if err = rows.Scan(&toy.Name, pq.Array(&toy.AvailableModes), &toy.Id, &toy.PublishTopic, &toy.SubscribeTopic); err != nil {
+		if err = rows.Scan(&toy.Name, pq.Array(&toy.AvailableModes), &toy.Room, &toy.Id, &toy.PublishTopic, &toy.SubscribeTopic); err != nil {
 			fmt.Println("unable to fetch toy data", err)
 		}
 		toyBag[toy.Name] = &toy
