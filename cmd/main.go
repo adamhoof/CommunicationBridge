@@ -4,6 +4,7 @@ import (
 	connectable "RPICommandHandler/pkg/ConnectableDevices"
 	database "RPICommandHandler/pkg/Database"
 	env "RPICommandHandler/pkg/Env"
+	response "RPICommandHandler/pkg/MQTTResponseHandlers"
 	telegram "RPICommandHandler/pkg/Telegram"
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -53,15 +54,31 @@ func main() {
 	botHandler := telegram.BotHandler{Owner: me}
 	botHandler.CreateBot(os.Getenv("telegramBotToken"))
 
-	roomKeyboards := make(map[string]*tb.ReplyMarkup) //create storage for keyboards THAT HOLD buttons for individual toys -> Office holds buttons for lamp, shades...
-	/*toyKeyboards := make(map[string]*tb.ReplyMarkup)*/ // create storage for keyboards of individual toys -> Each toy has its own keyboard of commands
+	roomKeyboards := make(map[string]*tb.ReplyMarkup)
 
-	toys := make(map[string]*connectable.Toy)
-	postgresHandler.PullToyData(toys)
+	rooms := postgresHandler.PullAvailableRooms()
+	backBtn := tb.Btn{Text: "⬅"}
+	botHandler.SendKeyboardOnButtonClick(&backBtn)
 
-	telegram.CreateRoomOfToysKeyboard(&botHandler, roomKeyboards, toys, telegram.BedroomToysKeyboard, "b ")
-	/*handler.SendKeyboardOnButtonClick(&button, toy.Name+" modes", keyboards, toy.Name)*/
-	telegram.CreateRoomOfToysKeyboard(&botHandler, roomKeyboards, toys, telegram.OfficeToysKeyboard, "o ")
+	for _, room := range rooms {
+		toys := make(map[string]*connectable.Toy)
+		postgresHandler.PullToyDataBasedOnRoom(toys, room)
+		replyButtons := telegram.CreateReplyButtonsForToysInRoom(toys, room[0:2])
+		keyboard := telegram.CreateReplyKeyboardFromButtons(replyButtons, backBtn)
+		roomKeyboards[room] = keyboard
+
+		for _, toy := range toys {
+			for _, replyButton := range replyButtons {
+				botHandler.SendKeyboardOnButtonClick(&replyButton, toy.Name, roomKeyboards, toy.Name)
+			}
+			responseHandler := response.DefaultDeviceResponseHandler(&botHandler, toy.Name) //TODO toy will have a field [handlerName string], which will then be put into a map to lookup handler with that name
+			mqttClient.Subscribe(toy.SubscribeTopic, 0, responseHandler)
+
+			inlineButtons := telegram.GenerateInlineButtonsForToy(toy)
+
+			telegram.GenerateInlineKeyboardFromButtonsForToy(inlineButtons)
+		}
+	}
 
 	telegram.CreateAllToysKeyboardUI(&botHandler, roomKeyboards)
 

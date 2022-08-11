@@ -6,5 +6,5 @@ type DatabaseHandler interface {
 	Connect(config string) error
 	Ping() error
 	ExecuteStatement(statement string)
-	PullToyData(map[string]*connectable.Toy)
+	PullToyDataBasedOnRoom(toys map[string]*connectable.Toy, room string)
 }

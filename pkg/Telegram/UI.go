@@ -3,6 +3,7 @@ package telegram
 import (
 	connectable "RPICommandHandler/pkg/ConnectableDevices"
 	tb "gopkg.in/telebot.v3"
+	"strconv"
 )
 
 const (
@@ -11,21 +12,58 @@ const (
 	BedroomToysKeyboard = "bedroomToys"
 )
 
-func CreateRoomOfToysKeyboard(handler *BotHandler, keyboards map[string]*tb.ReplyMarkup, toys map[string]*connectable.Toy, name string, buttonNameUnificator string) {
-	keyboard := &tb.ReplyMarkup{}
-	keyboards[name] = keyboard
+var toyCommandIconPairs = map[string]string{
+	"on":     "⬜",
+	"white":  "⬜",
+	"yellow": "\U0001F7E8",
+	"blue":   "\U0001F7E6",
+	"green":  "\U0001F7E9",
+	"red":    "\U0001F7E5",
+	"pink":   "\U0001F7EA",
+	"orange": "\U0001F7E7",
+	"off":    "🚫",
+	"open":   "🌞",
+	"close":  "🌚"}
 
-	var buttons []tb.Btn
-	for _, toy := range toys {
+func CreateReplyButtonsForToysInRoom(toysGroup map[string]*connectable.Toy, buttonNameUnificator string) (buttons []tb.Btn) {
+	for _, toy := range toysGroup {
 		button := tb.Btn{Text: buttonNameUnificator + toy.Name}
 		buttons = append(buttons, button)
 	}
-	backBtn := keyboard.Text("⬅")
-	handler.SendKeyboardOnButtonClick(&backBtn, "⬅", keyboards, AllToysKeyboard)
+	return buttons
+}
 
+func CreateReplyKeyboardFromButtons(buttons []tb.Btn, backButton tb.Btn) (keyboard *tb.ReplyMarkup) {
 	keyboard.Reply(
 		keyboard.Row(buttons...),
-		keyboard.Row(backBtn))
+		keyboard.Row(backButton),
+	)
+	return keyboard
+}
+
+func GenerateInlineButtonsForToy(toy *connectable.Toy) map[string]*tb.Btn {
+	buttons := make(map[string]*tb.Btn)
+
+	for _, command := range toy.AvailableModes {
+		func() {
+			buttons[command] = &tb.Btn{Unique: command + strconv.Itoa(toy.Id), Text: toyCommandIconPairs[command]}
+		}()
+	}
+	return buttons
+}
+
+func GenerateInlineKeyboardFromButtonsForToy(buttons map[string]*tb.Btn) (keyboard *tb.ReplyMarkup) {
+	var buttonsArray = make([]tb.Btn, len(buttons))
+
+	for name, _ := range buttons {
+		buttonsArray = append(buttonsArray, *buttons[name])
+	}
+
+	keyboard.ResizeKeyboard = true
+	keyboard.Inline(
+		keyboard.Row(buttonsArray...))
+
+	return keyboard
 }
 
 func CreateAllToysKeyboardUI(handler *BotHandler, keyboards map[string]*tb.ReplyMarkup) {
