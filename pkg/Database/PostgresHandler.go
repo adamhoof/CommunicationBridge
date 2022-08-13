@@ -11,8 +11,7 @@ type PostgresHandler struct {
 	db *sql.DB
 }
 
-const toysDataQuery = `SELECT name, available_modes, room, id, publish_topic, subscribe_topic FROM HomeAppliances where room = $1;`
-const placesDataQuery = `SELECT * FROM places;`
+const toysDataQuery = `SELECT name, available_modes, id, publish_topic, subscribe_topic, bot_command FROM home_appliances;`
 
 func (handler *PostgresHandler) Connect(connectionString string) (err error) {
 	handler.db, err = sql.Open("postgres", connectionString)
@@ -38,29 +37,8 @@ func (handler *PostgresHandler) Disconnect() {
 	}
 }
 
-func (handler *PostgresHandler) PullAvailableRooms() (places []string) {
-	rows, err := handler.db.Query(placesDataQuery)
-	if err != nil {
-		fmt.Println("unable to query places data", err)
-	}
-	defer func(rows *sql.Rows) {
-		if err = rows.Close(); err != nil {
-			fmt.Println("unable to close rows", err)
-		}
-	}(rows)
-
-	for rows.Next() {
-		var place string
-		if err = rows.Scan(&place); err != nil {
-			fmt.Println("unable to fetch places data", err)
-		}
-		places = append(places, place)
-	}
-	return places
-}
-
-func (handler *PostgresHandler) PullToyDataBasedOnRoom(toyBag map[string]*connectable.Toy, room string) {
-	rows, err := handler.db.Query(toysDataQuery, room)
+func (handler *PostgresHandler) PullToyData(toyBag map[string]*connectable.Toy) {
+	rows, err := handler.db.Query(toysDataQuery)
 	if err != nil {
 		fmt.Println("unable to query data", err)
 	}
@@ -73,7 +51,7 @@ func (handler *PostgresHandler) PullToyDataBasedOnRoom(toyBag map[string]*connec
 
 	for rows.Next() {
 		toy := connectable.Toy{}
-		if err = rows.Scan(&toy.Name, pq.Array(&toy.AvailableModes), &toy.Room, &toy.Id, &toy.PublishTopic, &toy.SubscribeTopic); err != nil {
+		if err = rows.Scan(&toy.Name, pq.Array(&toy.AvailableModes), &toy.Id, &toy.PublishTopic, &toy.SubscribeTopic, &toy.BotCommand); err != nil {
 			fmt.Println("unable to fetch toy data", err)
 		}
 		toyBag[toy.Name] = &toy
