@@ -11,7 +11,7 @@ type PostgresHandler struct {
 	db *sql.DB
 }
 
-const toysDataQuery = `SELECT name, available_modes, id, publish_topic, subscribe_topic, bot_command FROM home_appliances;`
+const toysDataQuery = `SELECT name, available_modes, id, publish_topic, subscribe_topic, bot_command FROM toys;`
 
 func (handler *PostgresHandler) Connect(connectionString string) (err error) {
 	handler.db, err = sql.Open("postgres", connectionString)

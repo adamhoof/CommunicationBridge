@@ -22,7 +22,7 @@ func (handler *BotHandler) CreateBot(token string) {
 		},
 	})
 	if err != nil {
-		fmt.Println(err)
+		panic("telegram token not valid -> " + err.Error())
 	}
 	fmt.Println("Telegram token valid")
 }
