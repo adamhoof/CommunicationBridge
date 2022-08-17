@@ -1,7 +1,7 @@
 package telegram
 
 import (
-	connectable "RPICommandHandler/pkg/ConnectableDevices"
+	connectable "CommunicationBridge/pkg/ConnectableDevices"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	tb "gopkg.in/telebot.v3"
 	"strconv"

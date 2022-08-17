@@ -1,7 +1,7 @@
 package database
 
 import (
-	"RPICommandHandler/pkg/ConnectableDevices"
+	connectable "CommunicationBridge/pkg/ConnectableDevices"
 	"database/sql"
 	"fmt"
 	"github.com/lib/pq"

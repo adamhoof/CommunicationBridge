@@ -1,7 +1,7 @@
 package database
 
 import (
-	env "RPICommandHandler/pkg/Env"
+	env "CommunicationBridge/pkg/Env"
 	"fmt"
 	"os"
 	"testing"

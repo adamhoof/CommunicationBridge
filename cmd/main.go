@@ -1,11 +1,11 @@
 package main
 
 import (
-	connectable "RPICommandHandler/pkg/ConnectableDevices"
-	"RPICommandHandler/pkg/ConnectableDevicesResponseHandlers"
-	database "RPICommandHandler/pkg/Database"
-	env "RPICommandHandler/pkg/Env"
-	telegram "RPICommandHandler/pkg/Telegram"
+	connectable "CommunicationBridge/pkg/ConnectableDevices"
+	deviceresponse "CommunicationBridge/pkg/ConnectableDevicesResponseHandlers"
+	database "CommunicationBridge/pkg/Database"
+	env "CommunicationBridge/pkg/Env"
+	telegram "CommunicationBridge/pkg/Telegram"
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	_ "github.com/lib/pq"

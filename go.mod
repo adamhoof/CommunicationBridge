@@ -1,6 +1,6 @@
-module RPICommandHandler
+module CommunicationBridge
 
-go 1.18
+go 1.19
 
 require (
 	github.com/adamhoof/GolangTypeConvertorWrapper v0.0.0-20220808182259-8a13b9876eed

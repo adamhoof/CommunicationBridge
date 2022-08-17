@@ -1,7 +1,7 @@
 package deviceresponse
 
 import (
-	telegram "RPICommandHandler/pkg/Telegram"
+	telegram "CommunicationBridge/pkg/Telegram"
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )

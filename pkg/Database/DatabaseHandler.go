@@ -1,6 +1,6 @@
 package database
 
-import "RPICommandHandler/pkg/ConnectableDevices"
+import connectable "CommunicationBridge/pkg/ConnectableDevices"
 
 type DatabaseHandler interface {
 	Connect(config string) error
