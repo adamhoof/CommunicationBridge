@@ -1,11 +1,11 @@
 package connectable
 
 type Toy struct {
-	Name           string
-	AvailableModes []string
-	Room           string
+	Name           string   `json:"name"`
+	IpAddress      string   `json:"ip"`
+	AvailableModes []string `json:"availableModes"`
 	Id             int
-	PublishTopic   string
-	SubscribeTopic string
+	PublishTopic   string `json:"subscribeTopic"`
+	SubscribeTopic string `json:"publishTopic"`
 	BotCommand     string
 }

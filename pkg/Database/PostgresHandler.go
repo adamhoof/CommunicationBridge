@@ -12,6 +12,7 @@ type PostgresHandler struct {
 }
 
 const toysDataQuery = `SELECT name, available_modes, id, publish_topic, subscribe_topic, bot_command FROM toys;`
+const registerToyStatement = `INSERT INTO toys (name, ip_address, available_modes, publish_topic, subscribe_topic, bot_command) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (name) DO UPDATE SET ip_address = excluded.ip_address;`
 
 func (handler *PostgresHandler) Connect(connectionString string) (err error) {
 	handler.db, err = sql.Open("postgres", connectionString)
@@ -34,6 +35,11 @@ func (handler *PostgresHandler) ExecuteStatement(statement string) {
 func (handler *PostgresHandler) Disconnect() {
 	if err := handler.db.Close(); err != nil {
 		fmt.Println("failed to close db connection", err)
+	}
+}
+func (handler *PostgresHandler) RegisterToy(toy *connectable.Toy) {
+	if _, err := handler.db.Exec(registerToyStatement, toy.Name, toy.IpAddress, pq.Array(toy.AvailableModes), toy.PublishTopic, toy.SubscribeTopic, toy.BotCommand); err != nil {
+		fmt.Println(err)
 	}
 }
 

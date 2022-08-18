@@ -58,6 +58,8 @@ func main() {
 	postgresHandler.PullToyData(toys)
 	keyboards := make(map[string]*tb.ReplyMarkup)
 
+	mqttClient.Subscribe("/boot", 0, deviceresponse.OnNewDeviceBoot(&postgresHandler, &botHandler, mqttClient, &keyboards))
+
 	for _, toy := range toys {
 		keyboard := telegram.GenerateKeyboardWithButtonsHandlersForToy(&botHandler, mqttClient, toy)
 		keyboards[toy.Name] = keyboard
