@@ -7,7 +7,7 @@ import (
 )
 
 var CommandPairIcons = map[string]string{
-	"on":     "⬜",
+	"on":     "✔",
 	"white":  "⬜",
 	"yellow": "\U0001F7E8",
 	"blue":   "\U0001F7E6",
