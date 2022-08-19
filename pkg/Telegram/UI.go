@@ -4,7 +4,6 @@ import (
 	connectable "CommunicationBridge/pkg/ConnectableDevices"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	tb "gopkg.in/telebot.v3"
-	"strconv"
 )
 
 var CommandPairIcons = map[string]string{
@@ -34,7 +33,7 @@ func GenerateToyButtonsWithClickHandlers(botHandler *BotHandler, client mqtt.Cli
 	func() {
 		for _, command := range toy.AvailableModes {
 			button := tb.Btn{
-				Unique: command + strconv.Itoa(toy.Id),
+				Unique: toy.Name + command,
 				Text:   CommandPairIcons[command]}
 			buttons = append(buttons, button)
 
