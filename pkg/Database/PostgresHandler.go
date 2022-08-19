@@ -11,7 +11,7 @@ type PostgresHandler struct {
 	db *sql.DB
 }
 
-const toysDataQuery = `SELECT name, available_modes, id, publish_topic, subscribe_topic, bot_command FROM toys;`
+const toysDataQuery = `SELECT name, available_modes, publish_topic, subscribe_topic, bot_command FROM toys;`
 const registerToyStatement = `INSERT INTO toys (name, ip_address, available_modes, publish_topic, subscribe_topic, bot_command) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (name) DO UPDATE SET ip_address = excluded.ip_address;`
 
 func (handler *PostgresHandler) Connect(connectionString string) (err error) {
@@ -57,7 +57,7 @@ func (handler *PostgresHandler) PullToyData(toyBag map[string]*connectable.Toy) 
 
 	for rows.Next() {
 		toy := connectable.Toy{}
-		if err = rows.Scan(&toy.Name, pq.Array(&toy.AvailableModes), &toy.Id, &toy.PublishTopic, &toy.SubscribeTopic, &toy.BotCommand); err != nil {
+		if err = rows.Scan(&toy.Name, pq.Array(&toy.AvailableModes), &toy.PublishTopic, &toy.SubscribeTopic, &toy.BotCommand); err != nil {
 			fmt.Println("unable to fetch toy data", err)
 		}
 		toyBag[toy.Name] = &toy
