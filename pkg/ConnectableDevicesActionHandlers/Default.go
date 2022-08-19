@@ -1,4 +1,4 @@
-package deviceresponse
+package device_action
 
 import (
 	telegram "CommunicationBridge/pkg/Telegram"
@@ -8,10 +8,9 @@ import (
 
 func Default(botHandler *telegram.BotHandler, deviceName string) (handler mqtt.MessageHandler) {
 	handler = func(client mqtt.Client, message mqtt.Message) {
-
 		func() {
 			msg := string(message.Payload())
-			botHandler.SendTextMessage(&botHandler.Owner, fmt.Sprintf("%s: %s", deviceName, telegram.ToyCommandIconPairs[msg]))
+			botHandler.SendTextMessage(&botHandler.Owner, fmt.Sprintf("%s: %s", deviceName, telegram.CommandPairIcons[msg]))
 		}()
 	}
 	return handler

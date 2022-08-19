@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-var ToyCommandIconPairs = map[string]string{
+var CommandPairIcons = map[string]string{
 	"on":     "⬜",
 	"white":  "⬜",
 	"yellow": "\U0001F7E8",
@@ -20,19 +20,7 @@ var ToyCommandIconPairs = map[string]string{
 	"open":   "🌞",
 	"close":  "🌚"}
 
-func GenerateKeyboardWithButtonsHandlersForToy(botHandler *BotHandler, client mqtt.Client, toy *connectable.Toy) *tb.ReplyMarkup {
-	var buttons []tb.Btn
-
-	func() {
-		for _, command := range toy.AvailableModes {
-			button := tb.Btn{
-				Unique: command + strconv.Itoa(toy.Id),
-				Text:   ToyCommandIconPairs[command]}
-			buttons = append(buttons, button)
-
-			botHandler.HandleButtonClick(&button, botHandler.SendCommandViaMQTT(command, toy.PublishTopic, client))
-		}
-	}()
+func GenerateToyKeyboard(buttons []tb.Btn) *tb.ReplyMarkup {
 
 	keyboard := &tb.ReplyMarkup{
 		ResizeKeyboard: true,
@@ -40,4 +28,18 @@ func GenerateKeyboardWithButtonsHandlersForToy(botHandler *BotHandler, client mq
 	keyboard.Inline(keyboard.Row(buttons...))
 
 	return keyboard
+}
+
+func GenerateToyButtonsWithClickHandlers(botHandler *BotHandler, client mqtt.Client, toy *connectable.Toy) (buttons []tb.Btn) {
+	func() {
+		for _, command := range toy.AvailableModes {
+			button := tb.Btn{
+				Unique: command + strconv.Itoa(toy.Id),
+				Text:   CommandPairIcons[command]}
+			buttons = append(buttons, button)
+
+			botHandler.HandleButtonClick(&button, botHandler.SendCommandViaMQTT(command, toy.PublishTopic, client))
+		}
+	}()
+	return buttons
 }

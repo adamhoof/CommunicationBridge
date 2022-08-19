@@ -2,7 +2,7 @@ package main
 
 import (
 	connectable "CommunicationBridge/pkg/ConnectableDevices"
-	deviceresponse "CommunicationBridge/pkg/ConnectableDevicesResponseHandlers"
+	device_action "CommunicationBridge/pkg/ConnectableDevicesActionHandlers"
 	database "CommunicationBridge/pkg/Database"
 	env "CommunicationBridge/pkg/Env"
 	telegram "CommunicationBridge/pkg/Telegram"
@@ -58,13 +58,14 @@ func main() {
 	postgresHandler.PullToyData(toys)
 	keyboards := make(map[string]*tb.ReplyMarkup)
 
-	mqttClient.Subscribe("/boot", 0, deviceresponse.OnNewDeviceBoot(&postgresHandler, &botHandler, mqttClient, &keyboards))
+	mqttClient.Subscribe("/boot", 0, device_action.OnToyBoot(&postgresHandler, &botHandler, mqttClient, &keyboards))
 
 	for _, toy := range toys {
-		keyboard := telegram.GenerateKeyboardWithButtonsHandlersForToy(&botHandler, mqttClient, toy)
+		buttons := telegram.GenerateToyButtonsWithClickHandlers(&botHandler, mqttClient, toy)
+		keyboard := telegram.GenerateToyKeyboard(buttons)
 		keyboards[toy.Name] = keyboard
 		botHandler.HandleCommand(toy.BotCommand, botHandler.SendKeyboard(toy.Name, keyboards, toy.Name))
-		mqttClient.Subscribe(toy.SubscribeTopic, 0, deviceresponse.Default(&botHandler, toy.Name))
+		mqttClient.Subscribe(toy.SubscribeTopic, 0, device_action.Default(&botHandler, toy.Name))
 	}
 
 	botHandler.HandleCommand(telegram.AllRoomsCommand, botHandler.SendCommandsList(telegram.RoomCommands()))

@@ -1,4 +1,4 @@
-package deviceresponse
+package device_action
 
 import (
 	connectable "CommunicationBridge/pkg/ConnectableDevices"
@@ -10,7 +10,7 @@ import (
 	tb "gopkg.in/telebot.v3"
 )
 
-func OnNewDeviceBoot(dbHandler database.DatabaseHandler, botHandler *telegram.BotHandler, mqttClient mqtt.Client, keyboards *map[string]*tb.ReplyMarkup) (handler mqtt.MessageHandler) {
+func OnToyBoot(dbHandler database.DatabaseHandler, botHandler *telegram.BotHandler, mqttClient mqtt.Client, keyboards *map[string]*tb.ReplyMarkup) (handler mqtt.MessageHandler) {
 	handler = func(client mqtt.Client, message mqtt.Message) {
 		var toy connectable.Toy
 		err := json.Unmarshal(message.Payload(), &toy)
@@ -20,7 +20,8 @@ func OnNewDeviceBoot(dbHandler database.DatabaseHandler, botHandler *telegram.Bo
 		toy.BotCommand = "/" + toy.Name
 
 		dbHandler.RegisterToy(&toy)
-		keyboard := telegram.GenerateKeyboardWithButtonsHandlersForToy(botHandler, mqttClient, &toy)
+		buttons := telegram.GenerateToyButtonsWithClickHandlers(botHandler, mqttClient, &toy)
+		keyboard := telegram.GenerateToyKeyboard(buttons)
 		(*keyboards)[toy.Name] = keyboard
 		botHandler.HandleCommand(toy.BotCommand, botHandler.SendKeyboard(toy.Name, *keyboards, toy.Name))
 		mqttClient.Subscribe(toy.SubscribeTopic, 0, Default(botHandler, toy.Name))
