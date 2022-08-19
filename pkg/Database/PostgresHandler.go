@@ -12,7 +12,8 @@ type PostgresHandler struct {
 }
 
 const toysDataQuery = `SELECT name, available_modes, publish_topic, subscribe_topic, bot_command FROM toys;`
-const registerToyStatement = `INSERT INTO toys (name, ip_address, available_modes, publish_topic, subscribe_topic, bot_command) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (name) DO UPDATE SET ip_address = excluded.ip_address;`
+const registerToyStatement = `INSERT INTO toys (name, ip_address, available_modes, publish_topic, subscribe_topic, bot_command) VALUES ($1, $2, $3, $4, $5, $6);`
+const updateToyIpStatement = `UPDATE toys SET ip_address = $1 WHERE name = $2`
 
 func (handler *PostgresHandler) Connect(connectionString string) (err error) {
 	handler.db, err = sql.Open("postgres", connectionString)
@@ -37,10 +38,14 @@ func (handler *PostgresHandler) Disconnect() {
 		fmt.Println("failed to close db connection", err)
 	}
 }
-func (handler *PostgresHandler) RegisterToy(toy *connectable.Toy) {
-	if _, err := handler.db.Exec(registerToyStatement, toy.Name, toy.IpAddress, pq.Array(toy.AvailableModes), toy.PublishTopic, toy.SubscribeTopic, toy.BotCommand); err != nil {
-		fmt.Println(err)
-	}
+func (handler *PostgresHandler) RegisterToy(toy *connectable.Toy) (err error) {
+	_, err = handler.db.Exec(registerToyStatement, toy.Name, toy.IpAddress, pq.Array(toy.AvailableModes), toy.PublishTopic, toy.SubscribeTopic, toy.BotCommand)
+	return err
+}
+
+func (handler *PostgresHandler) UpdateDeviceIpAddress(ipToSet string, name string) (err error) {
+	_, err = handler.db.Exec(updateToyIpStatement, ipToSet, name)
+	return err
 }
 
 func (handler *PostgresHandler) PullToyData(toyBag map[string]*connectable.Toy) {

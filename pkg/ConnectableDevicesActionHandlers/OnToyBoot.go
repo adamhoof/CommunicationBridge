@@ -8,6 +8,7 @@ import (
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	tb "gopkg.in/telebot.v3"
+	"strings"
 )
 
 func OnToyBoot(dbHandler database.DatabaseHandler, botHandler *telegram.BotHandler, mqttClient mqtt.Client, keyboards *map[string]*tb.ReplyMarkup) (handler mqtt.MessageHandler) {
@@ -19,12 +20,18 @@ func OnToyBoot(dbHandler database.DatabaseHandler, botHandler *telegram.BotHandl
 		}
 		toy.BotCommand = "/" + toy.Name
 
-		dbHandler.RegisterToy(&toy)
-		buttons := telegram.GenerateToyButtonsWithClickHandlers(botHandler, mqttClient, &toy)
-		keyboard := telegram.GenerateToyKeyboard(buttons)
-		(*keyboards)[toy.Name] = keyboard
-		botHandler.HandleCommand(toy.BotCommand, botHandler.SendKeyboard(toy.Name, *keyboards, toy.Name))
-		mqttClient.Subscribe(toy.SubscribeTopic, 0, Default(botHandler, toy.Name))
+		if err = dbHandler.RegisterToy(&toy); err == nil {
+			buttons := telegram.GenerateToyButtonsWithClickHandlers(botHandler, mqttClient, &toy)
+			keyboard := telegram.GenerateToyKeyboard(buttons)
+			(*keyboards)[toy.Name] = keyboard
+			botHandler.HandleCommand(toy.BotCommand, botHandler.SendKeyboard(toy.Name, *keyboards, toy.Name))
+			mqttClient.Subscribe(toy.SubscribeTopic, 0, Default(botHandler, toy.Name))
+		}
+		if strings.Contains(err.Error(), "duplicate key") {
+			if err = dbHandler.UpdateDeviceIpAddress(toy.IpAddress, toy.Name); err != nil {
+				fmt.Println(err)
+			}
+		}
 	}
 	return handler
 }
