@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func OnToyBoot(dbHandler database.DatabaseHandler, botHandler *telegram.BotHandler, mqttClient mqtt.Client, keyboards *map[string]*tb.ReplyMarkup) (handler mqtt.MessageHandler) {
+func OnToyBoot(dbHandler database.DatabaseHandler, botHandler *telegram.BotHandler, mqttClient mqtt.Client, keyboards map[string]*tb.ReplyMarkup) (handler mqtt.MessageHandler) {
 	handler = func(client mqtt.Client, message mqtt.Message) {
 		var toy connectable.Toy
 		err := json.Unmarshal(message.Payload(), &toy)
@@ -23,11 +23,11 @@ func OnToyBoot(dbHandler database.DatabaseHandler, botHandler *telegram.BotHandl
 		if err = dbHandler.RegisterToy(&toy); err == nil {
 			buttons := telegram.GenerateToyButtonsWithClickHandlers(botHandler, mqttClient, &toy)
 			keyboard := telegram.GenerateToyKeyboard(buttons)
-			(*keyboards)[toy.Name] = keyboard
-			botHandler.HandleCommand(toy.BotCommand, botHandler.SendKeyboard(toy.Name, *keyboards, toy.Name))
+			keyboards[toy.Name] = keyboard
+			botHandler.HandleCommand(toy.BotCommand, botHandler.SendKeyboard(toy.Name, keyboards, toy.Name))
 			mqttClient.Subscribe(toy.SubscribeTopic, 0, Default(botHandler, toy.Name))
-		}
-		if strings.Contains(err.Error(), "duplicate key") {
+
+		} else if strings.Contains(err.Error(), "duplicate key") {
 			if err = dbHandler.UpdateDeviceIpAddress(toy.IpAddress, toy.Name); err != nil {
 				fmt.Println(err)
 			}
