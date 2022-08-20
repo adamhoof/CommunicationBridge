@@ -6,6 +6,5 @@ type DatabaseHandler interface {
 	Connect(config string) error
 	Ping() error
 	RegisterToy(toy *connectable.Toy) (err error)
-	UpdateDeviceIpAddress(ipToSet string, name string) (err error)
 	PullToyData(toys map[string]*connectable.Toy)
 }
