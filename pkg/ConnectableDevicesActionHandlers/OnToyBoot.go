@@ -8,7 +8,6 @@ import (
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	tb "gopkg.in/telebot.v3"
-	"strings"
 )
 
 func OnToyBoot(dbHandler database.DatabaseHandler, botHandler *telegram.BotHandler, mqttClient mqtt.Client, keyboards map[string]*tb.ReplyMarkup) (handler mqtt.MessageHandler) {
@@ -26,11 +25,6 @@ func OnToyBoot(dbHandler database.DatabaseHandler, botHandler *telegram.BotHandl
 			keyboards[toy.Name] = keyboard
 			botHandler.HandleCommand(toy.BotCommand, botHandler.SendKeyboard(toy.Name, keyboards, toy.Name))
 			mqttClient.Subscribe(toy.SubscribeTopic, 0, Default(botHandler, toy.Name))
-
-		} else if strings.Contains(err.Error(), "duplicate key") {
-			if err = dbHandler.UpdateDeviceIpAddress(toy.IpAddress, toy.Name); err != nil {
-				fmt.Println(err)
-			}
 		}
 	}
 	return handler
