@@ -58,7 +58,7 @@ func main() {
 	postgresHandler.PullToyData(toys)
 	keyboards := make(map[string]*tb.ReplyMarkup)
 
-	mqttClient.Subscribe("/boot", 0, device_action.OnToyBoot(&postgresHandler, &botHandler, mqttClient, &keyboards))
+	mqttClient.Subscribe("/boot/+", 0, device_action.OnToyBoot(&postgresHandler, &botHandler, mqttClient, keyboards))
 
 	for _, toy := range toys {
 		buttons := telegram.GenerateToyButtonsWithClickHandlers(&botHandler, mqttClient, toy)
